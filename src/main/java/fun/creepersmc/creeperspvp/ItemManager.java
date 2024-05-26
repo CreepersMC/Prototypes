@@ -40,8 +40,8 @@ public final class ItemManager {
         });
         MERCENARY_ARMOR_SELECTOR.editMeta(meta -> {
             meta.itemName(Component.text("雇佣兵盔甲"));
+            meta.lore(removeItalics(List.of(Component.text("便宜，但好用", NamedTextColor.GRAY))));
             displayArmorAttributes(meta, 15, 0, 0);
-            meta.lore(removeItalics(List.of(Component.text("", NamedTextColor.GRAY), Component.empty(), Component.text("穿戴时：", NamedTextColor.GRAY), Component.text(" +15 护甲值", NamedTextColor.BLUE))));
         });
         BORDER.editMeta(meta -> meta.itemName(Component.empty()));
         CLOSE.editMeta(meta -> {
@@ -63,7 +63,7 @@ public final class ItemManager {
             meta.lore(meleeAttributeLore);
         }
     }
-    private static void displayArmorAttributes(ItemMeta meta, int armor, byte armorToughness, byte knockBackResistance) {
+    private static void displayArmorAttributes(ItemMeta meta, int armor, int armorToughness, int knockBackResistance) {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_DYE);
         final ArrayList<Component> armorAttributeLore = new ArrayList<>(3);
         Collections.addAll(armorAttributeLore ,Component.empty(), Component.text("穿戴时：", NamedTextColor.GRAY));

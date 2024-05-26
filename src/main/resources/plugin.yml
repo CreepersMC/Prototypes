@@ -1,0 +1,4 @@
+name: CreepersPVP
+version: '${project.version}'
+main: fun.creepersmc.creeperspvp.CreepersPVP
+api-version: '1.20'

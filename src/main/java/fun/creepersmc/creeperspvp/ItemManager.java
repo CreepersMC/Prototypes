@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public final class ItemManager {
     public static final ItemStack SWORD = new ItemStack(Material.IRON_SWORD);
     public static final ItemStack AXE = new ItemStack(Material.IRON_AXE);
+    public static final ItemStack HIGHLAND_AXE = new ItemStack(Material.DIAMOND_AXE);
     public static final ItemStack MERCENARY_ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CLOSE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
@@ -36,7 +38,15 @@ public final class ItemManager {
             meta.itemName(Component.text("斧"));
             meta.lore(removeItalics(List.of(Component.text("斧是一把十分有效的武器，深受卫道士的喜爱。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-            editMeleeAttributes(meta, 10, 1);
+            editMeleeAttributes(meta, 9, 1);
+        });
+        HIGHLAND_AXE.editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.itemName(Component.text("高地斧"));
+            meta.addEnchant(Enchantment.EFFICIENCY, 15, false);
+            meta.lore(removeItalics(List.of(Component.text("破盾 III", NamedTextColor.GRAY), Component.text("高地之斧的制作工艺精湛，是一种光鲜的战争武器，也是一种大胆的反击手段。", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            editMeleeAttributes(meta, 9.5, 1);
         });
         MERCENARY_ARMOR_SELECTOR.editMeta(meta -> {
             meta.itemName(Component.text("雇佣兵盔甲"));

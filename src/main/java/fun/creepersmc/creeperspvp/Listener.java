@@ -1,6 +1,7 @@
 package fun.creepersmc.creeperspvp;
 import fun.creepersmc.creeperspvp.iui.IUIManager;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -34,13 +35,13 @@ public final class Listener implements org.bukkit.event.Listener {
             ItemMeta meta = event.getItem().getItemMeta();
             if(meta != null) {
                 PersistentDataContainer data = meta.getPersistentDataContainer();
-                if(data.has(IUIManager.idKey, PersistentDataType.BYTE)) {
+                if(data.has(Utils.iuiIDKey, PersistentDataType.BYTE)) {
                     event.setCancelled(true);
-                    IUIManager.getIUI(data.get(IUIManager.idKey, PersistentDataType.BYTE), data.get(IUIManager.dataKey, PersistentDataType.TAG_CONTAINER)).open(event.getPlayer());
+                    IUIManager.getIUI(data.get(Utils.iuiIDKey, PersistentDataType.BYTE), data.get(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER)).open(event.getPlayer());
                 }
-                if(data.has(Utils.utilKey, PersistentDataType.BYTE)) {
+                if(data.has(Utils.utilIDKey, PersistentDataType.BYTE)) {
                     event.setCancelled(true);
-                    switch(data.get(Utils.utilKey, PersistentDataType.BYTE)) {
+                    switch(data.get(Utils.utilIDKey, PersistentDataType.BYTE)) {
                         case Utils.UTIL_SPAWN -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> Utils.spawnPlayer(event.getPlayer()));
                     }
                 }

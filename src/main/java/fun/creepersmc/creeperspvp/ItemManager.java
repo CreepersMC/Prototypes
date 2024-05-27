@@ -66,7 +66,7 @@ public final class ItemManager {
             displayArmorAttributes(meta, 15, 0, 0);
         });
         ARMOR_SELECTOR.editMeta(meta -> {
-            meta.itemName(Component.text("选择盔甲"));
+            meta.itemName(Component.text("选择盔甲"));                  
             meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.ARMOR_SELECTOR);
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, EMPTY_ATTRIBUTE_MODIFIER);

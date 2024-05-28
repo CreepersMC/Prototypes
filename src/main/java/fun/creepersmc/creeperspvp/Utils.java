@@ -47,11 +47,13 @@ public final class Utils {
         player.getInventory().setItem(EquipmentSlot.CHEST, new ItemStack(Material.IRON_CHESTPLATE));
         player.getInventory().setItem(EquipmentSlot.LEGS, new ItemStack(Material.IRON_LEGGINGS));
         player.getInventory().setItem(EquipmentSlot.FEET, new ItemStack(Material.IRON_BOOTS));
-        player.getInventory().setItem(0, ItemManager.SWORD);
-        player.getInventory().setItem(1, ItemManager.AXE);
+        player.getInventory().setItem(0, ItemManager.weapons[ItemManager.SWORD]);
+        player.getInventory().setItem(1, ItemManager.weapons[ItemManager.AXE]);
         player.getInventory().setItem(2, new ItemStack(Material.SHIELD));
         player.getInventory().setItem(3, new ItemStack(Material.COOKED_BEEF, 64));
         player.getInventory().setItem(4, new ItemStack(Material.ENDER_PEARL, 4));
+        player.getInventory().setItem(5, new ItemStack(Material.BOW));
+        player.getInventory().setItem(9, new ItemStack(Material.ARROW, 114514));
         player.getActivePotionEffects().clear();
         player.setHealth(20); //TODO get max health
         player.setFoodLevel(20);

@@ -15,11 +15,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 public final class ItemManager {
-    public static final ItemStack SWORD = new ItemStack(Material.IRON_SWORD);
-    public static final ItemStack DIAMOND_SWORD = new ItemStack(Material.DIAMOND_SWORD);
-    public static final ItemStack CLAYMORE = new ItemStack(Material.NETHERITE_SWORD);
-    public static final ItemStack AXE = new ItemStack(Material.IRON_AXE);
-    public static final ItemStack HIGHLAND_AXE = new ItemStack(Material.DIAMOND_AXE);
+    public static final int SWORD = 0;
+    public static final int DIAMOND_SWORD = 1;
+    public static final int CLAYMORE = 2;
+    public static final int BROADSWORD = 3;
+    public static final int AXE = 4;
+    public static final int HIGHLAND_AXE = 5;
+    public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE)};
+    public static final int[] weaponUpgrades = new int[] {DIAMOND_SWORD, -1, BROADSWORD, -1, HIGHLAND_AXE, -1};
     public static final ItemStack MERCENARY_ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack WEAPON1_SELECTOR = new ItemStack(Material.IRON_AXE);
@@ -39,14 +42,14 @@ public final class ItemManager {
     private static final UUID BOOTS_ATTRIBUTE_UUID = UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B");
     private ItemManager() {}
     public static void init() {
-        SWORD.editMeta(meta -> {
+        weapons[SWORD].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.itemName(Component.text("剑"));
             meta.lore(removeItalics(Arrays.asList(Component.text("一把坚固且可靠的剑。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 7, 1.6);
         });
-        DIAMOND_SWORD.editMeta(meta -> {
+        weapons[DIAMOND_SWORD].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.addEnchant(Enchantment.SHARPNESS, 3, false);
             meta.setRarity(ItemRarity.RARE);
@@ -55,21 +58,21 @@ public final class ItemManager {
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 7, 1.6);
         });
-        CLAYMORE.editMeta(meta -> {
+        weapons[CLAYMORE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.itemName(Component.text("阔剑"));
             meta.lore(removeItalics(Arrays.asList(Component.text("这把沉重的巨剑可以轻松地劈开潜影贝的厚壳。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 10, 1);
         });
-        AXE.editMeta(meta -> {
+        weapons[AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.itemName(Component.text("斧"));
             meta.lore(removeItalics(Arrays.asList(Component.text("斧是一把十分有效的武器，深受卫道士的喜爱。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 9, 1);
         });
-        HIGHLAND_AXE.editMeta(meta -> {
+        weapons[HIGHLAND_AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.itemName(Component.text("高地斧"));
             meta.setRarity(ItemRarity.RARE);

@@ -16,6 +16,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 public final class ItemManager {
     public static final ItemStack SWORD = new ItemStack(Material.IRON_SWORD);
+    public static final ItemStack DIAMOND_SWORD = new ItemStack(Material.DIAMOND_SWORD);
+    public static final ItemStack CLAYMORE = new ItemStack(Material.NETHERITE_SWORD);
     public static final ItemStack AXE = new ItemStack(Material.IRON_AXE);
     public static final ItemStack HIGHLAND_AXE = new ItemStack(Material.DIAMOND_AXE);
     public static final ItemStack MERCENARY_ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
@@ -43,6 +45,22 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("一把坚固且可靠的剑。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 7, 1.6);
+        });
+        DIAMOND_SWORD.editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.addEnchant(Enchantment.SHARPNESS, 3, false);
+            meta.setRarity(ItemRarity.RARE);
+            meta.itemName(Component.text("钻石剑"));
+            meta.lore(removeItalics(Arrays.asList(Component.text("拥有一把钻石剑是一个英雄或经验丰富的冒险家的标配。", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            editMeleeAttributes(meta, 7, 1.6);
+        });
+        CLAYMORE.editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.itemName(Component.text("阔剑"));
+            meta.lore(removeItalics(Arrays.asList(Component.text("这把沉重的巨剑可以轻松地劈开潜影贝的厚壳。", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            editMeleeAttributes(meta, 10, 1);
         });
         AXE.editMeta(meta -> {
             meta.setUnbreakable(true);

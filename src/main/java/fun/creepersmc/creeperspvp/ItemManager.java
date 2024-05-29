@@ -15,6 +15,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 public final class ItemManager {
+    public static final int MERCENARY_ARMOR = 0;
+    public static final ItemStack[][] armor = new ItemStack[][] {
+        {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
+        {}
+    };
+    public static final ItemStack[] armorSelectors = new ItemStack[] {new ItemStack(Material.IRON_CHESTPLATE)};
+    public static final int[] armorSelections = new int[] {MERCENARY_ARMOR};
+    public static final int[] armorUpgrades = new int[] {-1};
     public static final int SWORD = 0;
     public static final int DIAMOND_SWORD = 1;
     public static final int CLAYMORE = 2;
@@ -22,8 +30,14 @@ public final class ItemManager {
     public static final int AXE = 4;
     public static final int HIGHLAND_AXE = 5;
     public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE)};
+    public static final int[] weaponSelections = new int[] {SWORD, CLAYMORE, AXE};
     public static final int[] weaponUpgrades = new int[] {DIAMOND_SWORD, -1, BROADSWORD, -1, HIGHLAND_AXE, -1};
-    public static final ItemStack MERCENARY_ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
+    public static final int SHIELD = 0;
+    public static final int COOKED_BEEF = 1;
+    public static final int ENDER_PEARL = 2;
+    public static final ItemStack[] artifacts = new ItemStack[] {new ItemStack(Material.SHIELD), new ItemStack(Material.COOKED_BEEF, 64), new ItemStack(Material.ENDER_PEARL, 4)};
+    public static final int[] artifactSelections = new int[] {SHIELD, COOKED_BEEF, ENDER_PEARL};
+    public static final int[] artifactUpgrades = new int[] {-1, -1, -1};
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack WEAPON1_SELECTOR = new ItemStack(Material.IRON_AXE);
     public static final ItemStack WEAPON2_SELECTOR = new ItemStack(Material.BOW);
@@ -81,7 +95,7 @@ public final class ItemManager {
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 10, 1);
         });
-        MERCENARY_ARMOR_SELECTOR.editMeta(meta -> {
+        armorSelectors[MERCENARY_ARMOR].editMeta(meta -> {
             meta.itemName(Component.text("雇佣兵盔甲"));
             meta.lore(removeItalics(Arrays.asList(Component.text("便宜，但好用", NamedTextColor.GRAY))));
             displayArmorAttributes(meta, 15, 0, 0);

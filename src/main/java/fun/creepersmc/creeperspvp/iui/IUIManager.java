@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import java.util.function.Function;
 public final class IUIManager {
     public static final byte ARMOR_SELECTOR = 1;
@@ -53,17 +54,24 @@ public final class IUIManager {
         private ArmorSelectorInv() {
             super(54, "选择盔甲");
             setItems(getBorders(), ItemManager.BORDER);
-            setItem(8, ItemManager.CLOSE, e -> e.getWhoClicked().closeInventory());
-            setItem(10, ItemManager.MERCENARY_ARMOR_SELECTOR, e -> {
-                if(e.getWhoClicked() instanceof Player player) {
-                    if(e.isLeftClick()) {
-                        if(e.isShiftClick()) {
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            int slot = 10;
+            for(final ItemStack armorSelector : ItemManager.armorSelectors) {
+                setItem(slot, armorSelector, event -> {
+                    if(event.getWhoClicked() instanceof Player player) {
+                        if(event.isLeftClick()) {
+                            if(event.isShiftClick()) {
 
+                            }
                         }
+                        //player.getPersistentDataContainer().set();
                     }
-                    //player.getPersistentDataContainer().set();
+                });
+                slot++;
+                if(slot % 9 == 8) {
+                    slot += 2;
                 }
-            });
+            }
         }
         @Override
         public FastInv getInv(Object data) {

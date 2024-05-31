@@ -1,7 +1,6 @@
 package fun.creepersmc.creeperspvp;
 import fun.creepersmc.creeperspvp.iui.IUIManager;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;

@@ -40,6 +40,11 @@ public final class Utils {
         Bukkit.getPluginManager().registerEvents(Listener.instance, CreepersPVP.instance);
     }
     public static void playerInit(Player player) {
+        final PersistentDataContainer pdc = player.getPersistentDataContainer();
+        PersistentDataContainer data = pdc.get(playerDataKey, PersistentDataType.TAG_CONTAINER);
+        if(data == null) {
+            pdc.set(playerDataKey, PersistentDataType.TAG_CONTAINER, pdc.getAdapterContext().newPersistentDataContainer());
+        }
         final PlayerInventory inv = player.getInventory();
         inv.clear();
         inv.setItem(0, ItemManager.ARMOR_SELECTOR);
@@ -60,12 +65,7 @@ public final class Utils {
         player.teleport(hub);
     }
     public static void spawnPlayer(final Player player) {
-        final PersistentDataContainer pdc = player.getPersistentDataContainer();
-        PersistentDataContainer data = pdc.get(playerDataKey, PersistentDataType.TAG_CONTAINER);
-        if(data == null) {
-            pdc.set(playerDataKey, PersistentDataType.TAG_CONTAINER, pdc.getAdapterContext().newPersistentDataContainer());
-            data = pdc.get(playerDataKey, PersistentDataType.TAG_CONTAINER);
-        }
+        final PersistentDataContainer data = player.getPersistentDataContainer().get(playerDataKey, PersistentDataType.TAG_CONTAINER);
         final PlayerInventory inv = player.getInventory();
         inv.clear();
         final int armorId = data.getOrDefault(armorKey, PersistentDataType.INTEGER, ItemManager.MERCENARY_ARMOR);
@@ -78,6 +78,7 @@ public final class Utils {
         inv.setItem(2, ItemManager.artifacts[data.getOrDefault(artifact1Key, PersistentDataType.INTEGER, ItemManager.SHIELD)]);
         inv.setItem(3, ItemManager.artifacts[data.getOrDefault(artifact2Key, PersistentDataType.INTEGER, ItemManager.COOKED_BEEF)]);
         inv.setItem(4, ItemManager.artifacts[data.getOrDefault(artifact3Key, PersistentDataType.INTEGER, ItemManager.ENDER_PEARL)]);
+        inv.setItem(9, new ItemStack(Material.ARROW, 64));
         player.getActivePotionEffects().clear();
         player.setHealth(20); //TODO get max health
         player.setFoodLevel(20);

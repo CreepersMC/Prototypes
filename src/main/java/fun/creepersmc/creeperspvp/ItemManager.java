@@ -1,6 +1,7 @@
 package fun.creepersmc.creeperspvp;
 import fun.creepersmc.creeperspvp.iui.IUIManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Color;
@@ -51,7 +52,7 @@ public final class ItemManager {
     public static final int SHIELD = 0;
     public static final int COOKED_BEEF = 1;
     public static final int ENDER_PEARL = 2;
-    public static final ItemStack[] artifacts = new ItemStack[] {new ItemStack(Material.SHIELD), new ItemStack(Material.COOKED_BEEF, 16), new ItemStack(Material.ENDER_PEARL, 4)};
+    public static final ItemStack[] artifacts = new ItemStack[] {new ItemStack(Material.SHIELD), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.ENDER_PEARL, 4)};
     public static final int CUSTOM = 0;
     public static final int INTERACT = 1;
     public static final int CONSUME = 2;
@@ -61,6 +62,7 @@ public final class ItemManager {
     public static final int[] artifactsGainCooldown = new int[] {-1, 160, 240};
     public static final int[] artifactSelections = new int[] {SHIELD, COOKED_BEEF, ENDER_PEARL};
     public static final int[] artifactUpgrades = new int[] {-1, -1, -1};
+    public static final ItemStack[] UNAVAILABLE_ARTIFACT = new ItemStack[20];
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack[] WEAPON_SELECTORS = new ItemStack[] {new ItemStack(Material.IRON_AXE), new ItemStack(Material.BOW)};
     public static final ItemStack[] ARTIFACT_SELECTORS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
@@ -272,6 +274,17 @@ public final class ItemManager {
                 iuiData.set(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER, i[0]);
                 meta.getPersistentDataContainer().set(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER, iuiData);
                 meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+        }
+        for(final int[] i = new int[] {0}; i[0] < UNAVAILABLE_ARTIFACT.length; i[0]++) {
+            UNAVAILABLE_ARTIFACT[i[0]] = new ItemStack(Material.BARRIER);
+            UNAVAILABLE_ARTIFACT[i[0]].editMeta(meta -> {
+                meta.setRarity(ItemRarity.COMMON);
+                TextComponent.Builder nameBuilder = Component.text().append(Component.text("法器冷却中 ", NamedTextColor.WHITE));
+                for(int j = 0; j < UNAVAILABLE_ARTIFACT.length; j++) {
+                    nameBuilder.append(Component.text("|", i[0] > j ? NamedTextColor.GREEN : NamedTextColor.RED));
+                }
+                meta.displayName(nameBuilder.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE).build());
             });
         }
         DEPLOY.editMeta(meta -> {

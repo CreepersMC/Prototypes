@@ -2,6 +2,8 @@ package fun.creepersmc.creeperspvp;
 import fun.creepersmc.creeperspvp.iui.IUIManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
@@ -15,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
-    public static NamespacedKey itemKey;
+    public static NamespacedKey itemOrdinalKey;
     public static NamespacedKey artifactIDKey;
     public static NamespacedKey iuiIDKey;
     public static NamespacedKey iuiDataKey;
@@ -32,9 +34,8 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private Utils() {}
     public static void init() {
-        itemKey = new NamespacedKey(CreepersPVP.instance, "item");
+        itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
         artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
-        //artifactDisabledKey = new NamespacedKey(CreepersPVP.instance, "artifact-disabled");
         iuiIDKey = new NamespacedKey(CreepersPVP.instance, "iui-id");
         iuiDataKey = new NamespacedKey(CreepersPVP.instance, "iui-data");
         weaponSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "weapon");
@@ -89,23 +90,21 @@ public final class Utils {
         inv.setItem(EquipmentSlot.LEGS, ItemManager.armor[armorID][2]);
         inv.setItem(EquipmentSlot.FEET, ItemManager.armor[armorID][3]);
         inv.setItem(0, ItemManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, ItemManager.SWORD)]);
-        inv.setItem(1, ItemManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, ItemManager.AXE)]);//TODO
-        final int[] artifactIDs = new int[3];
-        for(int i = 0; i < artifactIDs.length; i++) {
-            artifactIDs[i] = data.getOrDefault(artifactKeys[i], PersistentDataType.INTEGER, new int[]{ItemManager.SHIELD, ItemManager.COOKED_BEEF, ItemManager.ENDER_PEARL}[i]);
-        }
-        inv.setItem(2, ItemManager.artifacts[artifactIDs[0]]);
-        inv.setItem(3, ItemManager.artifacts[artifactIDs[1]]);
-        inv.setItem(4, ItemManager.artifacts[artifactIDs[2]]);
+        inv.setItem(1, ItemManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, ItemManager.AXE)]);
+        inv.setItem(2, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.SHIELD)]);
+        inv.setItem(3, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.COOKED_BEEF)]);
+        inv.setItem(4, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.ENDER_PEARL)]);
+        //TODO
         for(int i = 0; i < 5; i++) {
             int finalI = i;
             inv.getItem(i).editMeta(meta -> {
-                meta.getPersistentDataContainer().set(itemKey, PersistentDataType.INTEGER, finalI);
+                meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, finalI);
             });
         }
         inv.setItem(9, new ItemStack(Material.ARROW, 64));
         player.getActivePotionEffects().clear();
-        player.setHealth(20); //TODO get max health
+        final AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        player.setHealth(maxHealthAttribute == null ? 20 : maxHealthAttribute.getValue());
         player.setFoodLevel(20);
         player.setSaturation(5);
         player.setExhaustion(0);
@@ -114,11 +113,41 @@ public final class Utils {
         player.setInvulnerable(false);
         player.teleport(spawn);
     }
-    public static boolean hasGainArtifactScheduler(int artifact, UUID uuid) {
-        return gainArtifactSchedulers[artifact].containsKey(uuid) && !gainArtifactSchedulers[artifact].get(uuid).isCancelled();
+    public static int findItem(Inventory inv, int itemOrdinal) {
+        ListIterator<ItemStack> i = inv.iterator();
+        while(i.hasNext()) {
+            ItemStack next = i.next();
+            if(next != null) {
+                if(itemOrdinal == next.getItemMeta().getPersistentDataContainer().getOrDefault(itemOrdinalKey, PersistentDataType.INTEGER, -1)) {
+                    return i.previousIndex();
+                }
+            }
+        }
+        return i.nextIndex();
     }
-    public static void scheduleGainArtifact(int artifact, UUID uuid, ScheduledTask task) {
-        gainArtifactSchedulers[artifact].put(uuid, task);
+    public static void scheduleGainArtifact(Player player, int itemOrdinal, int artifactID, ItemStack item) {
+        if(!hasGainArtifactScheduler(itemOrdinal, player.getUniqueId())) {
+            final Inventory inv = player.getInventory();
+            scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+                final int slot = Utils.findItem(inv, itemOrdinal);
+                final ItemStack currentItem = inv.getItem(slot);
+                if(currentItem.getType() == Material.BARRIER) {
+                    inv.setItem(slot, item);
+                } else {
+                    if(currentItem.getAmount() < ItemManager.artifacts[artifactID].getAmount()) {
+                        currentItem.add();
+                    } else {
+                        task.cancel();
+                    }
+                }
+            }, null, ItemManager.artifactsGainCooldown[artifactID], ItemManager.artifactsGainCooldown[artifactID]));
+        }
+    }
+    private static boolean hasGainArtifactScheduler(int itemOrdinal, UUID uuid) {
+        return gainArtifactSchedulers[itemOrdinal - 2].containsKey(uuid) && !gainArtifactSchedulers[itemOrdinal - 2].get(uuid).isCancelled();
+    }
+    private static void scheduleGainArtifact(int itemOrdinal, UUID uuid, ScheduledTask task) {
+        gainArtifactSchedulers[itemOrdinal - 2].put(uuid, task);
     }
     private static void removeGainArtifactSchedulers(UUID uuid) {
         for(ConcurrentHashMap<UUID, ScheduledTask> gainArtifactScheduler : gainArtifactSchedulers) {
@@ -127,17 +156,5 @@ public final class Utils {
                 gainArtifactScheduler.remove(uuid);
             }
         }
-    }
-    public static int findItem(Inventory inv, int item) {
-        ListIterator<ItemStack> i = inv.iterator();
-        while(i.hasNext()) {
-            ItemStack next = i.next();
-            if(next != null) {
-                if(item == next.getItemMeta().getPersistentDataContainer().getOrDefault(itemKey, PersistentDataType.INTEGER, -1)) {
-                    return i.previousIndex();
-                }
-            }
-        }
-        return i.nextIndex();
     }
 }

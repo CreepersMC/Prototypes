@@ -95,6 +95,7 @@ public final class ItemManager {
     private static final UUID ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID = UUID.fromString("46E84BED-7B0E-0685-11D5-5BB372F68C4C");
     private static final UUID ATTACK_SPEED_BONUS_ATTRIBUTE_UUID = UUID.fromString("FA778358-DA02-0464-3236-EFDD9BB1FD75");
     private static final UUID[] ARMOR_ATTRIBUTE_UUIDS = new UUID[] {UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B")};
+    private static final UUID[] ARMOR_TOUGHNESS_UUIDS = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ItemManager() {}
     public static void init() {
@@ -123,19 +124,19 @@ public final class ItemManager {
         }
         armor[RENEGADE_ARMOR][0].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[0], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[0], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[0], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
         });
         armor[RENEGADE_ARMOR][1].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 6, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         });
         armor[RENEGADE_ARMOR][2].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
         });
         armor[RENEGADE_ARMOR][3].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[3], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[3], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[3], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
         });
         for(ItemStack armor : armor[BATTLE_ROBE]) {
             armor.editMeta(meta -> {
@@ -152,12 +153,12 @@ public final class ItemManager {
         }
         armor[BATTLE_ROBE][1].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
         });
         armor[BATTLE_ROBE][2].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
         });
         for(ItemStack armor : armor[SPLENDID_ROBE]) {
             armor.editMeta(meta -> {
@@ -174,19 +175,19 @@ public final class ItemManager {
         }
         armor[SPLENDID_ROBE][1].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.56, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
         });
         armor[SPLENDID_ROBE][2].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
         });
         armorSelectors[MERCENARY_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.COMMON);
             meta.itemName(Component.text("雇佣兵盔甲", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("雇佣兵盔甲，为那些想省点钱的人所青睐，", NamedTextColor.GRAY), Component.text("虽然并不高级，但却足以完成任务。", NamedTextColor.GRAY))));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 15, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         });
         armorSelectors[RENEGADE_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.RARE);

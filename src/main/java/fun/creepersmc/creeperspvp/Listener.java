@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -45,6 +46,12 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         event.setCancelled(true);
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        if(event.isRightClick() && event.getCursor().getAmount() > 1) {
+            event.setCancelled(true);
+        }
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -103,7 +110,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             event.setReplacement(item.withType(Material.BARRIER).asOne());
                         }
-                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, item);
+                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, item.asOne());
                     }
                 }
             }

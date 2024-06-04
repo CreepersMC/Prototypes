@@ -92,8 +92,8 @@ public final class Utils {
         inv.setItem(0, ItemManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, ItemManager.SWORD)]);
         inv.setItem(1, ItemManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, ItemManager.AXE)]);
         inv.setItem(2, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.SHIELD)]);
-        inv.setItem(3, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.COOKED_BEEF)]);
-        inv.setItem(4, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.ENDER_PEARL)]);
+        inv.setItem(3, ItemManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ItemManager.COOKED_BEEF)]);
+        inv.setItem(4, ItemManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ItemManager.ENDER_PEARL)]);
         //TODO
         for(int i = 0; i < 5; i++) {
             int finalI = i;
@@ -128,19 +128,29 @@ public final class Utils {
     public static void scheduleGainArtifact(Player player, int itemOrdinal, int artifactID, ItemStack item) {
         if(!hasGainArtifactScheduler(itemOrdinal, player.getUniqueId())) {
             final Inventory inv = player.getInventory();
+            final int[] timer = {0};
             scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+                timer[0]++;
+                timer[0] %= ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length;
                 final int slot = Utils.findItem(inv, itemOrdinal);
                 final ItemStack currentItem = inv.getItem(slot);
-                if(currentItem.getType() == Material.BARRIER) {
-                    inv.setItem(slot, item);
-                } else {
-                    if(currentItem.getAmount() < ItemManager.artifacts[artifactID].getAmount()) {
-                        currentItem.add();
+                if(timer[0] == 0) {
+                    if(currentItem.getType() == Material.BARRIER) {
+                        item.editMeta(meta -> meta.displayName(null));
+                        inv.setItem(slot, item);
                     } else {
-                        task.cancel();
+                        if(currentItem.getAmount() < ItemManager.artifacts[artifactID].getAmount()) {
+                            currentItem.add();
+                        } else {
+                            task.cancel();
+                        }
+                    }
+                } else {
+                    if(currentItem.getType() == Material.BARRIER) {
+                        currentItem.editMeta(meta -> meta.displayName(ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES[timer[0]]));
                     }
                 }
-            }, null, ItemManager.artifactsGainCooldown[artifactID], ItemManager.artifactsGainCooldown[artifactID]));
+            }, null, ItemManager.artifactsGainCooldown[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length, ItemManager.artifactsGainCooldown[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length));
         }
     }
     private static boolean hasGainArtifactScheduler(int itemOrdinal, UUID uuid) {

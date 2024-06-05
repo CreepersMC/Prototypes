@@ -231,6 +231,8 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("这种针状的花剑触感冰凉，取敌首级如探囊取物。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 5, 320);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.INTEGER, Utils.MELEE_EFFECT_FREEZE);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 60);
         });
         weapons[STICK].editMeta(meta -> {
             meta.addEnchant(Enchantment.KNOCKBACK, 2, true);

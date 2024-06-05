@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
+    public static NamespacedKey meleeAttackEffectIDKey;
+    public static NamespacedKey meleeAttackEffectDataKey;
     public static NamespacedKey itemOrdinalKey;
     public static NamespacedKey artifactIDKey;
     public static NamespacedKey iuiIDKey;
@@ -30,10 +32,16 @@ public final class Utils {
     public static final NamespacedKey[] weaponKeys = new NamespacedKey[2];
     public static final NamespacedKey[] artifactKeys = new NamespacedKey[3];
     public static final byte UTIL_SPAWN = 0;
+    public static final int MELEE_EFFECT_CHANNELING = 0;
+    public static final int MELEE_EFFECT_EXPLOSION = 1;
+    public static final int MELEE_EFFECT_FREEZE = 2;
+    public static final int MELEE_EFFECT_POISON = 3;
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private Utils() {}
     public static void init() {
+        meleeAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-id");
+        meleeAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-data");
         itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
         artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
         iuiIDKey = new NamespacedKey(CreepersPVP.instance, "iui-id");

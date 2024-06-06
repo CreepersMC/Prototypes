@@ -4,6 +4,7 @@ import fr.mrmicky.fastinv.FastInvManager;
 import fun.creepersmc.creeperspvp.CreepersPVP;
 import fun.creepersmc.creeperspvp.ItemManager;
 import fun.creepersmc.creeperspvp.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -69,7 +70,6 @@ public final class IUIManager {
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
                         }
-                        //player.getPersistentDataContainer().set();
                     }
                 });
                 slot++;
@@ -80,7 +80,7 @@ public final class IUIManager {
         }
         @Override
         public ArmorSelectorInv getInv(PersistentDataContainer data) {
-            return new ArmorSelectorInv();
+            return instance;
         }
     }
     public static final class WeaponSelectorInv extends CreeperInv implements DynamicInv {
@@ -103,7 +103,9 @@ public final class IUIManager {
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
                         }
-                        //player.getPersistentDataContainer().set();
+                        if(event.isRightClick() && ItemManager.weaponUpgrades[weaponSelection] != -1) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> WeaponUpgradeInv.instance.getInv(ItemManager.weapons[weaponSelection].getItemMeta().getPersistentDataContainer()).open(player));
+                        }
                     }
                 });
                 slot++;
@@ -117,7 +119,27 @@ public final class IUIManager {
             if(data.has(Utils.weaponSelectorIDKey, PersistentDataType.INTEGER)) {
                 return new WeaponSelectorInv(data.get(Utils.weaponSelectorIDKey, PersistentDataType.INTEGER));
             }
-            return new WeaponSelectorInv(0);
+            return instance;
+        }
+    }
+    public static final class WeaponUpgradeInv extends CreeperInv implements DynamicInv {
+        private static final WeaponUpgradeInv instance = new WeaponUpgradeInv();
+        private WeaponUpgradeInv() {
+            super(InventoryType.PLAYER);
+        }
+        private WeaponUpgradeInv(final int weaponID) {
+            super(27, "武器升级：" + ItemManager.weapons[weaponID].displayName());
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(0, ItemManager.BACK);
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            setItem(13, ItemManager.weapons[ItemManager.weaponUpgrades[weaponID]], event -> {});
+        }
+        @Override
+        public WeaponUpgradeInv getInv(PersistentDataContainer data) {
+            if(data.has(Utils.weaponIDKey, PersistentDataType.INTEGER)) {
+                return new WeaponUpgradeInv(data.get(Utils.weaponIDKey, PersistentDataType.INTEGER));
+            }
+            return instance;
         }
     }
     public static final class ArtifactSelectorInv extends CreeperInv implements DynamicInv {
@@ -140,7 +162,6 @@ public final class IUIManager {
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
                         }
-                        //player.getPersistentDataContainer().set();
                     }
                 });
                 slot++;
@@ -154,7 +175,7 @@ public final class IUIManager {
             if(data.has(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER)) {
                 return new ArtifactSelectorInv(data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER));
             }
-            return new ArtifactSelectorInv(0);
+            return instance;
         }
     }
 }

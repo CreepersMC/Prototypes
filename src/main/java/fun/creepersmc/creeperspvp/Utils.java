@@ -6,7 +6,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -17,10 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
-    public static NamespacedKey meleeAttackEffectIDKey;
-    public static NamespacedKey meleeAttackEffectDataKey;
+    public static NamespacedKey attackEffectIDKey;
+    public static NamespacedKey attackEffectDataKey;
     public static NamespacedKey itemOrdinalKey;
     public static NamespacedKey artifactIDKey;
+    public static NamespacedKey weaponIDKey;
     public static NamespacedKey iuiIDKey;
     public static NamespacedKey iuiDataKey;
     public static NamespacedKey weaponSelectorIDKey;
@@ -32,18 +32,19 @@ public final class Utils {
     public static final NamespacedKey[] weaponKeys = new NamespacedKey[2];
     public static final NamespacedKey[] artifactKeys = new NamespacedKey[3];
     public static final byte UTIL_SPAWN = 0;
-    public static final int MELEE_EFFECT_CHANNELING = 0;
-    public static final int MELEE_EFFECT_EXPLOSION = 1;
-    public static final int MELEE_EFFECT_FREEZE = 2;
-    public static final int MELEE_EFFECT_POISON = 3;
+    public static final byte EFFECT_CHANNELING = 0;
+    public static final byte EFFECT_EXPLOSION = 1;
+    public static final byte EFFECT_FREEZE = 2;
+    public static final byte EFFECT_POISON = 3;
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private Utils() {}
     public static void init() {
-        meleeAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-id");
-        meleeAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-data");
+        attackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-id");
+        attackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-data");
         itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
         artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
+        weaponIDKey = new NamespacedKey(CreepersPVP.instance, "weapon-id");
         iuiIDKey = new NamespacedKey(CreepersPVP.instance, "iui-id");
         iuiDataKey = new NamespacedKey(CreepersPVP.instance, "iui-data");
         weaponSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "weapon");
@@ -79,7 +80,7 @@ public final class Utils {
         inv.setItem(7, ItemManager.ARTIFACT_SELECTORS[1]);
         inv.setItem(8, ItemManager.ARTIFACT_SELECTORS[2]);
         inv.setHeldItemSlot(4);
-        player.getActivePotionEffects().clear();
+        player.clearActivePotionEffects();
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setSaturation(20);
@@ -121,31 +122,41 @@ public final class Utils {
         player.setInvulnerable(false);
         player.teleport(spawn);
     }
-    public static int findItem(Inventory inv, int itemOrdinal) {
-        ListIterator<ItemStack> i = inv.iterator();
+    public static int findItem(PlayerInventory inv, int itemOrdinal) {
+        final ListIterator<ItemStack> i = inv.iterator();
         while(i.hasNext()) {
-            ItemStack next = i.next();
-            if(next != null) {
+            final ItemStack next = i.next();
+            if(next != null && next.hasItemMeta()) {
                 if(itemOrdinal == next.getItemMeta().getPersistentDataContainer().getOrDefault(itemOrdinalKey, PersistentDataType.INTEGER, -1)) {
                     return i.previousIndex();
                 }
+            }
+        }
+        final ItemStack cursorItem = inv.getHolder().getItemOnCursor();
+        if(cursorItem.hasItemMeta()) {
+            if(itemOrdinal == cursorItem.getItemMeta().getPersistentDataContainer().getOrDefault(itemOrdinalKey, PersistentDataType.INTEGER, -1)) {
+                return -1;
             }
         }
         return i.nextIndex();
     }
     public static void scheduleGainArtifact(Player player, int itemOrdinal, int artifactID, ItemStack item) {
         if(!hasGainArtifactScheduler(itemOrdinal, player.getUniqueId())) {
-            final Inventory inv = player.getInventory();
+            final PlayerInventory inv = player.getInventory();
             final int[] timer = {0};
             scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
                 timer[0]++;
                 timer[0] %= ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length;
                 final int slot = Utils.findItem(inv, itemOrdinal);
-                final ItemStack currentItem = inv.getItem(slot);
+                final ItemStack currentItem = slot == -1 ? player.getItemOnCursor() : inv.getItem(slot);
                 if(timer[0] == 0) {
                     if(currentItem.getType() == Material.BARRIER) {
                         item.editMeta(meta -> meta.displayName(null));
-                        inv.setItem(slot, item);
+                        if(slot == -1) {
+                            player.setItemOnCursor(item);
+                        } else {
+                            inv.setItem(slot, item);
+                        }
                     } else {
                         if(currentItem.getAmount() < ItemManager.artifacts[artifactID].getAmount()) {
                             currentItem.add();

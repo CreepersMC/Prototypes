@@ -63,6 +63,7 @@ public final class ItemManager {
     public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), null, null, null, null, new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
     public static final int[] weaponSelections = new int[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, BOW, CROSSBOW};
     public static final int[] weaponUpgrades = new int[] {FREEZING_FOIL, -1, BREEZE_ROD, -1, NIGHTMARES_BITE, -1, DIAMOND_SWORD, -1, FIREBRAND, -1, HIGHLAND_AXE, -1, CURSED_AXE, -1, DIAMOND_PICKAXE, -1, UNKNOWN_UPGRADE, -1, TEMPEST_MACE, -1};
+    public static final int CATEGORY_PROJECTILES = 0;
     public static final int SHIELD = 0;
     public static final int TOTEM_OF_UNDYING = 1;
     public static final int ENDER_PEARL = 2;
@@ -79,7 +80,7 @@ public final class ItemManager {
     public static final int LAUNCH_PROJECTILE = 3;
     public static final int[] artifactsUseCooldown = new int[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     public static final int[] artifactsUseEvent = new int[] {-1, -1, LAUNCH_PROJECTILE, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME};
-    public static final int[] artifactsGainCooldown = new int[] {-1, 400, 240, 180, 240, 240, 240, 180, 180, 300};
+    public static final int[] artifactsGainCooldown = new int[] {-1, 400, 300, 360, 240, 240, 240, 180, 180, 300};
     public static final int[] artifactSelections = new int[] {SHIELD, ENDER_PEARL, GOLDEN_CARROT, GOLDEN_APPLE, COOKED_BEEF, COOKED_PORKCHOP, COOKED_MUTTON, COOKED_SALMON};
     public static final int[] artifactUpgrades = new int[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     public static final Component[] ARTIFACT_UNAVAILABLE_DISPLAY_NAMES = new Component[20];
@@ -89,6 +90,7 @@ public final class ItemManager {
     public static final ItemStack DEPLOY = new ItemStack(Material.COMPASS);
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CLOSE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+    public static final ItemStack BACK = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
     private static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier("", 0, AttributeModifier.Operation.ADD_NUMBER);
     private static final UUID ATTACK_DAMAGE_ATTRIBUTE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     private static final UUID ATTACK_SPEED_ATTRIBUTE_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
@@ -154,7 +156,7 @@ public final class ItemManager {
         armor[BATTLE_ROBE][1].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
         });
         armor[BATTLE_ROBE][2].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
@@ -191,7 +193,7 @@ public final class ItemManager {
         });
         armorSelectors[RENEGADE_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("叛节之甲", NamedTextColor.AQUA));
+            meta.itemName(Component.text("叛节之甲", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("对那些被雇来保护村民免受灾厄威胁的佣兵来说，这件盔甲很划算。", NamedTextColor.GRAY))));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 15, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
@@ -203,17 +205,17 @@ public final class ItemManager {
             ((LeatherArmorMeta) meta).setColor(Color.BLACK);
             ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
             meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
         });
         armorSelectors[SPLENDID_ROBE].editMeta(meta -> {
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("华丽长袍", NamedTextColor.AQUA));
+            meta.itemName(Component.text("华丽长袍", NamedTextColor.DARK_PURPLE));
             meta.lore(removeItalics(Arrays.asList(Component.text("卓著的华丽长袍是保护奇厄教主的重型灾厄武士穿戴的装备。", NamedTextColor.GRAY))));
             ((LeatherArmorMeta) meta).setColor(Color.BLACK);
             ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.56, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.5, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
             meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
         });
         weapons[RAPIER].editMeta(meta -> {
@@ -222,45 +224,51 @@ public final class ItemManager {
             meta.itemName(Component.text("轻剑", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("剑刃灵活狭长，出手又快又狠。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-            editMeleeAttributes(meta, 5, 320);
+            editMeleeAttributes(meta, 5, 160);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, RAPIER);
         });
         weapons[FREEZING_FOIL].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("霜冻花剑", NamedTextColor.WHITE));
+            meta.itemName(Component.text("霜冻花剑", NamedTextColor.DARK_AQUA));
             meta.lore(removeItalics(Arrays.asList(Component.text("这种针状的花剑触感冰凉，取敌首级如探囊取物。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-            editMeleeAttributes(meta, 5, 320);
-            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.INTEGER, Utils.MELEE_EFFECT_FREEZE);
-            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 60);
+            editMeleeAttributes(meta, 5, 10);
+            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_FREEZE);
+            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 60);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, FREEZING_FOIL);
         });
         weapons[STICK].editMeta(meta -> {
             meta.addEnchant(Enchantment.KNOCKBACK, 2, true);
             meta.setRarity(ItemRarity.COMMON);
             meta.itemName(Component.text("木棒", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("这根手杖将目标压制得无法反抗分毫。", NamedTextColor.GRAY))));
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, STICK);
         });
         weapons[BREEZE_ROD].editMeta(meta -> {
             meta.addEnchant(Enchantment.KNOCKBACK, 3, true);
             meta.setRarity(ItemRarity.RARE);
             meta.itemName(Component.text("旋风棒", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("在一场毁天灭地的风暴中锻造而成，这根手杖能召唤狂风的力量。", NamedTextColor.GRAY))));
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, BREEZE_ROD);
         });
         weapons[SICKLES].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.COMMON);
             meta.itemName(Component.text("镰刀", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.lore(removeItalics(Arrays.asList(Component.text("这种仪式性的武器最早起源于沙漠地带。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-            editMeleeAttributes(meta, 6, 2);
+            editMeleeAttributes(meta, 6, 3);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, SICKLES);
         });
         weapons[NIGHTMARES_BITE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("梦魇之噬", NamedTextColor.WHITE));
+            meta.itemName(Component.text("梦魇之噬", NamedTextColor.DARK_GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("刀刃上毒液的致命性可经时间流逝而仍保持效果。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-            editMeleeAttributes(meta, 6, 2);
+            editMeleeAttributes(meta, 6, 3);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, NIGHTMARES_BITE);
         });
         weapons[SWORD].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -269,6 +277,7 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("一把坚固且可靠的剑。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 7, 1.6);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, SWORD);
         });
         weapons[DIAMOND_SWORD].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -278,6 +287,7 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("拥有一把钻石剑是一个英雄或经验丰富的冒险家的标配。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 7, 1.6);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, DIAMOND_SWORD);
         });
         weapons[CLAYMORE].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -288,16 +298,18 @@ public final class ItemManager {
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             meta.setEnchantmentGlintOverride(false);
             editMeleeAttributes(meta, 9, 1.15);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, CLAYMORE);
         });
         weapons[FIREBRAND].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
             meta.addEnchant(Enchantment.FIRE_ASPECT, 1, true);
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("烙火", NamedTextColor.AQUA));
+            meta.itemName(Component.text("烙火", NamedTextColor.RED));
             meta.lore(removeItalics(Arrays.asList(Component.text("铸造于烈焰锻造厂的最黑最深处，拥有烈焰的力量。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 9, 1.15);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, FIREBRAND);
         });
         weapons[AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -306,15 +318,17 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("斧是一把十分有效的武器，深受卫道士的喜爱。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 9, 1);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, AXE);
         });
         weapons[HIGHLAND_AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
+            meta.addEnchant(Enchantment.EFFICIENCY, 15, true);
             meta.setRarity(ItemRarity.RARE);
             meta.itemName(Component.text("高地斧", NamedTextColor.AQUA));
-            meta.addEnchant(Enchantment.EFFICIENCY, 15, true);
             meta.lore(removeItalics(Arrays.asList(Component.text("劈裂 III", NamedTextColor.GRAY), Component.text("高地之斧的制作工艺精湛，是一种光鲜的战争武器，也是一种大胆的反击手段。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 10, 1);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, HIGHLAND_AXE);
         });
         weapons[HEAVY_AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -323,30 +337,91 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("一种适合野蛮战士的毁灭性武器。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 11, 0.7);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, HEAVY_AXE);
         });
         weapons[CURSED_AXE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("诅咒之斧", NamedTextColor.AQUA));
+            meta.itemName(Component.text("诅咒之斧", NamedTextColor.GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("爆炸 III", NamedTextColor.GRAY), Component.text("只需轻轻一划，这把含有诅咒和剧毒的斧头就能使受害者卧床多年。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 11, 0.7);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, CURSED_AXE);
         });
         weapons[PICKAXE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.COMMON);
             meta.itemName(Component.text("镐", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.lore(removeItalics(Arrays.asList(Component.text("冒险家和英雄们必不可缺的工具。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 8, 1.2);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, PICKAXE);
         });
         weapons[DIAMOND_PICKAXE].editMeta(meta -> {
             meta.setUnbreakable(true);
             meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("钻石镐", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("钻石镐", NamedTextColor.AQUA));
+            meta.lore(removeItalics(Arrays.asList(Component.text("钻石是最耐用的材料之一，用来做一把镐子再适合不过了。", NamedTextColor.GRAY))));
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             editMeleeAttributes(meta, 9, 1.2);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, DIAMOND_PICKAXE);
+        });
+        weapons[MACE].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.setRarity(ItemRarity.RARE);
+            meta.itemName(Component.text("重锤", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            editMeleeAttributes(meta, 6, 0.6);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, MACE);
+        });
+        weapons[TEMPEST_MACE].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.addEnchant(Enchantment.WIND_BURST, 3, true);
+            meta.setRarity(ItemRarity.EPIC);
+            meta.itemName(Component.text("暴风锤", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            editMeleeAttributes(meta, 6, 0.6);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, TEMPEST_MACE);
+        });
+        weapons[HARPOON].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.addEnchant(Enchantment.LOYALTY, 1, true);
+            meta.setRarity(ItemRarity.RARE);
+            meta.itemName(Component.text("渔叉", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以迅速刺穿陆地或水下的敌人。", NamedTextColor.GRAY))));//
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            meta.setEnchantmentGlintOverride(false);
+            editMeleeAttributes(meta, 10, 0.8);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, HARPOON);
+        });
+        weapons[TRIDENT].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.addEnchant(Enchantment.LOYALTY, 3, true);
+            meta.setRarity(ItemRarity.RARE);
+            meta.itemName(Component.text("三叉戟", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            meta.setEnchantmentGlintOverride(false);
+            editMeleeAttributes(meta, 9, 1.1);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, TRIDENT);
+        });
+        weapons[BOW].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("弓", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, BOW);
+        });
+        weapons[CROSSBOW].editMeta(meta -> {
+            meta.setUnbreakable(true);
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("弩", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, CROSSBOW);
         });
         artifacts[SHIELD].editMeta(meta -> {
             meta.setUnbreakable(true);
@@ -354,13 +429,37 @@ public final class ItemManager {
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, SHIELD);
         });
-        artifacts[COOKED_BEEF].editMeta(meta -> {
-            meta.setRarity(ItemRarity.COMMON);
-            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, COOKED_BEEF);
+        artifacts[TOTEM_OF_UNDYING].editMeta(meta -> {
+            meta.setRarity(ItemRarity.UNCOMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, TOTEM_OF_UNDYING);
         });
         artifacts[ENDER_PEARL].editMeta(meta -> {
             meta.setRarity(ItemRarity.COMMON);
             meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, ENDER_PEARL);
+        });
+        artifacts[GOLDEN_CARROT].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, GOLDEN_CARROT);
+        });
+        artifacts[GOLDEN_APPLE].editMeta(meta -> {
+            meta.setRarity(ItemRarity.UNCOMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, GOLDEN_APPLE);
+        });
+        artifacts[COOKED_BEEF].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, COOKED_BEEF);
+        });
+        artifacts[COOKED_PORKCHOP].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, COOKED_PORKCHOP);
+        });
+        artifacts[COOKED_MUTTON].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, COOKED_MUTTON);
+        });
+        artifacts[COOKED_SALMON].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, COOKED_SALMON);
         });
         ARMOR_SELECTOR.editMeta(meta -> {
             meta.itemName(Component.text("选择盔甲"));                  
@@ -407,9 +506,8 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
         });
         BORDER.editMeta(meta -> meta.itemName(Component.empty()));
-        CLOSE.editMeta(meta -> {
-            meta.itemName(Component.text("✖ 关闭", NamedTextColor.RED));//◀ Back
-        });
+        CLOSE.editMeta(meta -> meta.itemName(Component.text("✖ 关闭", NamedTextColor.RED)));
+        BACK.editMeta(meta -> meta.itemName(Component.text("◀ 返回", NamedTextColor.YELLOW)));
     }
     private static void editMeleeAttributes(ItemMeta meta, double damage, double speed) {
         meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE);

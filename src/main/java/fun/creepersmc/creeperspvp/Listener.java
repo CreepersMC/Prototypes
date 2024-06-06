@@ -5,19 +5,19 @@ import fun.creepersmc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-//import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -50,13 +50,34 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryClick(InventoryClickEvent event) {
-        if(event.isRightClick() && event.getCursor().getAmount() > 1) {
+        if(event.isRightClick() && ((event.getCurrentItem() != null && event.getCurrentItem().getAmount() > 1) || event.getCursor().getAmount() > 1)) {
             event.setCancelled(true);
         }
     }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerInventoryDrag(InventoryDragEvent event) {
+        event.setCancelled(true);
+    }
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        
+        switch(event.getCause()) {
+            case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
+                if(event.getDamager() instanceof final Player player) {
+                    final ItemStack weapon = player.getInventory().getItemInMainHand();
+                    if(weapon.hasItemMeta()) {
+                        final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
+                        if(data.has(Utils.attackEffectIDKey, PersistentDataType.BYTE)) {
+                            switch(data.get(Utils.attackEffectIDKey, PersistentDataType.BYTE)) {
+                                case Utils.EFFECT_CHANNELING -> {}
+                                case Utils.EFFECT_EXPLOSION -> {}
+                                case Utils.EFFECT_FREEZE -> event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 20)));
+                                case Utils.EFFECT_POISON -> {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -73,10 +94,16 @@ public final class Listener implements org.bukkit.event.Listener {
                             player.setCooldown(event.getMaterial(), ItemManager.artifactsUseCooldown[artifactID]);
                         }
                         if(ItemManager.artifactsGainCooldown[artifactID] != -1) {
-                            Inventory inv = player.getInventory();
+                            final PlayerInventory inv = player.getInventory();
                             final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                             if(item.getAmount() == 1) {
-                                inv.setItem(Utils.findItem(inv, itemOrdinal), item.withType(Material.BARRIER));
+                                final int slot = Utils.findItem(inv, itemOrdinal);
+                                final ItemStack unavailable = item.withType(Material.BARRIER);
+                                if(slot == -1) {
+                                    player.setItemOnCursor(unavailable);
+                                } else {
+                                    inv.setItem(slot, unavailable);
+                                }
                             } else {
                                 item.subtract();
                             }
@@ -134,13 +161,13 @@ public final class Listener implements org.bukkit.event.Listener {
                         player.setCooldown(item.getType(), ItemManager.artifactsUseCooldown[artifactID]);
                     }
                     if(ItemManager.artifactsGainCooldown[artifactID] != -1) {
-                        final Inventory inv = player.getInventory();
+                        final PlayerInventory inv = player.getInventory();
                         final ItemStack clone = item.clone();
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                         if(item.getAmount() == 1) {
-                            final ItemStack disabled = clone.withType(Material.BARRIER);
+                            final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, disabled), null);
+                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }

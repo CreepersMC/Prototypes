@@ -4,12 +4,14 @@ import fun.creepersmc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.Title;
 //import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -43,6 +45,7 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Utils.playerInit(event.getPlayer());
+        event.getPlayer().openBook(ItemManager.welcome);
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
@@ -58,6 +61,35 @@ public final class Listener implements org.bukkit.event.Listener {
     public void onPlayerInventoryDrag(InventoryDragEvent event) {
         event.setCancelled(true);
     }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        event.blockList().clear();
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onEnttyExplode(EntityExplodeEvent event) {
+        event.blockList().clear();
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onEntityShootBow(EntityShootBowEvent event) {
+        if(event.getEntity() instanceof Player && event.getProjectile() instanceof Arrow arrow && arrow.getBasePotionType() == null) {
+            arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if(!event.isCancelled()) {
+            switch(event.getBlockPlaced().getType()) {
+                case TNT -> {
+                    event.setCancelled(true);
+                    Location loc = event.getBlockPlaced().getLocation().toCenterLocation();
+                    loc.getWorld().spawn(loc, TNTPrimed.class, tnt -> {
+                        tnt.setFuseTicks(80);
+                        tnt.setSource(event.getPlayer());
+                    });
+                }
+            }
+        }
+    }
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         switch(event.getCause()) {
@@ -66,13 +98,11 @@ public final class Listener implements org.bukkit.event.Listener {
                     final ItemStack weapon = player.getInventory().getItemInMainHand();
                     if(weapon.hasItemMeta()) {
                         final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
-                        if(data.has(Utils.attackEffectIDKey, PersistentDataType.BYTE)) {
-                            switch(data.get(Utils.attackEffectIDKey, PersistentDataType.BYTE)) {
-                                case Utils.EFFECT_CHANNELING -> {}
-                                case Utils.EFFECT_EXPLOSION -> {}
-                                case Utils.EFFECT_FREEZE -> event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 20)));
-                                case Utils.EFFECT_POISON -> {}
-                            }
+                        switch(data.getOrDefault(Utils.attackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                            case Utils.EFFECT_CHANNELING -> {}
+                            case Utils.EFFECT_EXPLOSION -> {}
+                            case Utils.EFFECT_FREEZE -> event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 20)));
+                            case Utils.EFFECT_POISON -> {}
                         }
                     }
                 }
@@ -89,11 +119,11 @@ public final class Listener implements org.bukkit.event.Listener {
                 final PersistentDataContainer data = meta.getPersistentDataContainer();
                 if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER) && item.getType() != Material.BARRIER) {
                     final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                    if(ItemManager.artifactsUseEvent[artifactID] == ItemManager.INTERACT) {
-                        if(ItemManager.artifactsUseCooldown[artifactID] != -1) {
-                            player.setCooldown(event.getMaterial(), ItemManager.artifactsUseCooldown[artifactID]);
+                    if(ArtifactManager.useEvents[artifactID] == ArtifactManager.INTERACT) {
+                        if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                            player.setCooldown(event.getMaterial(), ArtifactManager.useCooldowns[artifactID]);
                         }
-                        if(ItemManager.artifactsGainCooldown[artifactID] != -1) {
+                        if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                             final PlayerInventory inv = player.getInventory();
                             final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                             if(item.getAmount() == 1) {
@@ -132,12 +162,12 @@ public final class Listener implements org.bukkit.event.Listener {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.getOrDefault(Utils.artifactIDKey, PersistentDataType.INTEGER, -1);
-                if(ItemManager.artifactsUseEvent[artifactID] == ItemManager.CONSUME) {
+                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.CONSUME) {
                     event.setReplacement(null);
-                    if(ItemManager.artifactsUseCooldown[artifactID] != -1) {
-                        player.setCooldown(item.getType(), ItemManager.artifactsUseCooldown[artifactID]);
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
-                    if(ItemManager.artifactsGainCooldown[artifactID] != -1) {
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                         if(item.getAmount() == 1) {
                             event.setReplacement(item.withType(Material.BARRIER).asOne());
@@ -156,11 +186,11 @@ public final class Listener implements org.bukkit.event.Listener {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                if(ItemManager.artifactsUseEvent[artifactID] == ItemManager.LAUNCH_PROJECTILE) {
-                    if(ItemManager.artifactsUseCooldown[artifactID] != -1) {
-                        player.setCooldown(item.getType(), ItemManager.artifactsUseCooldown[artifactID]);
+                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.LAUNCH_PROJECTILE) {
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
-                    if(ItemManager.artifactsGainCooldown[artifactID] != -1) {
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                         final PlayerInventory inv = player.getInventory();
                         final ItemStack clone = item.clone();
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);

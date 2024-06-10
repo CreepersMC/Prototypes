@@ -88,21 +88,27 @@ public final class Utils {
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(true);
         player.teleport(hub);
+        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            int pos = inv.first(Material.ARROW);
+            if(pos != -1) {
+                inv.getItem(pos).setAmount(64);
+            }
+        }, null, 61, 61);
     }
     public static void spawnPlayer(final Player player) {
         final PersistentDataContainer data = player.getPersistentDataContainer().get(playerDataKey, PersistentDataType.TAG_CONTAINER);
         final PlayerInventory inv = player.getInventory();
         inv.clear();
-        final int armorID = data.getOrDefault(armorKey, PersistentDataType.INTEGER, ItemManager.MERCENARY_ARMOR);
-        inv.setItem(EquipmentSlot.HEAD, ItemManager.armor[armorID][0]);
-        inv.setItem(EquipmentSlot.CHEST, ItemManager.armor[armorID][1]);
-        inv.setItem(EquipmentSlot.LEGS, ItemManager.armor[armorID][2]);
-        inv.setItem(EquipmentSlot.FEET, ItemManager.armor[armorID][3]);
-        inv.setItem(0, ItemManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, ItemManager.SWORD)]);
-        inv.setItem(1, ItemManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, ItemManager.AXE)]);
-        inv.setItem(2, ItemManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ItemManager.SHIELD)]);
-        inv.setItem(3, ItemManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ItemManager.COOKED_BEEF)]);
-        inv.setItem(4, ItemManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ItemManager.ENDER_PEARL)]);
+        final int armorID = data.getOrDefault(armorKey, PersistentDataType.INTEGER, ArmorManager.MERCENARY_ARMOR);
+        inv.setItem(EquipmentSlot.HEAD, ArmorManager.armor[armorID][0]);
+        inv.setItem(EquipmentSlot.CHEST, ArmorManager.armor[armorID][1]);
+        inv.setItem(EquipmentSlot.LEGS, ArmorManager.armor[armorID][2]);
+        inv.setItem(EquipmentSlot.FEET, ArmorManager.armor[armorID][3]);
+        inv.setItem(0, WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)]);
+        inv.setItem(1, WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)]);
+        inv.setItem(2, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ArtifactManager.SNOWBALL)]);
+        inv.setItem(3, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ArtifactManager.BREAD)]);
+        inv.setItem(4, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ArtifactManager.SHIELD)]);
         //TODO
         for(int i = 0; i < 5; i++) {
             int finalI = i;
@@ -149,27 +155,33 @@ public final class Utils {
                 timer[0] %= ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length;
                 final int slot = Utils.findItem(inv, itemOrdinal);
                 final ItemStack currentItem = slot == -1 ? player.getItemOnCursor() : inv.getItem(slot);
-                if(timer[0] == 0) {
-                    if(currentItem.getType() == Material.BARRIER) {
-                        item.editMeta(meta -> meta.displayName(null));
-                        if(slot == -1) {
-                            player.setItemOnCursor(item);
+                if(currentItem != null) {
+                    if(timer[0] == 0) {
+                        if(currentItem.getType() == Material.BARRIER) {
+                            item.editMeta(meta -> meta.displayName(null));
+                            if(slot == -1) {
+                                player.setItemOnCursor(item);
+                            } else {
+                                inv.setItem(slot, item);
+                            }
+                            if(ArtifactManager.artifacts[artifactID].getAmount() == 1) {
+                                task.cancel();
+                            }
                         } else {
-                            inv.setItem(slot, item);
+                            if(currentItem.getAmount() < ArtifactManager.artifacts[artifactID].getAmount()) {
+                                currentItem.add();
+                            }
+                            if(currentItem.getAmount() >= ArtifactManager.artifacts[artifactID].getAmount()) {
+                                task.cancel();
+                            }
                         }
                     } else {
-                        if(currentItem.getAmount() < ItemManager.artifacts[artifactID].getAmount()) {
-                            currentItem.add();
-                        } else {
-                            task.cancel();
+                        if(currentItem.getType() == Material.BARRIER) {
+                            currentItem.editMeta(meta -> meta.displayName(ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES[timer[0]]));
                         }
                     }
-                } else {
-                    if(currentItem.getType() == Material.BARRIER) {
-                        currentItem.editMeta(meta -> meta.displayName(ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES[timer[0]]));
-                    }
                 }
-            }, null, ItemManager.artifactsGainCooldown[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length, ItemManager.artifactsGainCooldown[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length));
+            }, null, ArtifactManager.gainCooldowns[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length, ArtifactManager.gainCooldowns[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length));
         }
     }
     private static boolean hasGainArtifactScheduler(int itemOrdinal, UUID uuid) {

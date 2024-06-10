@@ -1,17 +1,22 @@
 package fun.creepersmc.creeperspvp.iui;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.FastInvManager;
-import fun.creepersmc.creeperspvp.CreepersPVP;
-import fun.creepersmc.creeperspvp.ItemManager;
-import fun.creepersmc.creeperspvp.Utils;
+import fun.creepersmc.creeperspvp.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 public final class IUIManager {
     public static final byte ARMOR_SELECTOR = 1;
@@ -23,6 +28,10 @@ public final class IUIManager {
         WeaponSelectorInv.instance,
         ArtifactSelectorInv.instance,
     };
+    private static final Component onInteraction = Component.text(">>> ", NamedTextColor.WHITE);
+    private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     public static void init() {
         FastInvManager.register(CreepersPVP.instance);
     }
@@ -56,12 +65,22 @@ public final class IUIManager {
     public static class ArmorSelectorInv extends CreeperInv implements DynamicInv {
         private static final ArmorSelectorInv instance = new ArmorSelectorInv();
         private ArmorSelectorInv() {
+            super(InventoryType.PLAYER);
+        }
+        private ArmorSelectorInv(Object obj) {
             super(54, "选择盔甲");
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             int slot = 10;
-            for(final int armorSelection : ItemManager.armorSelections) {
-                setItem(slot, ItemManager.armorSelectors[armorSelection], event -> {
+            for(final int armorSelection : ArmorManager.selections) {
+                ItemStack item = ArmorManager.selectors[armorSelection].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                lore.add(equipOnLeftClick);
+                if(ArmorManager.upgrades[armorSelection] != -1) {
+                    lore.add(upgradeOnRightClick);
+                }
+                item.lore(lore);
+                setItem(slot, item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(true) { //TODO
@@ -80,7 +99,8 @@ public final class IUIManager {
         }
         @Override
         public ArmorSelectorInv getInv(PersistentDataContainer data) {
-            return instance;
+            return new ArmorSelectorInv(null);
+            //return instance;
         }
     }
     public static final class WeaponSelectorInv extends CreeperInv implements DynamicInv {
@@ -93,8 +113,15 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             int slot = 10;
-            for(final int weaponSelection : ItemManager.weaponSelections) {
-                setItem(slot, ItemManager.weapons[weaponSelection], event -> {
+            for(final int weaponSelection : WeaponManager.selections) {
+                ItemStack item = WeaponManager.weapons[weaponSelection].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                lore.add(equipOnLeftClick);
+                if(WeaponManager.upgrades[weaponSelection] != -1) {
+                    lore.add(upgradeOnRightClick);
+                }
+                item.lore(lore);
+                setItem(slot, item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(true) { //TODO
@@ -103,8 +130,8 @@ public final class IUIManager {
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
                         }
-                        if(event.isRightClick() && ItemManager.weaponUpgrades[weaponSelection] != -1) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> WeaponUpgradeInv.instance.getInv(ItemManager.weapons[weaponSelection].getItemMeta().getPersistentDataContainer()).open(player));
+                        if(event.isRightClick() && WeaponManager.upgrades[weaponSelection] != -1) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(weapon, weaponSelection).open(player));
                         }
                     }
                 });
@@ -122,24 +149,26 @@ public final class IUIManager {
             return instance;
         }
     }
-    public static final class WeaponUpgradeInv extends CreeperInv implements DynamicInv {
-        private static final WeaponUpgradeInv instance = new WeaponUpgradeInv();
-        private WeaponUpgradeInv() {
-            super(InventoryType.PLAYER);
-        }
-        private WeaponUpgradeInv(final int weaponID) {
-            super(27, "武器升级：" + ItemManager.weapons[weaponID].displayName());
+    public static final class WeaponUpgradeInv extends CreeperInv {
+        private WeaponUpgradeInv(final int weapon, final int weaponID) {
+            super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            setItem(13, ItemManager.weapons[ItemManager.weaponUpgrades[weaponID]], event -> {});
-        }
-        @Override
-        public WeaponUpgradeInv getInv(PersistentDataContainer data) {
-            if(data.has(Utils.weaponIDKey, PersistentDataType.INTEGER)) {
-                return new WeaponUpgradeInv(data.get(Utils.weaponIDKey, PersistentDataType.INTEGER));
-            }
-            return instance;
+            setItem(13, WeaponManager.weapons[WeaponManager.upgrades[weaponID]], event -> {
+                if(event.getWhoClicked() instanceof Player player) {
+                    if(event.isLeftClick()) {
+                        if(true) { //TODO
+                            PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
+                            data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, WeaponManager.upgrades[weaponID]);
+                            player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                        }
+                    }
+                    if(event.isRightClick() && WeaponManager.upgrades[weaponID] != -1) {
+                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(weapon, weaponID).open(player));
+                    }
+                }
+            });
         }
     }
     public static final class ArtifactSelectorInv extends CreeperInv implements DynamicInv {
@@ -147,13 +176,24 @@ public final class IUIManager {
         private ArtifactSelectorInv() {
             super(InventoryType.PLAYER);
         }
-        private ArtifactSelectorInv(final int artifact) {
+        private ArtifactSelectorInv(final int artifact, final int category) {
             super(54, "选择法器#" + (artifact + 1));
             setItems(getBorders(), ItemManager.BORDER);
+            for(int i = 0; i < ArtifactManager.artifactCategorySelectors.length; i++) {
+                int finalI = i;
+                setItem(i * 2 + 1, ArtifactManager.artifactCategorySelectors[i], i == category ? null : event -> new ArtifactSelectorInv(artifact, finalI).open((Player) event.getWhoClicked()));
+            }
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             int slot = 10;
-            for(final int artifactSelection : ItemManager.artifactSelections) {
-                setItem(slot, ItemManager.artifacts[artifactSelection], event -> {
+            for(final int artifactSelection : ArtifactManager.selections[category]) {
+                ItemStack item = ArtifactManager.artifacts[artifactSelection].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                lore.add(equipOnLeftClick);
+                if(ArtifactManager.upgrades[artifactSelection] != -1) {
+                    lore.add(upgradeOnRightClick);
+                }
+                item.lore(lore);
+                setItem(slot, item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(true) { //TODO
@@ -161,6 +201,9 @@ public final class IUIManager {
                                 data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
+                        }
+                        if(event.isRightClick() && ArtifactManager.upgrades[artifactSelection] != -1) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(artifact, artifactSelection).open(player));
                         }
                     }
                 });
@@ -173,9 +216,31 @@ public final class IUIManager {
         @Override
         public ArtifactSelectorInv getInv(PersistentDataContainer data) {
             if(data.has(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER)) {
-                return new ArtifactSelectorInv(data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER));
+                return new ArtifactSelectorInv(data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER), 0);
             }
             return instance;
+        }
+    }
+    public static final class ArtifactUpgradeInv extends CreeperInv {
+        private ArtifactUpgradeInv(final int artifact, final int artifactID) {
+            super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID].displayName()));
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(0, ItemManager.BACK);
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            setItem(13, ArtifactManager.artifacts[ArtifactManager.upgrades[artifactID]], event -> {
+                if(event.getWhoClicked() instanceof Player player) {
+                    if(event.isLeftClick()) {
+                        if(true) { //TODO
+                            PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
+                            data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, ArtifactManager.upgrades[artifactID]);
+                            player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                        }
+                    }
+                    if(event.isRightClick() && ArtifactManager.upgrades[artifactID] != -1) {
+                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(artifact, artifactID).open(player));
+                    }
+                }
+            });
         }
     }
 }

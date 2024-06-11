@@ -1,4 +1,4 @@
-package fun.creepersmc.creeperspvp;
+package re.imc.creeperspvp;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import java.util.Arrays;
-import static fun.creepersmc.creeperspvp.ItemManager.*;
+import static re.imc.creeperspvp.ItemManager.*;
 public final class ArmorManager {
     public static final int MERCENARY_ARMOR = 0;
     public static final int RENEGADE_ARMOR = 1;
@@ -30,6 +30,7 @@ public final class ArmorManager {
     public static final ItemStack[] selectors = new ItemStack[] {new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE)};
     public static final int[] selections = new int[] {MERCENARY_ARMOR, BATTLE_ROBE};
     public static final int[] upgrades = new int[] {RENEGADE_ARMOR, -1, SPLENDID_ROBE, -1};
+    public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ArmorManager() {}
     public static void init() {

@@ -1,7 +1,6 @@
-package fun.creepersmc.creeperspvp.iui;
+package re.imc.creeperspvp.iui;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.FastInvManager;
-import fun.creepersmc.creeperspvp.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,8 +14,10 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import re.imc.creeperspvp.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 public final class IUIManager {
     public static final byte ARMOR_SELECTOR = 1;
@@ -112,6 +113,9 @@ public final class IUIManager {
             super(54, "选择武器#" + (weapon + 1));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            final UUID uuid = UUID.randomUUID(); //TODO
+            final boolean[] weaponsStatus = Utils.fetchPlayerWeaponsStatus(uuid);
+            final Object lock = Utils.getPlayerLock(uuid);
             int slot = 10;
             for(final int weaponSelection : WeaponManager.selections) {
                 ItemStack item = WeaponManager.weapons[weaponSelection].clone();
@@ -124,13 +128,21 @@ public final class IUIManager {
                 setItem(slot, item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
-                            if(true) { //TODO
+                            if(weaponsStatus[weaponSelection]) { //TODO
                                 PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
                                 data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                synchronized(lock) {
+                                    if(!weaponsStatus[weaponSelection] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
+                                        Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
+                                        Utils.setPlayerWeaponStatus(uuid, weaponSelection, true);
+                                        weaponsStatus[weaponSelection] = true;
+                                    }
+                                }
                             }
                         }
-                        if(event.isRightClick() && WeaponManager.upgrades[weaponSelection] != -1) {
+                        if(event.isRightClick() && weaponsStatus[weaponSelection] && WeaponManager.upgrades[weaponSelection] != -1) {
                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(weapon, weaponSelection).open(player));
                         }
                     }

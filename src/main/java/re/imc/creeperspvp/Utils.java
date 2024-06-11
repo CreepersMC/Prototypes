@@ -1,5 +1,5 @@
-package fun.creepersmc.creeperspvp;
-import fun.creepersmc.creeperspvp.iui.IUIManager;
+package re.imc.creeperspvp;
+import re.imc.creeperspvp.iui.IUIManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.sql.*;
 import java.util.ListIterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,8 +38,31 @@ public final class Utils {
     public static final byte EFFECT_EXPLOSION = 1;
     public static final byte EFFECT_FREEZE = 2;
     public static final byte EFFECT_POISON = 3;
+    private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
+    private static final String databaseAddress = "127.0.0.1";
+    private static final String databasePort = "3306";
+    private static final String databaseName = "creepersmc"; //TODO
+    private static final String databaseUser = "root";
+    private static final String databasePassword = "1145141919810";
+    private static Connection connection = null;
+    private static Statement statement = null;
+    private static final String databaseConnectionURL = "jdbc:mysql://" + databaseAddress + ":" + databasePort + "/" + databaseName + "?user=" + databaseUser + "&password=" + databasePassword;
+    private static final String databaseInit = """
+        CREATE TABLE IF NOT EXISTS `player_data`(
+            `uuid` BINARY(16) NOT NULL,
+            `emeralds` BIGINT NOT NULL DEFAULT 0,
+            `kills` INT NOT NULL DEFAULT 0,
+            `deaths` INT NOT NULL DEFAULT 0,
+            `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
+            `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
+            `armor_status` BINARY(8) DEFAULT NULL,
+            `weapon_status` BINARY(8) DEFAULT NULL,
+            `artifact_status` BINARY(32) DEFAULT NULL,
+            PRIMARY KEY(`uuid`)
+        ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
+        """;
     private Utils() {}
     public static void init() {
         attackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-id");
@@ -62,6 +87,42 @@ public final class Utils {
         ItemManager.init();
         IUIManager.init();
         Bukkit.getPluginManager().registerEvents(Listener.instance, CreepersPVP.instance);
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch(ClassNotFoundException e) {
+            CreepersPVP.logWarning("Error loading MySQL driver: " + e.getMessage());
+        }
+        try {
+            getStatement().execute(databaseInit);
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error initializing database: " + e.getMessage());
+        }
+    }
+    public static void fina() {
+        if(statement != null) {
+            try {
+                statement.close();
+            } catch(SQLException e) {
+                CreepersPVP.logWarning("Error closing database statement: " + e.getMessage());
+            }
+        }
+        if(connection != null) {
+            try {
+                connection.close();
+            } catch(SQLException e) {
+                CreepersPVP.logWarning("Error closing database connection: " + e.getMessage());
+            }
+        }
+    }
+    public static void playerJoin(Player player) {
+        playerLocks.put(player.getUniqueId(), new Object());
+        try(final ResultSet result = getStatement().executeQuery("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + player.getUniqueId() + "');")) {
+            if(!result.next()) {
+                getStatement().execute("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN('" + player.getUniqueId() + "'))");
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing sql query: " + e.getMessage());
+        }
     }
     public static void playerInit(Player player) {
         removeGainArtifactSchedulers(player.getUniqueId());
@@ -127,6 +188,39 @@ public final class Utils {
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(false);
         player.teleport(spawn);
+    }
+    public static long fetchPlayerEmeralds(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            return result.getInt("emeralds");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
+        return 0;
+    }
+    //TODO
+    public static void addPlayerEmeralds(UUID uuid, long amount) {
+        ;
+    }
+    public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
+        return new boolean[64];
+    }
+    public static void setPlayerArmorStatus(UUID uuid, int armor, boolean val) {
+        ;
+    }
+    public static boolean[] fetchPlayerWeaponsStatus(UUID uuid) {
+        return new boolean[64];
+    }
+    public static void setPlayerWeaponStatus(UUID uuid, int weapon, boolean val) {
+        ;
+    }
+    public static boolean[] fetchPlayerArtifactsStatus(UUID uuid) {
+        return new boolean[256];
+    }
+    public static void setPlayerArtifactStatus(UUID uuid, int artifact, boolean val) {
+        ;
+    }
+    public static Object getPlayerLock(UUID uuid) {
+        return playerLocks.get(uuid);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {
         final ListIterator<ItemStack> i = inv.iterator();
@@ -197,5 +291,25 @@ public final class Utils {
                 gainArtifactScheduler.remove(uuid);
             }
         }
+    }
+    private static Connection getConnection() {
+        if(connection == null) {
+            try {
+                return connection = DriverManager.getConnection(databaseConnectionURL);
+            } catch(SQLException e) {
+                CreepersPVP.logWarning("Error creating database connection: " + e.getMessage());
+            }
+        }
+        return connection;
+    }
+    private static Statement getStatement() {
+        if(statement == null) {
+            try {
+                return statement = getConnection().createStatement();
+            } catch(SQLException | NullPointerException e) {
+                CreepersPVP.logWarning("Error accessing database connection: " + e.getMessage());
+            }
+        }
+        return statement;
     }
 }

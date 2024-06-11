@@ -1,6 +1,6 @@
-package fun.creepersmc.creeperspvp;
+package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
-import fun.creepersmc.creeperspvp.iui.IUIManager;
+import re.imc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.Title;
 //import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
@@ -44,6 +44,7 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
         event.getPlayer().openBook(ItemManager.welcome);
     }

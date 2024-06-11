@@ -1,5 +1,5 @@
-package fun.creepersmc.creeperspvp;
-import fun.creepersmc.creeperspvp.iui.IUIManager;
+package re.imc.creeperspvp;
+import re.imc.creeperspvp.iui.IUIManager;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -26,6 +26,7 @@ public final class ItemManager {
         """), Component.text("""
         ALPHA 0.2.0
         ·地图-初步完成中心岛地表部分的建造
+        ·新增-更多法器！
         ·增强-剑&钻石剑 现在带有 横扫之刃III 附魔
         ·增强-鱼叉 攻击速度0.8 -> 0.9
         ·削弱-战袍 伤害提升33% -> 25%

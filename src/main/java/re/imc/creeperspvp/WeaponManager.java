@@ -1,4 +1,4 @@
-package fun.creepersmc.creeperspvp;
+package re.imc.creeperspvp;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import java.util.Arrays;
-import static fun.creepersmc.creeperspvp.ItemManager.*;
+import static re.imc.creeperspvp.ItemManager.*;
 public final class WeaponManager {
     public static final int RAPIER = 0;
     public static final int FREEZING_FOIL = 1;
@@ -37,6 +37,7 @@ public final class WeaponManager {
     public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), null, null, null, null, new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
     public static final int[] selections = new int[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, BOW, CROSSBOW};
     public static final int[] upgrades = new int[] {FREEZING_FOIL, -1, BREEZE_ROD, -1, NIGHTMARES_BITE, -1, DIAMOND_SWORD, -1, FIREBRAND, -1, HIGHLAND_AXE, -1, CURSED_AXE, -1, DIAMOND_PICKAXE, -1, UNKNOWN_UPGRADE, -1, TEMPEST_MACE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private WeaponManager() {}
     public static void init() {
         weapons[RAPIER].editMeta(meta -> {

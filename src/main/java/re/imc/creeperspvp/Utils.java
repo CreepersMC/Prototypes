@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-
+import java.io.IOException;
 import java.sql.*;
 import java.util.ListIterator;
 import java.util.UUID;
@@ -57,9 +57,9 @@ public final class Utils {
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
             `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `armor_status` BINARY(8) DEFAULT NULL,
-            `weapon_status` BINARY(8) DEFAULT NULL,
-            `artifact_status` BINARY(32) DEFAULT NULL,
+            `armor_status` BINARY(8) NOT NULL DEFAULT 0,
+            `weapon_status` BINARY(8) NOT NULL DEFAULT 0,
+            `artifact_status` BINARY(32) NOT NULL DEFAULT 0,
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
@@ -123,6 +123,9 @@ public final class Utils {
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing sql query: " + e.getMessage());
         }
+    }
+    public static void playerQuit(Player player) {
+        playerLocks.remove(player.getUniqueId());
     }
     public static void playerInit(Player player) {
         removeGainArtifactSchedulers(player.getUniqueId());
@@ -191,32 +194,49 @@ public final class Utils {
     }
     public static long fetchPlayerEmeralds(UUID uuid) {
         try(final ResultSet result = getStatement().executeQuery("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            return result.getInt("emeralds");
+            if(result.next()) {
+                return result.getInt("emeralds");
+            }
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
         }
         return 0;
     }
-    //TODO
     public static void addPlayerEmeralds(UUID uuid, long amount) {
-        ;
+        try {
+            getStatement().execute("UPDATE `player_data` SET `emeralds` = `emeralds` + " + amount + " WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
     }
+    //TODO
     public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
         return new boolean[64];
     }
-    public static void setPlayerArmorStatus(UUID uuid, int armor, boolean val) {
+    public static void setPlayerArmorStatus(UUID uuid, boolean[] val) {
         ;
     }
     public static boolean[] fetchPlayerWeaponsStatus(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `weapon_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            if(result.next()) {
+                return bytesToBooleans(result.getBinaryStream("weapon_status").readAllBytes());
+            }
+        } catch(SQLException | IOException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
         return new boolean[64];
     }
-    public static void setPlayerWeaponStatus(UUID uuid, int weapon, boolean val) {
-        ;
+    public static void setPlayerWeaponStatus(UUID uuid, boolean[] val) {
+        try {
+            getStatement().execute("UPDATE `player_data` SET `weapon_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
     }
     public static boolean[] fetchPlayerArtifactsStatus(UUID uuid) {
         return new boolean[256];
     }
-    public static void setPlayerArtifactStatus(UUID uuid, int artifact, boolean val) {
+    public static void setPlayerArtifactStatus(UUID uuid, boolean[] val) {
         ;
     }
     public static Object getPlayerLock(UUID uuid) {
@@ -291,6 +311,22 @@ public final class Utils {
                 gainArtifactScheduler.remove(uuid);
             }
         }
+    }
+    private static boolean[] bytesToBooleans(byte[] bytes) {
+        final boolean[] booleans = new boolean[bytes.length * Byte.SIZE];
+        for(int i = 0; i < bytes.length; i++) {
+            for(byte j = 0; j < Byte.SIZE; j++, bytes[i] >>= 1) {
+                booleans[i * Byte.SIZE + j] = bytes[i] % 2 != 0;
+            }
+        }
+        return booleans;
+    }
+    private static String booleansToString(boolean[] booleans) {
+        final StringBuilder builder = new StringBuilder();
+        for(final boolean b : booleans) {
+            builder.append(b ? '1' : '0');
+        }
+        return builder.toString();
     }
     private static Connection getConnection() {
         if(connection == null) {

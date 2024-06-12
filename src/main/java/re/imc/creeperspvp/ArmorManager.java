@@ -38,7 +38,7 @@ public final class ArmorManager {
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.ELYTRA), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.ELYTRA), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
-        {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
+        {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)},
         {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
@@ -61,10 +61,14 @@ public final class ArmorManager {
         {new ItemStack(Material.TURTLE_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {null, null, null, null},
         {null, null, null, null},
+        {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)},
+        {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS)},
+        {new ItemStack(Material.DIAMOND_HELMET), new ItemStack(Material.DIAMOND_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)},
+        {new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS)},
     };
-    public static final ItemStack[] selectors = new ItemStack[] {new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE)};
-    public static final int[] selections = new int[] {MERCENARY_ARMOR, BATTLE_ROBE};
-    public static final int[] upgrades = new int[] {RENEGADE_ARMOR, -1, SPLENDID_ROBE, -1};
+    public static final ItemStack[] selectors = new ItemStack[] {new ItemStack(Material.ELYTRA), new ItemStack(Material.ELYTRA), new ItemStack(Material.IRON_BOOTS), new ItemStack(Material.DIAMOND_BOOTS), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_BOOTS), new ItemStack(Material.CHAINMAIL_BOOTS), new ItemStack(Material.CHAINMAIL_HELMET), new ItemStack(Material.CHAINMAIL_HELMET), null, null, new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.TURTLE_HELMET), new ItemStack(Material.TURTLE_HELMET), null, null, new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.DIAMOND_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE)};
+    public static final int[] selections = new int[] {PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GHAST_ARMOR, SNOWY_ARMOR, CREEPER_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, SHULKER_ARMOR};
+    public static final int[] upgrades = new int[] {-1, -1, GOAT_GEAR, -1, SPLENDID_ROBE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, RENEGADE_ARMOR, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ArmorManager() {}

@@ -1,5 +1,6 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import org.bukkit.event.player.*;
 import re.imc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.Title;
 //import net.kyori.adventure.title.TitlePart;
@@ -14,10 +15,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,7 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 public final class Listener implements org.bukkit.event.Listener {
     public static final Listener instance = new Listener();
     private Listener() {}
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
         /* TODO
         @SuppressWarnings("all") DamageSource source = event.getDamageSource();
@@ -42,11 +39,15 @@ public final class Listener implements org.bukkit.event.Listener {
         */
         Utils.playerInit(event.getEntity());
     }
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
         event.getPlayer().openBook(ItemManager.welcome);
+    }
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Utils.playerQuit(event.getPlayer());
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
@@ -144,7 +145,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 }
                 if(data.has(Utils.iuiIDKey, PersistentDataType.BYTE)) {
                     event.setCancelled(true);
-                    IUIManager.getIUI(data.get(Utils.iuiIDKey, PersistentDataType.BYTE), data.get(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER)).open(player);
+                    IUIManager.getIUI(data.get(Utils.iuiIDKey, PersistentDataType.BYTE), player.getUniqueId(), data.get(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER)).open(player);
                 }
                 if(data.has(Utils.utilIDKey, PersistentDataType.BYTE)) {
                     event.setCancelled(true);

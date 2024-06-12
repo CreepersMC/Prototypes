@@ -24,6 +24,10 @@ public final class ItemManager {
         祝大家玩得开心XD
         往后翻查看更新日志
         """), Component.text("""
+        ALPHA 0.3.0
+        ·地图-调整森林群系，树木更加稀疏，过渡更加平滑
+        ·地图-在平原群系一角新增村庄
+        """), Component.text("""
         ALPHA 0.2.0
         ·地图-初步完成中心岛地表部分的建造
         ·新增-更多法器！

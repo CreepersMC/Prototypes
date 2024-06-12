@@ -36,11 +36,11 @@ public final class IUIManager {
     public static void init() {
         FastInvManager.register(CreepersPVP.instance);
     }
-    public static FastInv getIUI(byte id, PersistentDataContainer data) {
-        return iuis[id] instanceof DynamicInv dynamicInv ? dynamicInv.getInv(data) : iuis[id];
+    public static FastInv getIUI(byte id, UUID uuid, PersistentDataContainer data) {
+        return iuis[id] instanceof DynamicInv dynamicInv ? dynamicInv.getInv(uuid, data) : iuis[id];
     }
     private interface DynamicInv {
-        FastInv getInv(PersistentDataContainer data);
+        FastInv getInv(UUID uuid, PersistentDataContainer data);
     }
     private static abstract class CreeperInv extends FastInv {
         protected CreeperInv(int size) {
@@ -99,7 +99,7 @@ public final class IUIManager {
             }
         }
         @Override
-        public ArmorSelectorInv getInv(PersistentDataContainer data) {
+        public ArmorSelectorInv getInv(UUID uuid, PersistentDataContainer data) {
             return new ArmorSelectorInv(null);
             //return instance;
         }
@@ -109,26 +109,29 @@ public final class IUIManager {
         private WeaponSelectorInv() {
             super(InventoryType.PLAYER);
         }
-        private WeaponSelectorInv(final int weapon) {
+        private WeaponSelectorInv(final UUID uuid, final int weapon) {
             super(54, "选择武器#" + (weapon + 1));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final UUID uuid = UUID.randomUUID(); //TODO
             final boolean[] weaponsStatus = Utils.fetchPlayerWeaponsStatus(uuid);
             final Object lock = Utils.getPlayerLock(uuid);
             int slot = 10;
             for(final int weaponSelection : WeaponManager.selections) {
                 ItemStack item = WeaponManager.weapons[weaponSelection].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                lore.add(equipOnLeftClick);
-                if(WeaponManager.upgrades[weaponSelection] != -1) {
-                    lore.add(upgradeOnRightClick);
+                if(weaponsStatus[weaponSelection]) {
+                    lore.add(equipOnLeftClick);
+                    if(WeaponManager.upgrades[weaponSelection] != -1) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
                 setItem(slot, item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
-                            if(weaponsStatus[weaponSelection]) { //TODO
+                            if(weaponsStatus[weaponSelection]) {
                                 PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
                                 data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
@@ -136,8 +139,9 @@ public final class IUIManager {
                                 synchronized(lock) {
                                     if(!weaponsStatus[weaponSelection] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
                                         Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
-                                        Utils.setPlayerWeaponStatus(uuid, weaponSelection, true);
                                         weaponsStatus[weaponSelection] = true;
+                                        Utils.setPlayerWeaponStatus(uuid, weaponsStatus);
+                                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
                                     }
                                 }
                             }
@@ -154,9 +158,9 @@ public final class IUIManager {
             }
         }
         @Override
-        public WeaponSelectorInv getInv(PersistentDataContainer data) {
+        public WeaponSelectorInv getInv(UUID uuid, PersistentDataContainer data) {
             if(data.has(Utils.weaponSelectorIDKey, PersistentDataType.INTEGER)) {
-                return new WeaponSelectorInv(data.get(Utils.weaponSelectorIDKey, PersistentDataType.INTEGER));
+                return new WeaponSelectorInv(uuid, data.get(Utils.weaponSelectorIDKey, PersistentDataType.INTEGER));
             }
             return instance;
         }
@@ -226,7 +230,7 @@ public final class IUIManager {
             }
         }
         @Override
-        public ArtifactSelectorInv getInv(PersistentDataContainer data) {
+        public ArtifactSelectorInv getInv(UUID uuid, PersistentDataContainer data) {
             if(data.has(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER)) {
                 return new ArtifactSelectorInv(data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER), 0);
             }

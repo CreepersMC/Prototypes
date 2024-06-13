@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -30,6 +31,7 @@ public final class IUIManager {
         ArtifactSelectorInv.instance,
     };
     private static final Component onInteraction = Component.text(">>> ", NamedTextColor.WHITE);
+    private static final Component priceTag = Component.text("价格：", NamedTextColor.WHITE);
     private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
@@ -113,41 +115,44 @@ public final class IUIManager {
             super(54, "选择武器#" + (weapon + 1));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final boolean[] weaponsStatus = Utils.fetchPlayerWeaponsStatus(uuid);
+            final boolean[] weaponStatus = Utils.fetchPlayerWeaponsStatus(uuid);
             final Object lock = Utils.getPlayerLock(uuid);
             int slot = 10;
             for(final int weaponSelection : WeaponManager.selections) {
                 ItemStack item = WeaponManager.weapons[weaponSelection].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                if(weaponsStatus[weaponSelection]) {
+                if(weaponStatus[weaponSelection]) {
                     lore.add(equipOnLeftClick);
-                    if(WeaponManager.upgrades[weaponSelection] != -1) {
+                    if(WeaponManager.upgrades[weaponSelection].length > 0) {
                         lore.add(upgradeOnRightClick);
                     }
                 } else {
+                    lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponSelection])));
                     lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(slot, item, event -> {
+                setItem(slot, weaponStatus[weaponSelection] ? item : item.withType(Material.GRAY_DYE), event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
-                            if(weaponsStatus[weaponSelection]) {
+                            if(weaponStatus[weaponSelection]) {
                                 PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
                                 data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             } else {
-                                synchronized(lock) {
-                                    if(!weaponsStatus[weaponSelection] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
-                                        Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
-                                        weaponsStatus[weaponSelection] = true;
-                                        Utils.setPlayerWeaponStatus(uuid, weaponsStatus);
-                                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!weaponStatus[weaponSelection] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
+                                            Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
+                                            weaponStatus[weaponSelection] = true;
+                                            Utils.setPlayerWeaponStatus(uuid, weaponStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
+                                        }
                                     }
-                                }
+                                }, () -> open(player)).open(player));
                             }
                         }
-                        if(event.isRightClick() && weaponsStatus[weaponSelection] && WeaponManager.upgrades[weaponSelection] != -1) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(weapon, weaponSelection).open(player));
+                        if(event.isRightClick() && weaponStatus[weaponSelection] && WeaponManager.upgrades[weaponSelection].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponSelection, weaponStatus).open(player));
                         }
                     }
                 });
@@ -165,26 +170,52 @@ public final class IUIManager {
             return instance;
         }
     }
-    public static final class WeaponUpgradeInv extends CreeperInv {
-        private WeaponUpgradeInv(final int weapon, final int weaponID) {
+    private static final class WeaponUpgradeInv extends CreeperInv {
+        private WeaponUpgradeInv(final FastInv source, final UUID uuid, final int weapon, final int weaponID, final boolean[] weaponStatus) {
             super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
-            setItem(0, ItemManager.BACK);
+            setItem(0, ItemManager.BACK, event -> source.open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            setItem(13, WeaponManager.weapons[WeaponManager.upgrades[weaponID]], event -> {
-                if(event.getWhoClicked() instanceof Player player) {
-                    if(event.isLeftClick()) {
-                        if(true) { //TODO
-                            PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                            data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, WeaponManager.upgrades[weaponID]);
-                            player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+            final Object lock = Utils.getPlayerLock(uuid);
+            for(final int weaponUpgrade : WeaponManager.upgrades[weaponID]) {
+                ItemStack item = WeaponManager.weapons[weaponUpgrade].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                if(weaponStatus[weaponUpgrade]) {
+                    lore.add(equipOnLeftClick);
+                    if(WeaponManager.upgrades[weaponUpgrade].length > 0) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponUpgrade])));
+                    lore.add(buyOnLeftClick);
+                }
+                item.lore(lore);
+                setItem(13, weaponStatus[weaponUpgrade] ? item : item.withType(Material.GRAY_DYE), event -> {
+                    if(event.getWhoClicked() instanceof Player player) {
+                        if(event.isLeftClick()) {
+                            if(weaponStatus[weaponUpgrade]) {
+                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
+                                data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponUpgrade);
+                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!weaponStatus[weaponUpgrade] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponUpgrade]) {
+                                            Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
+                                            weaponStatus[weaponUpgrade] = true;
+                                            Utils.setPlayerWeaponStatus(uuid, weaponStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponID, weaponStatus).open(player));
+                                        }
+                                    }
+                                }, () -> open(player)).open(player));
+                            }
+                        }
+                        if(event.isRightClick() && weaponStatus[weaponUpgrade] && WeaponManager.upgrades[weaponUpgrade].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponUpgrade, weaponStatus).open(player));
                         }
                     }
-                    if(event.isRightClick() && WeaponManager.upgrades[weaponID] != -1) {
-                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(weapon, weaponID).open(player));
-                    }
-                }
-            });
+                });
+            }
         }
     }
     public static final class ArtifactSelectorInv extends CreeperInv implements DynamicInv {
@@ -237,7 +268,7 @@ public final class IUIManager {
             return instance;
         }
     }
-    public static final class ArtifactUpgradeInv extends CreeperInv {
+    private static final class ArtifactUpgradeInv extends CreeperInv {
         private ArtifactUpgradeInv(final int artifact, final int artifactID) {
             super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
@@ -257,6 +288,14 @@ public final class IUIManager {
                     }
                 }
             });
+        }
+    }
+    private static final class ConfirmPurchaseDialogue extends CreeperInv {
+        private ConfirmPurchaseDialogue(ItemStack item, Runnable confirm, Runnable cancel) {
+            super(InventoryType.HOPPER, "确认购买？");
+            setItem(2, item);
+            setItem(0, ItemManager.CONFIRM, event -> confirm.run());
+            setItem(4, ItemManager.CANCEL, event -> cancel.run());
         }
     }
 }

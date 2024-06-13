@@ -5,6 +5,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
@@ -73,6 +74,34 @@ public final class ArmorManager {
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ArmorManager() {}
     public static void init() {
+        for(ItemStack armor : armor[PHANTOM_ARMOR]) {
+            armor.editMeta(meta -> {
+               meta.setUnbreakable(true);
+               meta.setRarity(ItemRarity.COMMON);
+               meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
+               meta.lore(removeItalics(Arrays.asList(Component.text("由幻翼膜制成的盔甲，给予穿戴者像蝠鲼一样滑翔的能力。", NamedTextColor.GRAY))));
+               meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            });
+        }
+        armor[PHANTOM_ARMOR][1].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST)));
+        for(ItemStack armor : armor[CLIMBING_GEAR]) {
+            armor.editMeta(meta -> {
+                meta.setUnbreakable(true);
+                meta.setRarity(ItemRarity.COMMON);
+                meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            });
+        }
+        armor[CLIMBING_GEAR][1].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        });
+        armor[CLIMBING_GEAR][3].editMeta(meta -> {
+            meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[3], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+            meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[3], "", 10, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+        });
         for(ItemStack armor : armor[MERCENARY_ARMOR]) {
             armor.editMeta(meta -> {
                 meta.setUnbreakable(true);
@@ -155,6 +184,21 @@ public final class ArmorManager {
         armor[SPLENDID_ROBE][2].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+        });
+        selectors[PHANTOM_ARMOR].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("由幻翼膜制成的盔甲，给予穿戴者像蝠鲼一样滑翔的能力。", NamedTextColor.GRAY))));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 9, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        });
+        selectors[CLIMBING_GEAR].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
+            meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 9, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         });
         selectors[MERCENARY_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.COMMON);

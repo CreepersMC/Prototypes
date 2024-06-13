@@ -57,6 +57,8 @@ public final class ItemManager {
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CLOSE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     public static final ItemStack BACK = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+    public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+    public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier("", 0, AttributeModifier.Operation.ADD_NUMBER);
     static final UUID ATTACK_DAMAGE_ATTRIBUTE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     static final UUID ATTACK_SPEED_ATTRIBUTE_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
@@ -116,6 +118,8 @@ public final class ItemManager {
         BORDER.editMeta(meta -> meta.itemName(Component.empty()));
         CLOSE.editMeta(meta -> meta.itemName(Component.text("✖ 关闭", NamedTextColor.RED)));
         BACK.editMeta(meta -> meta.itemName(Component.text("◀ 返回", NamedTextColor.YELLOW)));
+        CONFIRM.editMeta(meta -> meta.itemName(Component.text("✔ 确认", NamedTextColor.GREEN)));
+        CANCEL.editMeta(meta -> meta.itemName(Component.text("✖ 取消", NamedTextColor.RED)));
     }
     static void editMeleeAttributes(ItemMeta meta, double damage, double speed) {
         meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE);

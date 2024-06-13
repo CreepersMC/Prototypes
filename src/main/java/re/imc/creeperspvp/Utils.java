@@ -315,7 +315,7 @@ public final class Utils {
     private static boolean[] bytesToBooleans(byte[] bytes) {
         final boolean[] booleans = new boolean[bytes.length * Byte.SIZE];
         for(int i = 0; i < bytes.length; i++) {
-            for(byte j = 0; j < Byte.SIZE; j++, bytes[i] >>= 1) {
+            for(byte j = Byte.SIZE - 1; j >= 0; j--, bytes[i] >>= 1) {
                 booleans[i * Byte.SIZE + j] = bytes[i] % 2 != 0;
             }
         }
@@ -329,12 +329,12 @@ public final class Utils {
         return builder.toString();
     }
     private static Connection getConnection() {
-        if(connection == null) {
-            try {
+        try {
+            if(connection == null || connection.isValid(400)) {
                 return connection = DriverManager.getConnection(databaseConnectionURL);
-            } catch(SQLException e) {
-                CreepersPVP.logWarning("Error creating database connection: " + e.getMessage());
             }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error creating database connection: " + e.getMessage());
         }
         return connection;
     }

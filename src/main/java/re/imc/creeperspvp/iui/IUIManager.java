@@ -30,11 +30,11 @@ public final class IUIManager {
         WeaponSelectorInv.instance,
         ArtifactSelectorInv.instance,
     };
-    private static final Component onInteraction = Component.text(">>> ", NamedTextColor.WHITE);
-    private static final Component priceTag = Component.text("价格：", NamedTextColor.WHITE);
-    private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-    private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-    private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component onInteraction = Component.text(">>> ", NamedTextColor.WHITE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component priceTag = Component.text("价格：", NamedTextColor.WHITE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW));
+    private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN));
+    private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA));
     public static void init() {
         FastInvManager.register(CreepersPVP.instance);
     }
@@ -152,7 +152,7 @@ public final class IUIManager {
                             }
                         }
                         if(event.isRightClick() && weaponStatus[weaponSelection] && WeaponManager.upgrades[weaponSelection].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponSelection, weaponStatus).open(player));
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponSelection, weaponStatus).open(player));
                         }
                     }
                 });
@@ -171,10 +171,10 @@ public final class IUIManager {
         }
     }
     private static final class WeaponUpgradeInv extends CreeperInv {
-        private WeaponUpgradeInv(final FastInv source, final UUID uuid, final int weapon, final int weaponID, final boolean[] weaponStatus) {
+        private WeaponUpgradeInv(final UUID uuid, final int weapon, final int weaponID, final boolean[] weaponStatus) {
             super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
-            setItem(0, ItemManager.BACK, event -> source.open(Bukkit.getPlayer(uuid)));
+            setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = Utils.getPlayerLock(uuid);
             for(final int weaponUpgrade : WeaponManager.upgrades[weaponID]) {
@@ -204,14 +204,14 @@ public final class IUIManager {
                                             Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
                                             weaponStatus[weaponUpgrade] = true;
                                             Utils.setPlayerWeaponStatus(uuid, weaponStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponID, weaponStatus).open(player));
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponID, weaponStatus).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && weaponStatus[weaponUpgrade] && WeaponManager.upgrades[weaponUpgrade].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(this, uuid, weapon, weaponUpgrade, weaponStatus).open(player));
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponUpgrade, weaponStatus).open(player));
                         }
                     }
                 });

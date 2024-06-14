@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,6 +14,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import re.imc.creeperspvp.*;
@@ -70,27 +72,53 @@ public final class IUIManager {
         private ArmorSelectorInv() {
             super(InventoryType.PLAYER);
         }
-        private ArmorSelectorInv(Object obj) {
+        private ArmorSelectorInv(final UUID uuid) {
             super(54, "选择盔甲");
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            final boolean[] armorStatus = Utils.fetchPlayerArmorStatus(uuid);
+            final Object lock = Utils.getPlayerLock(uuid);
             int slot = 10;
             for(final int armorSelection : ArmorManager.selections) {
                 ItemStack item = ArmorManager.selectors[armorSelection].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                lore.add(equipOnLeftClick);
-                if(ArmorManager.upgrades[armorSelection] != -1) {
-                    lore.add(upgradeOnRightClick);
+                if(armorStatus[armorSelection]) {
+                    lore.add(equipOnLeftClick);
+                    if(ArmorManager.upgrades[armorSelection].length > 0) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(priceTag.append(Component.text(ArmorManager.prices[armorSelection])));
+                    lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(slot, item, event -> {
+                ItemStack tmp = item.withType(Material.LEATHER_CHESTPLATE);
+                tmp.editMeta(LeatherArmorMeta.class, meta -> {
+                    meta.setCustomModelData(1);
+                    meta.setColor(Color.GRAY);
+                });
+                setItem(slot, armorStatus[armorSelection] ? item : tmp, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
-                            if(true) { //TODO
+                            if(armorStatus[armorSelection]) {
                                 PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
                                 data.set(Utils.armorKey, PersistentDataType.INTEGER, armorSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!armorStatus[armorSelection] && Utils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorSelection]) {
+                                            Utils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorSelection]);
+                                            armorStatus[armorSelection] = true;
+                                            Utils.setPlayerArmorStatus(uuid, armorStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorSelectorInv(uuid).open(player));
+                                        }
+                                    }
+                                }, () -> open(player)).open(player));
                             }
+                        }
+                        if(event.isRightClick() && armorStatus[armorSelection] && ArmorManager.upgrades[armorSelection].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorSelection, armorStatus).open(player));
                         }
                     }
                 });
@@ -102,8 +130,55 @@ public final class IUIManager {
         }
         @Override
         public ArmorSelectorInv getInv(UUID uuid, PersistentDataContainer data) {
-            return new ArmorSelectorInv(null);
-            //return instance;
+            return new ArmorSelectorInv(uuid);
+        }
+    }
+    private static final class ArmorUpgradeInv extends CreeperInv {
+        private ArmorUpgradeInv(final UUID uuid, final int armorID, final boolean[] armorStatus) {
+            super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(ArmorManager.selectors[armorID].displayName()));
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(0, ItemManager.BACK, event -> new ArmorSelectorInv(uuid).open(Bukkit.getPlayer(uuid)));
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            final Object lock = Utils.getPlayerLock(uuid);
+            for(final int armorUpgrade : ArmorManager.upgrades[armorID]) {
+                ItemStack item = ArmorManager.selectors[armorUpgrade].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                if(armorStatus[armorUpgrade]) {
+                    lore.add(equipOnLeftClick);
+                    if(ArmorManager.upgrades[armorUpgrade].length > 0) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(priceTag.append(Component.text(ArmorManager.prices[armorUpgrade])));
+                    lore.add(buyOnLeftClick);
+                }
+                item.lore(lore);
+                setItem(13, armorStatus[armorUpgrade] ? item : item.withType(Material.CHAINMAIL_CHESTPLATE), event -> {
+                    if(event.getWhoClicked() instanceof Player player) {
+                        if(event.isLeftClick()) {
+                            if(armorStatus[armorUpgrade]) {
+                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
+                                data.set(Utils.armorKey, PersistentDataType.INTEGER, armorUpgrade);
+                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!armorStatus[armorUpgrade] && Utils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorUpgrade]) {
+                                            Utils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorUpgrade]);
+                                            armorStatus[armorUpgrade] = true;
+                                            Utils.setPlayerArmorStatus(uuid, armorStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorID, armorStatus).open(player));
+                                        }
+                                    }
+                                }, () -> open(player)).open(player));
+                            }
+                        }
+                        if(event.isRightClick() && armorStatus[armorUpgrade] && ArmorManager.upgrades[armorUpgrade].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorUpgrade, armorStatus).open(player));
+                        }
+                    }
+                });
+            }
         }
     }
     public static final class WeaponSelectorInv extends CreeperInv implements DynamicInv {
@@ -236,7 +311,7 @@ public final class IUIManager {
                 ItemStack item = ArtifactManager.artifacts[artifactSelection].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 lore.add(equipOnLeftClick);
-                if(ArtifactManager.upgrades[artifactSelection] != -1) {
+                if(ArtifactManager.upgrades[artifactSelection].length > 0) {
                     lore.add(upgradeOnRightClick);
                 }
                 item.lore(lore);
@@ -249,7 +324,7 @@ public final class IUIManager {
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             }
                         }
-                        if(event.isRightClick() && ArtifactManager.upgrades[artifactSelection] != -1) {
+                        if(event.isRightClick() && ArtifactManager.upgrades[artifactSelection].length > 0) {
                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(artifact, artifactSelection).open(player));
                         }
                     }
@@ -274,6 +349,7 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            /*
             setItem(13, ArtifactManager.artifacts[ArtifactManager.upgrades[artifactID]], event -> {
                 if(event.getWhoClicked() instanceof Player player) {
                     if(event.isLeftClick()) {
@@ -288,6 +364,7 @@ public final class IUIManager {
                     }
                 }
             });
+             */
         }
     }
     private static final class ConfirmPurchaseDialogue extends CreeperInv {

@@ -1,10 +1,15 @@
 package re.imc.creeperspvp;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,11 +116,11 @@ public final class ArtifactManager {
         -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
     public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {SHIELD}};
-    public static final int[] upgrades = new int[] {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        GOLDEN_CARROT, -1, GOLDEN_APPLE, -1, -1, -1, -1, COOKED_BEEF, -1, COOKED_PORKCHOP, -1, COOKED_MUTTON, -1, COOKED_SALMON, -1, -1, COOKED_CHICKEN, -1, -1, -1, BAKED_POTATO, -1, -1, COOKED_COD, -1, COOKED_RABBIT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    public static final int[][] upgrades = new int[][] {
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {GOLDEN_CARROT}, {}, {GOLDEN_APPLE}, {}, {}, {}, {}, {COOKED_BEEF}, {}, {COOKED_PORKCHOP}, {}, {COOKED_MUTTON}, {}, {COOKED_SALMON}, {}, {}, {COOKED_CHICKEN}, {}, {}, {}, {BAKED_POTATO}, {}, {}, {COOKED_COD}, {}, {COOKED_RABBIT}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     };
     public static final long[] prices = new long[] {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -123,30 +128,57 @@ public final class ArtifactManager {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
+    private static final Component enterOnClick = Component.text(">>> ", NamedTextColor.WHITE).append(Component.text("点击进入", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private ArtifactManager() {}
     public static void init() {
         artifactCategorySelectors[CATEGORY_PROJECTILES / 64].editMeta(meta -> {
-            meta.itemName(Component.text("弹射物", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("可以扔出或使用远程武器射出的物品", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("弹射物", NamedTextColor.YELLOW));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以扔出或使用远程武器射出的物品", NamedTextColor.GOLD), enterOnClick)));
         });
         artifactCategorySelectors[CATEGORY_EXPLOSIVES_AND_TRAPS / 64].editMeta(meta -> {
-            meta.itemName(Component.text("爆炸物与陷阱", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("可以爆炸或困住敌人的物品", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("爆炸物与陷阱", NamedTextColor.RED));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以爆炸或困住敌人的物品", NamedTextColor.DARK_RED), enterOnClick)));
         });
         artifactCategorySelectors[CATEGORY_FOOD / 64].editMeta(meta -> {
-            meta.itemName(Component.text("食物", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("可以吃的物品", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("食物", NamedTextColor.GREEN));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以吃的物品", NamedTextColor.DARK_GREEN), enterOnClick)));
         });
         artifactCategorySelectors[CATEGORY_DEFENSES_AND_BUFFS / 64].editMeta(meta -> {
-            meta.itemName(Component.text("防御与增益", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("防御与增益", NamedTextColor.BLUE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
+        NBT.modify(artifacts[TNT], nbt -> {
+            nbt.getOrCreateCompound("can_place_on");
+        });
+        NBT.modify(artifacts[END_CRYSTAL], nbt -> {
+            nbt.getOrCreateCompound("can_place_on");
+        });
+        artifacts[TNT].editMeta(meta -> {
+            meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
+        });
+        artifacts[END_CRYSTAL].editMeta(meta -> {
+            meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
+        });
+        artifacts[FISHING_ROD].editMeta(meta -> {
+            meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
+        });
+        artifacts[GOLDEN_APPLE].editMeta(meta -> {
+            meta.setRarity(ItemRarity.UNCOMMON);
+            meta.itemName(Component.text("金苹果", NamedTextColor.YELLOW));
+        });
+        artifacts[ENCHANTED_GOLDEN_APPLE].editMeta(meta -> meta.itemName(Component.text("附魔金苹果", NamedTextColor.LIGHT_PURPLE)));
+        artifacts[TOTEM_OF_UNDYING].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
         for(final int[] i = new int[] {0}; i[0] < artifacts.length; i[0]++) {
             if(artifacts[i[0]] != null) {
                 artifacts[i[0]].editMeta(meta -> {
                     meta.setUnbreakable(true);
                     meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-                    meta.setRarity(ItemRarity.COMMON);
+                    if(!meta.hasRarity()) {
+                        meta.setRarity(ItemRarity.COMMON);
+                    }
                     if(gainCooldowns[i[0]] != -1) {
                         Component gainCooldownDescription = Component.text("冷却时长：" + gainCooldowns[i[0]] / 20, NamedTextColor.DARK_GREEN);
                         if(meta.hasLore()) {
@@ -161,8 +193,5 @@ public final class ArtifactManager {
                 });
             }
         }
-        artifacts[GOLDEN_APPLE].editMeta(meta -> meta.setRarity(ItemRarity.UNCOMMON));
-        artifacts[ENCHANTED_GOLDEN_APPLE].editMeta(meta -> meta.setRarity(ItemRarity.EPIC));
-        artifacts[TOTEM_OF_UNDYING].editMeta(meta -> meta.setRarity(ItemRarity.UNCOMMON));
     }
 }

@@ -16,6 +16,7 @@ import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import java.util.Arrays;
+import java.util.UUID;
 import static re.imc.creeperspvp.ItemManager.*;
 public final class ArmorManager {
     public static final int PHANTOM_ARMOR = 0;
@@ -69,7 +70,7 @@ public final class ArmorManager {
     };
     public static final ItemStack[] selectors = new ItemStack[] {new ItemStack(Material.ELYTRA), new ItemStack(Material.ELYTRA), new ItemStack(Material.IRON_BOOTS), new ItemStack(Material.DIAMOND_BOOTS), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_BOOTS), new ItemStack(Material.CHAINMAIL_BOOTS), new ItemStack(Material.CHAINMAIL_HELMET), new ItemStack(Material.CHAINMAIL_HELMET), null, null, new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.TURTLE_HELMET), new ItemStack(Material.TURTLE_HELMET), null, null, new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.DIAMOND_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE)};
     public static final int[] selections = new int[] {PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GHAST_ARMOR, SNOWY_ARMOR, CREEPER_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, SHULKER_ARMOR};
-    public static final int[] upgrades = new int[] {-1, -1, GOAT_GEAR, -1, SPLENDID_ROBE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, RENEGADE_ARMOR, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public static final int[][] upgrades = new int[][] {{}, {}, {}, {}, {SPLENDID_ROBE}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {RENEGADE_ARMOR}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ArmorManager() {}
@@ -90,7 +91,9 @@ public final class ArmorManager {
                 meta.setRarity(ItemRarity.COMMON);
                 meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
+                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
                 meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                meta.setEnchantmentGlintOverride(false);
             });
         }
         armor[CLIMBING_GEAR][1].editMeta(meta -> {
@@ -100,7 +103,89 @@ public final class ArmorManager {
         armor[CLIMBING_GEAR][3].editMeta(meta -> {
             meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[3], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-            meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[3], "", 10, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+            meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[3], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+        });
+        for(ItemStack armor : armor[BATTLE_ROBE]) {
+            armor.editMeta(meta -> {
+                meta.setUnbreakable(true);
+                meta.setRarity(ItemRarity.COMMON);
+                meta.itemName(Component.text("战袍", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("战袍由奇厄教主法庭上杰出的唤魔者穿戴。", NamedTextColor.GRAY))));
+                if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
+                    leatherArmorMeta.setColor(Color.BLACK);
+                }
+                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
+            });
+        }
+        armor[BATTLE_ROBE][1].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+        });
+        armor[BATTLE_ROBE][2].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+        });
+        for(ItemStack armor : armor[SPLENDID_ROBE]) {
+            armor.editMeta(meta -> {
+                meta.setUnbreakable(true);
+                meta.setRarity(ItemRarity.RARE);
+                meta.itemName(Component.text("华丽长袍", NamedTextColor.AQUA));
+                meta.lore(removeItalics(Arrays.asList(Component.text("卓著的华丽长袍是保护奇厄教主的重型灾厄武士穿戴的装备。", NamedTextColor.GRAY))));
+                if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
+                    leatherArmorMeta.setColor(Color.BLACK);
+                }
+                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
+            });
+        }
+        armor[SPLENDID_ROBE][1].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+        });
+        armor[SPLENDID_ROBE][2].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+        });
+        for(ItemStack armor : armor[THIEF_ARMOR]) {
+            armor.editMeta(meta -> {
+                meta.setUnbreakable(true);
+                meta.setRarity(ItemRarity.COMMON);
+                meta.itemName(Component.text("窃贼盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这身轻便的盔甲闻起来有一股硫的味道。", NamedTextColor.GRAY))));
+                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SENTRY));
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            });
+        }
+        armor[THIEF_ARMOR][1].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+        });
+        armor[THIEF_ARMOR][2].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+        });
+        for(ItemStack armor : armor[SWIFT_ARMOR]) {
+            armor.editMeta(meta -> {
+                meta.setUnbreakable(true);
+                meta.setRarity(ItemRarity.COMMON);
+                meta.itemName(Component.text("轻盈盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("只有懦夫才会穿这身盔甲——至少人们是这么说的。", NamedTextColor.GRAY))));
+                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            });
+        }
+        armor[SWIFT_ARMOR][1].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1.7, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        });
+        armor[SWIFT_ARMOR][2].editMeta(meta -> {
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET));
         });
         for(ItemStack armor : armor[MERCENARY_ARMOR]) {
             armor.editMeta(meta -> {
@@ -141,50 +226,6 @@ public final class ArmorManager {
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[3], "", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[3], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
         });
-        for(ItemStack armor : armor[BATTLE_ROBE]) {
-            armor.editMeta(meta -> {
-                meta.setUnbreakable(true);
-                meta.setRarity(ItemRarity.COMMON);
-                meta.itemName(Component.text("战袍", NamedTextColor.WHITE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("战袍由奇厄教主法庭上杰出的唤魔者穿戴。", NamedTextColor.GRAY))));
-                if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
-                    leatherArmorMeta.setColor(Color.BLACK);
-                }
-                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
-                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
-            });
-        }
-        armor[BATTLE_ROBE][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-        });
-        armor[BATTLE_ROBE][2].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-        });
-        for(ItemStack armor : armor[SPLENDID_ROBE]) {
-            armor.editMeta(meta -> {
-                meta.setUnbreakable(true);
-                meta.setRarity(ItemRarity.RARE);
-                meta.itemName(Component.text("华丽长袍", NamedTextColor.AQUA));
-                meta.lore(removeItalics(Arrays.asList(Component.text("卓著的华丽长袍是保护奇厄教主的重型灾厄武士穿戴的装备。", NamedTextColor.GRAY))));
-                if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
-                    leatherArmorMeta.setColor(Color.BLACK);
-                }
-                ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
-                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
-            });
-        }
-        armor[SPLENDID_ROBE][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 3, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 0.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.56, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-        });
-        armor[SPLENDID_ROBE][2].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[2], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[2], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
-        });
         selectors[PHANTOM_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.COMMON);
             meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
@@ -197,8 +238,54 @@ public final class ArmorManager {
             meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
             meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
+            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
+            meta.setEnchantmentGlintOverride(false);
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 9, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        });
+        selectors[BATTLE_ROBE].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("战袍", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("战袍由奇厄教主法庭上杰出的唤魔者穿戴。", NamedTextColor.GRAY))));
+            ((LeatherArmorMeta) meta).setColor(Color.BLACK);
+            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
+        });
+        selectors[SPLENDID_ROBE].editMeta(meta -> {
+            meta.setRarity(ItemRarity.RARE);
+            meta.itemName(Component.text("华丽长袍", NamedTextColor.DARK_PURPLE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("卓著的华丽长袍是保护奇厄教主的重型灾厄武士穿戴的装备。", NamedTextColor.GRAY))));
+            ((LeatherArmorMeta) meta).setColor(Color.BLACK);
+            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
+        });
+        selectors[THIEF_ARMOR].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("窃贼盔甲", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("这身轻便的盔甲闻起来有一股硫的味道。", NamedTextColor.GRAY))));
+            ((LeatherArmorMeta) meta).setColor(Color.BLUE);
+            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SENTRY));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1.5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
+        });
+        selectors[SWIFT_ARMOR].editMeta(meta -> {
+            meta.setRarity(ItemRarity.COMMON);
+            meta.itemName(Component.text("轻盈盔甲", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("只有懦夫才会穿这身盔甲——至少人们是这么说的。", NamedTextColor.GRAY))));
+            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 12, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_TOUGHNESS_UUIDS[1], "", 1.7, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
         });
         selectors[MERCENARY_ARMOR].editMeta(meta -> {
             meta.setRarity(ItemRarity.COMMON);
@@ -213,26 +300,6 @@ public final class ArmorManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("对那些被雇来保护村民免受灾厄威胁的佣兵来说，这件盔甲很划算。", NamedTextColor.GRAY))));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 15, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-        });
-        selectors[BATTLE_ROBE].editMeta(meta -> {
-            meta.setRarity(ItemRarity.COMMON);
-            meta.itemName(Component.text("战袍", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("战袍由奇厄教主法庭上杰出的唤魔者穿戴。", NamedTextColor.GRAY))));
-            ((LeatherArmorMeta) meta).setColor(Color.BLACK);
-            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
-        });
-        selectors[SPLENDID_ROBE].editMeta(meta -> {
-            meta.setRarity(ItemRarity.RARE);
-            meta.itemName(Component.text("华丽长袍", NamedTextColor.DARK_PURPLE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("卓著的华丽长袍是保护奇厄教主的重型灾厄武士穿戴的装备。", NamedTextColor.GRAY))));
-            ((LeatherArmorMeta) meta).setColor(Color.BLACK);
-            ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
-            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", 11, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.5, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addItemFlags(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ARMOR_TRIM);
         });
     }
 }

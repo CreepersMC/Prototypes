@@ -27,6 +27,14 @@ public final class ItemManager {
         ALPHA 0.3.0
         ·地图-调整森林群系，树木更加稀疏，过渡更加平滑
         ·地图-在平原群系一角新增村庄
+        ·新增-更多盔甲
+        ·功能-实装剧毒和爆炸效果，微调冰冻效果
+        ·功能-经济系统！
+        ·功能-重设计UI
+        """), Component.text("""
+        ·功能-复活后指南针有冷却，防止误操作
+        ·功能-复活后重置着火，冰冻，溺水效果
+        ·修复-霜冻花剑攻击被格挡时不再造成冰冻
         """), Component.text("""
         ALPHA 0.2.0
         ·地图-初步完成中心岛地表部分的建造
@@ -51,7 +59,7 @@ public final class ItemManager {
         """));
     public static final Component[] ARTIFACT_UNAVAILABLE_DISPLAY_NAMES = new Component[20];
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
-    public static final ItemStack[] WEAPON_SELECTORS = new ItemStack[] {new ItemStack(Material.IRON_AXE), new ItemStack(Material.BOW)};
+    public static final ItemStack[] WEAPON_SELECTORS = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD)};
     public static final ItemStack[] ARTIFACT_SELECTORS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
     public static final ItemStack DEPLOY = new ItemStack(Material.COMPASS);
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);

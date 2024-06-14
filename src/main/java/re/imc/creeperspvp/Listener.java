@@ -1,6 +1,8 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import re.imc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.Title;
 //import net.kyori.adventure.title.TitlePart;
@@ -37,6 +39,9 @@ public final class Listener implements org.bukkit.event.Listener {
             }
         }
         */
+        if(event.getDamageSource().getCausingEntity() instanceof Player player) {
+            Utils.addPlayerEmeralds(player.getUniqueId(), 5);
+        }
         Utils.playerInit(event.getEntity());
     }
     @EventHandler(priority = EventPriority.NORMAL)
@@ -102,9 +107,21 @@ public final class Listener implements org.bukkit.event.Listener {
                         final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
                         switch(data.getOrDefault(Utils.attackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
                             case Utils.EFFECT_CHANNELING -> {}
-                            case Utils.EFFECT_EXPLOSION -> {}
-                            case Utils.EFFECT_FREEZE -> event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 20)));
-                            case Utils.EFFECT_POISON -> {}
+                            case Utils.EFFECT_EXPLOSION -> {
+                                Location loc1 = event.getEntity().getLocation();
+                                Location loc2 = event.getDamager().getLocation();
+                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(event.getDamager(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.FLOAT, 0f), false, false);
+                            }
+                            case Utils.EFFECT_FREEZE -> {
+                                if(!event.isCancelled()) {
+                                    event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                                }
+                            }
+                            case Utils.EFFECT_POISON -> {
+                                if(event.getEntity() instanceof LivingEntity entity && !event.isCancelled()) {
+                                    entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                                }
+                            }
                         }
                     }
                 }
@@ -147,7 +164,7 @@ public final class Listener implements org.bukkit.event.Listener {
                     event.setCancelled(true);
                     IUIManager.getIUI(data.get(Utils.iuiIDKey, PersistentDataType.BYTE), player.getUniqueId(), data.get(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER)).open(player);
                 }
-                if(data.has(Utils.utilIDKey, PersistentDataType.BYTE)) {
+                if(data.has(Utils.utilIDKey, PersistentDataType.BYTE) && player.getCooldown(item.getType()) == 0) {
                     event.setCancelled(true);
                     switch(data.get(Utils.utilIDKey, PersistentDataType.BYTE)) {
                         case Utils.UTIL_SPAWN -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> Utils.spawnPlayer(player));

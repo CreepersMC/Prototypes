@@ -57,9 +57,9 @@ public final class Utils {
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
             `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `armor_status` BINARY(8) NOT NULL DEFAULT 0,
-            `weapon_status` BINARY(8) NOT NULL DEFAULT 0,
-            `artifact_status` BINARY(32) NOT NULL DEFAULT 0,
+            `armor_status` BINARY(8) NOT NULL DEFAULT b'0000000000000000000010000000000000000000000000000000000000000000',
+            `weapon_status` BINARY(8) NOT NULL DEFAULT b'1000000000000000000000100000000000000000000000000000000000',
+            `artifact_status` BINARY(32) NOT NULL DEFAULT b'0',
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
@@ -115,10 +115,11 @@ public final class Utils {
         }
     }
     public static void playerJoin(Player player) {
-        playerLocks.put(player.getUniqueId(), new Object());
-        try(final ResultSet result = getStatement().executeQuery("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + player.getUniqueId() + "');")) {
+        UUID uuid = player.getUniqueId();
+        playerLocks.put(uuid, new Object());
+        try(final ResultSet result = getStatement().executeQuery("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
             if(!result.next()) {
-                getStatement().execute("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN('" + player.getUniqueId() + "'))");
+                getStatement().execute("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN('" + uuid + "'))");
             }
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing sql query: " + e.getMessage());
@@ -145,6 +146,10 @@ public final class Utils {
         inv.setItem(8, ItemManager.ARTIFACT_SELECTORS[2]);
         inv.setHeldItemSlot(4);
         player.clearActivePotionEffects();
+        player.setRemainingAir(300);
+        player.setFireTicks(-20);
+        player.setFreezeTicks(0);
+        player.setCooldown(Material.COMPASS, 50);
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setSaturation(20);
@@ -209,12 +214,22 @@ public final class Utils {
             CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
         }
     }
-    //TODO
     public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `armor_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            if(result.next()) {
+                return bytesToBooleans(result.getBinaryStream("armor_status").readAllBytes());
+            }
+        } catch(SQLException | IOException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
         return new boolean[64];
     }
     public static void setPlayerArmorStatus(UUID uuid, boolean[] val) {
-        ;
+        try {
+            getStatement().execute("UPDATE `player_data` SET `armor_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
     }
     public static boolean[] fetchPlayerWeaponsStatus(UUID uuid) {
         try(final ResultSet result = getStatement().executeQuery("SELECT `weapon_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
@@ -233,11 +248,22 @@ public final class Utils {
             CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
         }
     }
-    public static boolean[] fetchPlayerArtifactsStatus(UUID uuid) {
+    public static boolean[] fetchPlayerArtifactStatus(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `artifact_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            if(result.next()) {
+                return bytesToBooleans(result.getBinaryStream("artifact_status").readAllBytes());
+            }
+        } catch(SQLException | IOException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
         return new boolean[256];
     }
     public static void setPlayerArtifactStatus(UUID uuid, boolean[] val) {
-        ;
+        try {
+            getStatement().execute("UPDATE `player_data` SET `artifact_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
     }
     public static Object getPlayerLock(UUID uuid) {
         return playerLocks.get(uuid);
@@ -330,7 +356,7 @@ public final class Utils {
     }
     private static Connection getConnection() {
         try {
-            if(connection == null || connection.isValid(400)) {
+            if(connection == null || connection.isClosed()) {
                 return connection = DriverManager.getConnection(databaseConnectionURL);
             }
         } catch(SQLException e) {
@@ -339,12 +365,12 @@ public final class Utils {
         return connection;
     }
     private static Statement getStatement() {
-        if(statement == null) {
-            try {
+        try {
+            if(statement == null || statement.isClosed()) {
                 return statement = getConnection().createStatement();
-            } catch(SQLException | NullPointerException e) {
-                CreepersPVP.logWarning("Error accessing database connection: " + e.getMessage());
             }
+        } catch(SQLException | NullPointerException e) {
+            CreepersPVP.logWarning("Error accessing database connection: " + e.getMessage());
         }
         return statement;
     }

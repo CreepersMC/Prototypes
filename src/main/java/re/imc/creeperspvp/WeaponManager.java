@@ -51,7 +51,7 @@ public final class WeaponManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("霜冻附加 II", NamedTextColor.GRAY), Component.text("这种针状的花剑触感冰凉，取敌首级如探囊取物。", NamedTextColor.GRAY))));
             editMeleeAttributes(meta, 4.5, 10);
             meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_FREEZE);
-            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 160);
+            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 139);
         });
         weapons[STICK].editMeta(meta -> {
             meta.addEnchant(Enchantment.KNOCKBACK, 2, true);
@@ -75,7 +75,7 @@ public final class WeaponManager {
             meta.itemName(Component.text("梦魇之噬", NamedTextColor.DARK_GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("剧毒 II", NamedTextColor.GRAY), Component.text("刀刃上毒液的致命性可经时间流逝而仍保持效果。", NamedTextColor.GRAY))));
             editMeleeAttributes(meta, 6, 2);
-            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_FREEZE);
+            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_POISON);
             meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 150);
         });
         weapons[SWORD].editMeta(meta -> {

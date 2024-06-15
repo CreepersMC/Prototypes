@@ -45,6 +45,9 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
+    private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
+    private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
+    private static final Component kdr = Component.text("KDR%：", NamedTextColor.AQUA);
     private static final String databaseAddress = "127.0.0.1";
     private static final String databasePort = "3306";
     private static final String databaseName = "creepersmc"; //TODO
@@ -131,19 +134,19 @@ public final class Utils {
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
-        infoBoard.getScore(".emeralds").customName(Component.text("绿宝石："));
-        infoBoard.getScore(".kills").customName(Component.text("击杀数："));
-        infoBoard.getScore(".kdr").customName(Component.text("KDR(%)："));
+        infoBoard.getScore(".emeralds").setScore(0);
+        infoBoard.getScore(".kills").setScore(1);
+        infoBoard.getScore(".kdr").setScore(2);
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
-            infoBoard.getScore(".emeralds").setScore(Math.toIntExact(fetchPlayerEmeralds(uuid)));
+            infoBoard.getScore(".emeralds").customName(emeralds.append(Component.text(Math.toIntExact(fetchPlayerEmeralds(uuid)))));
             final int kills = fetchPlayerKills(uuid);
-            infoBoard.getScore(".kills").setScore(kills);
+            infoBoard.getScore(".kills").customName(Utils.kills.append(Component.text(kills)));
             int deaths = fetchPlayerDeaths(uuid);
             if(deaths == 0) {
                 deaths = 1;
             }
-            infoBoard.getScore(".kdr").setScore(Math.round(100f * kills / deaths));
+            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(Math.round(100f * kills / deaths))));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {

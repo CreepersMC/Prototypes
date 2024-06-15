@@ -41,7 +41,9 @@ public final class Listener implements org.bukkit.event.Listener {
         */
         if(event.getDamageSource().getCausingEntity() instanceof Player player) {
             Utils.addPlayerEmeralds(player.getUniqueId(), 5);
+            Utils.incrementPlayerKills(player.getUniqueId());
         }
+        Utils.incrementPlayerDeaths(event.getPlayer().getUniqueId());
         Utils.playerInit(event.getEntity());
     }
     @EventHandler(priority = EventPriority.NORMAL)
@@ -73,7 +75,7 @@ public final class Listener implements org.bukkit.event.Listener {
         event.blockList().clear();
     }
     @EventHandler(priority = EventPriority.LOW)
-    public void onEnttyExplode(EntityExplodeEvent event) {
+    public void onEntityExplode(EntityExplodeEvent event) {
         event.blockList().clear();
     }
     @EventHandler(priority = EventPriority.LOW)
@@ -109,16 +111,16 @@ public final class Listener implements org.bukkit.event.Listener {
                             case Utils.EFFECT_CHANNELING -> {}
                             case Utils.EFFECT_EXPLOSION -> {
                                 Location loc1 = event.getEntity().getLocation();
-                                Location loc2 = event.getDamager().getLocation();
-                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(event.getDamager(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.FLOAT, 0f), false, false);
+                                Location loc2 = player.getLocation();
+                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(player, data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.FLOAT, 0f) * player.getAttackCooldown(), false, false);
                             }
                             case Utils.EFFECT_FREEZE -> {
-                                if(!event.isCancelled()) {
+                                if(event.getFinalDamage() > 0) {
                                     event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0)));
                                 }
                             }
                             case Utils.EFFECT_POISON -> {
-                                if(event.getEntity() instanceof LivingEntity entity && !event.isCancelled()) {
+                                if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
                                     entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
                                 }
                             }

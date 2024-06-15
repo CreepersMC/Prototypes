@@ -1,4 +1,8 @@
 package re.imc.creeperspvp;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.iui.IUIManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
@@ -124,6 +128,30 @@ public final class Utils {
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing sql query: " + e.getMessage());
         }
+        final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
+        infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
+        infoBoard.getScore(".emeralds").customName(Component.text("绿宝石："));
+        infoBoard.getScore(".kills").customName(Component.text("击杀数："));
+        infoBoard.getScore(".kdr").customName(Component.text("KDR(%)："));
+        player.setScoreboard(scoreboard);
+        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            infoBoard.getScore(".emeralds").setScore(Math.toIntExact(fetchPlayerEmeralds(uuid)));
+            final int kills = fetchPlayerKills(uuid);
+            infoBoard.getScore(".kills").setScore(kills);
+            int deaths = fetchPlayerDeaths(uuid);
+            if(deaths == 0) {
+                deaths = 1;
+            }
+            infoBoard.getScore(".kdr").setScore(Math.round(100f * kills / deaths));
+        }, null, 1, 19);
+        final Inventory inv = player.getInventory();
+        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            int pos = inv.first(Material.ARROW);
+            if(pos != -1) {
+                inv.getItem(pos).setAmount(64);
+            }
+        }, null, 61, 61);
     }
     public static void playerQuit(Player player) {
         playerLocks.remove(player.getUniqueId());
@@ -146,6 +174,7 @@ public final class Utils {
         inv.setItem(8, ItemManager.ARTIFACT_SELECTORS[2]);
         inv.setHeldItemSlot(4);
         player.clearActivePotionEffects();
+        player.setArrowsInBody(0);
         player.setRemainingAir(300);
         player.setFireTicks(-20);
         player.setFreezeTicks(0);
@@ -157,12 +186,6 @@ public final class Utils {
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(true);
         player.teleport(hub);
-        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
-            int pos = inv.first(Material.ARROW);
-            if(pos != -1) {
-                inv.getItem(pos).setAmount(64);
-            }
-        }, null, 61, 61);
     }
     public static void spawnPlayer(final Player player) {
         final PersistentDataContainer data = player.getPersistentDataContainer().get(playerDataKey, PersistentDataType.TAG_CONTAINER);
@@ -195,12 +218,15 @@ public final class Utils {
         player.setFallDistance(0);
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(false);
+        if(armorID == ArmorManager.GHAST_ARMOR) {
+            player.setAllowFlight(true);
+        }
         player.teleport(spawn);
     }
     public static long fetchPlayerEmeralds(UUID uuid) {
         try(final ResultSet result = getStatement().executeQuery("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
             if(result.next()) {
-                return result.getInt("emeralds");
+                return result.getLong("emeralds");
             }
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
@@ -210,6 +236,40 @@ public final class Utils {
     public static void addPlayerEmeralds(UUID uuid, long amount) {
         try {
             getStatement().execute("UPDATE `player_data` SET `emeralds` = `emeralds` + " + amount + " WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
+    }
+    public static int fetchPlayerKills(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `kills` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            if(result.next()) {
+                return result.getInt("kills");
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
+        return 0;
+    }
+    public static void incrementPlayerKills(UUID uuid) {
+        try {
+            getStatement().execute("UPDATE `player_data` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
+        }
+    }
+    public static int fetchPlayerDeaths(UUID uuid) {
+        try(final ResultSet result = getStatement().executeQuery("SELECT `deaths` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
+            if(result.next()) {
+                return result.getInt("deaths");
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
+        }
+        return 0;
+    }
+    public static void incrementPlayerDeaths(UUID uuid) {
+        try {
+            getStatement().execute("UPDATE `player_data` SET `deaths` = `deaths` + 1 WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
         }

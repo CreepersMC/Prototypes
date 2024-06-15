@@ -14,7 +14,11 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import re.imc.creeperspvp.*;
@@ -96,6 +100,9 @@ public final class IUIManager {
                 tmp.editMeta(LeatherArmorMeta.class, meta -> {
                     meta.setCustomModelData(1);
                     meta.setColor(Color.GRAY);
+                });
+                tmp.editMeta(ArmorMeta.class, meta -> {
+                    meta.setTrim(null);
                 });
                 setItem(slot, armorStatus[armorSelection] ? item : tmp, event -> {
                     if(event.getWhoClicked() instanceof Player player) {

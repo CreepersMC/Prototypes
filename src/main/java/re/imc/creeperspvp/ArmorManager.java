@@ -142,6 +142,9 @@ public final class ArmorManager {
             armor.editMeta(meta -> {
                 meta.itemName(Component.text("窃贼盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这身轻便的盔甲闻起来有一股硫的味道。", NamedTextColor.GRAY))));
+                if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
+                    leatherArmorMeta.setColor(Color.BLUE);
+                }
                 ((ArmorMeta) meta).setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SENTRY));
             });
         }

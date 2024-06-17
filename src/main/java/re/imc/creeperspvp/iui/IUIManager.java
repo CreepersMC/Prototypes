@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,11 +13,15 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import re.imc.creeperspvp.*;
+import re.imc.creeperspvp.items.ArmorManager;
+import re.imc.creeperspvp.items.ArtifactManager;
+import re.imc.creeperspvp.items.ItemManager;
+import re.imc.creeperspvp.items.WeaponManager;
+import re.imc.creeperspvp.utils.DatabaseUtils;
+import re.imc.creeperspvp.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,8 +80,8 @@ public final class IUIManager {
             super(54, "选择盔甲");
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final boolean[] armorStatus = Utils.fetchPlayerArmorStatus(uuid);
-            final Object lock = Utils.getPlayerLock(uuid);
+            final boolean[] armorStatus = DatabaseUtils.fetchPlayerArmorStatus(uuid);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
             int slot = 10;
             for(final int armorSelection : ArmorManager.selections) {
                 ItemStack item = ArmorManager.selectors[armorSelection][armorStatus[armorSelection] ? 1 : 0].clone();
@@ -105,10 +108,10 @@ public final class IUIManager {
                                 itemPreview.lore(lore);
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
                                     synchronized(lock) {
-                                        if(!armorStatus[armorSelection] && Utils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorSelection]) {
-                                            Utils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorSelection]);
+                                        if(!armorStatus[armorSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorSelection]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorSelection]);
                                             armorStatus[armorSelection] = true;
-                                            Utils.setPlayerArmorStatus(uuid, armorStatus);
+                                            DatabaseUtils.setPlayerArmorStatus(uuid, armorStatus);
                                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorSelectorInv(uuid).open(player));
                                         }
                                     }
@@ -137,7 +140,7 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArmorSelectorInv(uuid).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final Object lock = Utils.getPlayerLock(uuid);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(final int armorUpgrade : ArmorManager.upgrades[armorID]) {
                 ItemStack item = ArmorManager.selectors[armorUpgrade][armorStatus[armorUpgrade] ? 1 : 0].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -163,10 +166,10 @@ public final class IUIManager {
                                 itemPreview.lore(lore);
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
                                     synchronized(lock) {
-                                        if(!armorStatus[armorUpgrade] && Utils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorUpgrade]) {
-                                            Utils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorUpgrade]);
+                                        if(!armorStatus[armorUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorUpgrade]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorUpgrade]);
                                             armorStatus[armorUpgrade] = true;
-                                            Utils.setPlayerArmorStatus(uuid, armorStatus);
+                                            DatabaseUtils.setPlayerArmorStatus(uuid, armorStatus);
                                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorID, armorStatus).open(player));
                                         }
                                     }
@@ -190,8 +193,8 @@ public final class IUIManager {
             super(54, "选择武器#" + (weapon + 1));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final boolean[] weaponStatus = Utils.fetchPlayerWeaponsStatus(uuid);
-            final Object lock = Utils.getPlayerLock(uuid);
+            final boolean[] weaponStatus = DatabaseUtils.fetchPlayerWeaponStatus(uuid);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
             int slot = 10;
             for(final int weaponSelection : WeaponManager.selections) {
                 ItemStack item = WeaponManager.weapons[weaponSelection].clone();
@@ -216,10 +219,10 @@ public final class IUIManager {
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
                                     synchronized(lock) {
-                                        if(!weaponStatus[weaponSelection] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
-                                            Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
+                                        if(!weaponStatus[weaponSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
                                             weaponStatus[weaponSelection] = true;
-                                            Utils.setPlayerWeaponStatus(uuid, weaponStatus);
+                                            DatabaseUtils.setPlayerWeaponStatus(uuid, weaponStatus);
                                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
                                         }
                                     }
@@ -251,7 +254,7 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            final Object lock = Utils.getPlayerLock(uuid);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(final int weaponUpgrade : WeaponManager.upgrades[weaponID]) {
                 ItemStack item = WeaponManager.weapons[weaponUpgrade].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -275,10 +278,10 @@ public final class IUIManager {
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
                                     synchronized(lock) {
-                                        if(!weaponStatus[weaponUpgrade] && Utils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponUpgrade]) {
-                                            Utils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
+                                        if(!weaponStatus[weaponUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponUpgrade]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
                                             weaponStatus[weaponUpgrade] = true;
-                                            Utils.setPlayerWeaponStatus(uuid, weaponStatus);
+                                            DatabaseUtils.setPlayerWeaponStatus(uuid, weaponStatus);
                                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponID, weaponStatus).open(player));
                                         }
                                     }

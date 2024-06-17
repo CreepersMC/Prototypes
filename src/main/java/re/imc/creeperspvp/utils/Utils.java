@@ -1,8 +1,13 @@
-package re.imc.creeperspvp;
+package re.imc.creeperspvp.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.*;
+import re.imc.creeperspvp.*;
+import re.imc.creeperspvp.items.ArmorManager;
+import re.imc.creeperspvp.items.ArtifactManager;
+import re.imc.creeperspvp.items.ItemManager;
+import re.imc.creeperspvp.items.WeaponManager;
 import re.imc.creeperspvp.iui.IUIManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
@@ -14,8 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import java.io.IOException;
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.ListIterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,34 +46,11 @@ public final class Utils {
     public static final byte EFFECT_EXPLOSION = 1;
     public static final byte EFFECT_FREEZE = 2;
     public static final byte EFFECT_POISON = 3;
-    private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR%：", NamedTextColor.AQUA);
-    private static final String databaseAddress = "127.0.0.1";
-    private static final String databasePort = "3306";
-    private static final String databaseName = "creepersmc"; //TODO
-    private static final String databaseUser = "root";
-    private static final String databasePassword = "1145141919810";
-    private static Connection connection = null;
-    private static Statement statement = null;
-    private static final String databaseConnectionURL = "jdbc:mysql://" + databaseAddress + ":" + databasePort + "/" + databaseName + "?user=" + databaseUser + "&password=" + databasePassword;
-    private static final String databaseInit = """
-        CREATE TABLE IF NOT EXISTS `player_data`(
-            `uuid` BINARY(16) NOT NULL,
-            `emeralds` BIGINT NOT NULL DEFAULT 0,
-            `kills` INT NOT NULL DEFAULT 0,
-            `deaths` INT NOT NULL DEFAULT 0,
-            `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `armor_status` BINARY(8) NOT NULL DEFAULT b'0000000000000000000010000000000000000000000000000000000000000000',
-            `weapon_status` BINARY(8) NOT NULL DEFAULT b'1000000000000000000000100000000000000000000000000000000000',
-            `artifact_status` BINARY(32) NOT NULL DEFAULT b'0',
-            PRIMARY KEY(`uuid`)
-        ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
-        """;
     private Utils() {}
     public static void init() {
         attackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-id");
@@ -91,62 +72,22 @@ public final class Utils {
         for(int i = 0; i < artifactKeys.length; i++) {
             artifactKeys[i] = new NamespacedKey(CreepersPVP.instance, "artifact" + i);
         }
-        ItemManager.init();
-        IUIManager.init();
-        Bukkit.getPluginManager().registerEvents(Listener.instance, CreepersPVP.instance);
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch(ClassNotFoundException e) {
-            CreepersPVP.logWarning("Error loading MySQL driver: " + e.getMessage());
-        }
-        try {
-            getStatement().execute(databaseInit);
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error initializing database: " + e.getMessage());
-        }
-    }
-    public static void fina() {
-        if(statement != null) {
-            try {
-                statement.close();
-            } catch(SQLException e) {
-                CreepersPVP.logWarning("Error closing database statement: " + e.getMessage());
-            }
-        }
-        if(connection != null) {
-            try {
-                connection.close();
-            } catch(SQLException e) {
-                CreepersPVP.logWarning("Error closing database connection: " + e.getMessage());
-            }
-        }
     }
     public static void playerJoin(Player player) {
         UUID uuid = player.getUniqueId();
-        playerLocks.put(uuid, new Object());
-        try(final ResultSet result = getStatement().executeQuery("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(!result.next()) {
-                getStatement().execute("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN('" + uuid + "'))");
-            }
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing sql query: " + e.getMessage());
-        }
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
-        infoBoard.getScore(".emeralds").setScore(0);
+        infoBoard.getScore(".emeralds").setScore(2);
         infoBoard.getScore(".kills").setScore(1);
-        infoBoard.getScore(".kdr").setScore(2);
+        infoBoard.getScore(".kdr").setScore(0);
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
-            infoBoard.getScore(".emeralds").customName(emeralds.append(Component.text(Math.toIntExact(fetchPlayerEmeralds(uuid)))));
-            final int kills = fetchPlayerKills(uuid);
+            infoBoard.getScore(".emeralds").customName(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
+            final int kills = DatabaseUtils.fetchPlayerKills(uuid);
             infoBoard.getScore(".kills").customName(Utils.kills.append(Component.text(kills)));
-            int deaths = fetchPlayerDeaths(uuid);
-            if(deaths == 0) {
-                deaths = 1;
-            }
-            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(Math.round(100f * kills / deaths))));
+            final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
+            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? kills : 1f * kills / deaths)));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
@@ -155,9 +96,6 @@ public final class Utils {
                 inv.getItem(pos).setAmount(64);
             }
         }, null, 61, 61);
-    }
-    public static void playerQuit(Player player) {
-        playerLocks.remove(player.getUniqueId());
     }
     public static void playerInit(Player player) {
         removeGainArtifactSchedulers(player.getUniqueId());
@@ -225,111 +163,6 @@ public final class Utils {
             player.setAllowFlight(true);
         }
         player.teleport(spawn);
-    }
-    public static long fetchPlayerEmeralds(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return result.getLong("emeralds");
-            }
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return 0;
-    }
-    public static void addPlayerEmeralds(UUID uuid, long amount) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `emeralds` = `emeralds` + " + amount + " WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static int fetchPlayerKills(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `kills` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return result.getInt("kills");
-            }
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return 0;
-    }
-    public static void incrementPlayerKills(UUID uuid) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static int fetchPlayerDeaths(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `deaths` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return result.getInt("deaths");
-            }
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return 0;
-    }
-    public static void incrementPlayerDeaths(UUID uuid) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `deaths` = `deaths` + 1 WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `armor_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return bytesToBooleans(result.getBinaryStream("armor_status").readAllBytes());
-            }
-        } catch(SQLException | IOException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return new boolean[64];
-    }
-    public static void setPlayerArmorStatus(UUID uuid, boolean[] val) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `armor_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static boolean[] fetchPlayerWeaponsStatus(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `weapon_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return bytesToBooleans(result.getBinaryStream("weapon_status").readAllBytes());
-            }
-        } catch(SQLException | IOException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return new boolean[64];
-    }
-    public static void setPlayerWeaponStatus(UUID uuid, boolean[] val) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `weapon_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static boolean[] fetchPlayerArtifactStatus(UUID uuid) {
-        try(final ResultSet result = getStatement().executeQuery("SELECT `artifact_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN('" + uuid + "');")) {
-            if(result.next()) {
-                return bytesToBooleans(result.getBinaryStream("artifact_status").readAllBytes());
-            }
-        } catch(SQLException | IOException e) {
-            CreepersPVP.logWarning("Error executing SQL query: " + e.getMessage());
-        }
-        return new boolean[256];
-    }
-    public static void setPlayerArtifactStatus(UUID uuid, boolean[] val) {
-        try {
-            getStatement().execute("UPDATE `player_data` SET `artifact_status` = b'" + booleansToString(val) + "' WHERE `uuid` = UUID_TO_BIN('" + uuid + "');");
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing SQL update: " + e.getMessage());
-        }
-    }
-    public static Object getPlayerLock(UUID uuid) {
-        return playerLocks.get(uuid);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {
         final ListIterator<ItemStack> i = inv.iterator();
@@ -400,41 +233,5 @@ public final class Utils {
                 gainArtifactScheduler.remove(uuid);
             }
         }
-    }
-    private static boolean[] bytesToBooleans(byte[] bytes) {
-        final boolean[] booleans = new boolean[bytes.length * Byte.SIZE];
-        for(int i = 0; i < bytes.length; i++) {
-            for(byte j = Byte.SIZE - 1; j >= 0; j--, bytes[i] >>= 1) {
-                booleans[i * Byte.SIZE + j] = bytes[i] % 2 != 0;
-            }
-        }
-        return booleans;
-    }
-    private static String booleansToString(boolean[] booleans) {
-        final StringBuilder builder = new StringBuilder();
-        for(final boolean b : booleans) {
-            builder.append(b ? '1' : '0');
-        }
-        return builder.toString();
-    }
-    private static Connection getConnection() {
-        try {
-            if(connection == null || connection.isClosed()) {
-                return connection = DriverManager.getConnection(databaseConnectionURL);
-            }
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error creating database connection: " + e.getMessage());
-        }
-        return connection;
-    }
-    private static Statement getStatement() {
-        try {
-            if(statement == null || statement.isClosed()) {
-                return statement = getConnection().createStatement();
-            }
-        } catch(SQLException | NullPointerException e) {
-            CreepersPVP.logWarning("Error accessing database connection: " + e.getMessage());
-        }
-        return statement;
     }
 }

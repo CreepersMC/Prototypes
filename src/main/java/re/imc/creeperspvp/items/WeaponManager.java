@@ -1,4 +1,4 @@
-package re.imc.creeperspvp;
+package re.imc.creeperspvp.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -7,8 +7,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import re.imc.creeperspvp.utils.Utils;
 import java.util.Arrays;
-import static re.imc.creeperspvp.ItemManager.*;
+import static re.imc.creeperspvp.items.ItemManager.*;
 public final class WeaponManager {
     public static final int RAPIER = 0;
     public static final int FREEZING_FOIL = 1;
@@ -39,7 +40,7 @@ public final class WeaponManager {
     public static final int[][] upgrades = new int[][] {{FREEZING_FOIL}, {}, {BREEZE_ROD}, {}, {NIGHTMARES_BITE}, {}, {DIAMOND_SWORD}, {}, {FIREBRAND}, {}, {HIGHLAND_AXE}, {}, {CURSED_AXE}, {}, {DIAMOND_PICKAXE}, {}, {UNKNOWN_UPGRADE}, {}, {TEMPEST_MACE}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private WeaponManager() {}
-    public static void init() {
+    static void init() {
         weapons[RAPIER].editMeta(meta -> {
             meta.itemName(Component.text("轻剑", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("剑刃灵活狭长，出手又快又狠。", NamedTextColor.GRAY))));

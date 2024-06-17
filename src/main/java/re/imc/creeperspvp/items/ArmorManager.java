@@ -1,4 +1,4 @@
-package re.imc.creeperspvp;
+package re.imc.creeperspvp.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import java.util.Arrays;
 import java.util.UUID;
-import static re.imc.creeperspvp.ItemManager.*;
+import static re.imc.creeperspvp.items.ItemManager.*;
 public final class ArmorManager {
     public static final int PHANTOM_ARMOR = 0;
     public static final int CLIMBING_GEAR = 2;
@@ -74,7 +74,7 @@ public final class ArmorManager {
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ArmorManager() {}
-    public static void init() {
+    static void init() {
         for(ItemStack armor : armor[PHANTOM_ARMOR]) {
             armor.editMeta(meta -> {
                meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));

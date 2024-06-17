@@ -1,7 +1,5 @@
-package re.imc.creeperspvp;
+package re.imc.creeperspvp.items;
 import de.tr7zw.nbtapi.NBT;
-import de.tr7zw.nbtapi.NBTCompound;
-import de.tr7zw.nbtapi.NBTItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -9,12 +7,12 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import re.imc.creeperspvp.utils.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static re.imc.creeperspvp.ItemManager.*;
+import static re.imc.creeperspvp.items.ItemManager.*;
 public final class ArtifactManager {
     public static final int CATEGORY_PROJECTILES = 0;
     public static final int CATEGORY_EXPLOSIVES_AND_TRAPS = 64;
@@ -130,7 +128,7 @@ public final class ArtifactManager {
     };
     private static final Component enterOnClick = Component.text(">>> ", NamedTextColor.WHITE).append(Component.text("点击进入", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private ArtifactManager() {}
-    public static void init() {
+    static void init() {
         artifactCategorySelectors[CATEGORY_PROJECTILES / 64].editMeta(meta -> {
             meta.itemName(Component.text("弹射物", NamedTextColor.YELLOW));
             meta.lore(removeItalics(Arrays.asList(Component.text("可以扔出或使用远程武器射出的物品", NamedTextColor.GOLD), enterOnClick)));

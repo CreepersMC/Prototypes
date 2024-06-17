@@ -3,6 +3,8 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import re.imc.creeperspvp.items.ArtifactManager;
+import re.imc.creeperspvp.items.ItemManager;
 import re.imc.creeperspvp.iui.IUIManager;
 //import net.kyori.adventure.title.Title;
 //import net.kyori.adventure.title.TitlePart;
@@ -22,6 +24,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import re.imc.creeperspvp.utils.DatabaseUtils;
+import re.imc.creeperspvp.utils.Utils;
 //import java.time.Duration;
 public final class Listener implements org.bukkit.event.Listener {
     public static final Listener instance = new Listener();
@@ -40,21 +44,22 @@ public final class Listener implements org.bukkit.event.Listener {
         }
         */
         if(event.getDamageSource().getCausingEntity() instanceof Player player) {
-            Utils.addPlayerEmeralds(player.getUniqueId(), 5);
-            Utils.incrementPlayerKills(player.getUniqueId());
+            DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), 5);
+            DatabaseUtils.incrementPlayerKills(player.getUniqueId());
         }
-        Utils.incrementPlayerDeaths(event.getPlayer().getUniqueId());
+        DatabaseUtils.incrementPlayerDeaths(event.getPlayer().getUniqueId());
         Utils.playerInit(event.getEntity());
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        DatabaseUtils.playerJoin(event.getPlayer().getUniqueId());
         Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
         event.getPlayer().openBook(ItemManager.welcome);
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Utils.playerQuit(event.getPlayer());
+        DatabaseUtils.playerQuit(event.getPlayer().getUniqueId());
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {

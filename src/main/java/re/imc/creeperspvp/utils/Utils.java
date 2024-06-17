@@ -2,6 +2,7 @@ package re.imc.creeperspvp.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
@@ -18,6 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,6 +163,7 @@ public final class Utils {
         if(armorID == ArmorManager.GHAST_ARMOR) {
             player.setAllowFlight(true);
         }
+        player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         player.teleport(spawn);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {

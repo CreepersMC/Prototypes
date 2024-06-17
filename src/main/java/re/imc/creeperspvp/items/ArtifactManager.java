@@ -117,14 +117,14 @@ public final class ArtifactManager {
     public static final int[][] upgrades = new int[][] {
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-        {GOLDEN_CARROT}, {}, {GOLDEN_APPLE}, {}, {}, {}, {}, {COOKED_BEEF}, {}, {COOKED_PORKCHOP}, {}, {COOKED_MUTTON}, {}, {COOKED_SALMON}, {}, {}, {COOKED_CHICKEN}, {}, {}, {}, {BAKED_POTATO}, {}, {}, {COOKED_COD}, {}, {COOKED_RABBIT}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {GOLDEN_CARROT}, {}, {GOLDEN_APPLE}, {}, {}, {}, {}, {COOKED_BEEF}, {}, {COOKED_PORKCHOP}, {}, {COOKED_MUTTON}, {}, {COOKED_SALMON}, {}, {}, {}, {COOKED_CHICKEN}, {}, {}, {}, {BAKED_POTATO}, {}, {}, {COOKED_COD}, {}, {COOKED_RABBIT}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     };
     public static final long[] prices = new long[] {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
     private static final Component enterOnClick = Component.text(">>> ", NamedTextColor.WHITE).append(Component.text("点击进入", NamedTextColor.GREEN)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private ArtifactManager() {}
@@ -145,6 +145,9 @@ public final class ArtifactManager {
             meta.itemName(Component.text("防御与增益", NamedTextColor.BLUE));
             meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
+        artifacts[SNOWBALL].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
+        artifacts[EGG].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
+        artifacts[ENDER_PEARL].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
         NBT.modify(artifacts[TNT], nbt -> {
             nbt.getOrCreateCompound("can_place_on");
         });
@@ -163,11 +166,46 @@ public final class ArtifactManager {
             meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
         });
+        artifacts[CARROT].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
+        artifacts[GOLDEN_CARROT].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
+        artifacts[APPLE].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
         artifacts[GOLDEN_APPLE].editMeta(meta -> {
             meta.setRarity(ItemRarity.UNCOMMON);
             meta.itemName(Component.text("金苹果", NamedTextColor.YELLOW));
         });
         artifacts[ENCHANTED_GOLDEN_APPLE].editMeta(meta -> meta.itemName(Component.text("附魔金苹果", NamedTextColor.LIGHT_PURPLE)));
+        artifacts[MELON_SLICE].editMeta(meta -> meta.itemName(Component.text("西瓜片", NamedTextColor.WHITE)));
+        artifacts[BEEF].editMeta(meta -> meta.itemName(Component.text("生牛肉", NamedTextColor.WHITE)));
+        artifacts[COOKED_BEEF].editMeta(meta -> meta.itemName(Component.text("牛排", NamedTextColor.WHITE)));
+        artifacts[PORKCHOP].editMeta(meta -> meta.itemName(Component.text("生猪排", NamedTextColor.WHITE)));
+        artifacts[COOKED_PORKCHOP].editMeta(meta -> meta.itemName(Component.text("熟猪排", NamedTextColor.WHITE)));
+        artifacts[MUTTON].editMeta(meta -> meta.itemName(Component.text("生羊肉", NamedTextColor.WHITE)));
+        artifacts[COOKED_MUTTON].editMeta(meta -> meta.itemName(Component.text("熟羊肉", NamedTextColor.WHITE)));
+        artifacts[SALMON].editMeta(meta -> meta.itemName(Component.text("生鲑鱼", NamedTextColor.WHITE)));
+        artifacts[COOKED_SALMON].editMeta(meta -> meta.itemName(Component.text("熟鲑鱼", NamedTextColor.WHITE)));
+        artifacts[RABBIT_STEW].editMeta(meta -> meta.itemName(Component.text("兔肉煲", NamedTextColor.WHITE)));
+        artifacts[BEETROOT_SOUP].editMeta(meta -> meta.itemName(Component.text("甜菜汤", NamedTextColor.WHITE)));
+        artifacts[CHICKEN].editMeta(meta -> meta.itemName(Component.text("生鸡肉", NamedTextColor.WHITE)));
+        artifacts[COOKED_CHICKEN].editMeta(meta -> meta.itemName(Component.text("熟鸡肉", NamedTextColor.WHITE)));
+        artifacts[MUSHROOM_STEW].editMeta(meta -> meta.itemName(Component.text("蘑菇煲", NamedTextColor.WHITE)));
+        artifacts[SUSPICIOUS_STEW].editMeta(meta -> meta.itemName(Component.text("迷之炖菜", NamedTextColor.WHITE)));
+        artifacts[POTATO].editMeta(meta -> meta.itemName(Component.text("马铃薯", NamedTextColor.WHITE)));
+        artifacts[BAKED_POTATO].editMeta(meta -> meta.itemName(Component.text("烤马铃薯", NamedTextColor.WHITE)));
+        artifacts[BREAD].editMeta(meta -> meta.itemName(Component.text("面包", NamedTextColor.WHITE)));
+        artifacts[COD].editMeta(meta -> meta.itemName(Component.text("生鳕鱼", NamedTextColor.WHITE)));
+        artifacts[COOKED_COD].editMeta(meta -> meta.itemName(Component.text("熟鳕鱼", NamedTextColor.WHITE)));
+        artifacts[RABBIT].editMeta(meta -> meta.itemName(Component.text("生兔肉", NamedTextColor.WHITE)));
+        artifacts[COOKED_RABBIT].editMeta(meta -> meta.itemName(Component.text("熟兔肉", NamedTextColor.WHITE)));
+        artifacts[BEETROOT].editMeta(meta -> meta.itemName(Component.text("甜菜根", NamedTextColor.WHITE)));
+        artifacts[PUMPKIN_PIE].editMeta(meta -> meta.itemName(Component.text("南瓜派", NamedTextColor.WHITE)));
+        artifacts[CHORUS_FRUIT].editMeta(meta -> meta.itemName(Component.text("紫颂果", NamedTextColor.WHITE)));
+        artifacts[DRIED_KELP].editMeta(meta -> meta.itemName(Component.text("干海带", NamedTextColor.WHITE)));
+        artifacts[HONEY_BOTTLE].editMeta(meta -> meta.itemName(Component.text("蜂蜜瓶", NamedTextColor.WHITE)));
+        artifacts[COOKIE].editMeta(meta -> meta.itemName(Component.text("曲奇", NamedTextColor.WHITE)));
+        artifacts[SWEET_BERRIES].editMeta(meta -> meta.itemName(Component.text("甜浆果", NamedTextColor.WHITE)));
+        artifacts[GLOW_BERRIES].editMeta(meta -> meta.itemName(Component.text("发光浆果", NamedTextColor.WHITE)));
+        artifacts[MILK_BUKET].editMeta(meta -> meta.itemName(Component.text("奶桶", NamedTextColor.WHITE)));
+        artifacts[SHIELD].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
         artifacts[TOTEM_OF_UNDYING].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
         for(final int[] i = new int[] {0}; i[0] < artifacts.length; i[0]++) {
             if(artifacts[i[0]] != null) {

@@ -8,7 +8,6 @@ import re.imc.creeperspvp.items.ArmorManager;
 import re.imc.creeperspvp.items.ArtifactManager;
 import re.imc.creeperspvp.items.ItemManager;
 import re.imc.creeperspvp.items.WeaponManager;
-import re.imc.creeperspvp.iui.IUIManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -19,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import java.sql.SQLException;
 import java.util.ListIterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +48,7 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
-    private static final Component kdr = Component.text("KDR%：", NamedTextColor.AQUA);
+    private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
     private Utils() {}
     public static void init() {
         attackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-id");
@@ -87,7 +85,7 @@ public final class Utils {
             final int kills = DatabaseUtils.fetchPlayerKills(uuid);
             infoBoard.getScore(".kills").customName(Utils.kills.append(Component.text(kills)));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
-            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? kills : 1f * kills / deaths)));
+            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {

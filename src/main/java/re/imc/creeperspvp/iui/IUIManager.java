@@ -301,34 +301,52 @@ public final class IUIManager {
         private ArtifactSelectorInv() {
             super(InventoryType.PLAYER);
         }
-        private ArtifactSelectorInv(final int artifact, final int category) {
+        private ArtifactSelectorInv(final UUID uuid, final int artifact, final int category) {
             super(54, "选择法器#" + (artifact + 1));
             setItems(getBorders(), ItemManager.BORDER);
             for(int i = 0; i < ArtifactManager.artifactCategorySelectors.length; i++) {
                 int finalI = i;
-                setItem(i * 2 + 1, ArtifactManager.artifactCategorySelectors[i], i == category ? null : event -> new ArtifactSelectorInv(artifact, finalI).open((Player) event.getWhoClicked()));
+                setItem(i * 2 + 1, ArtifactManager.artifactCategorySelectors[i], i == category ? null : event -> new ArtifactSelectorInv(uuid, artifact, finalI).open((Player) event.getWhoClicked()));
             }
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             int slot = 10;
+            final boolean[] artifactStatus = DatabaseUtils.fetchPlayerArtifactStatus(uuid);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(final int artifactSelection : ArtifactManager.selections[category]) {
                 ItemStack item = ArtifactManager.artifacts[artifactSelection].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                lore.add(equipOnLeftClick);
-                if(ArtifactManager.upgrades[artifactSelection].length > 0) {
-                    lore.add(upgradeOnRightClick);
+                if(artifactStatus[artifactSelection]) {
+                    lore.add(equipOnLeftClick);
+                    if(ArtifactManager.upgrades[artifactSelection].length > 0) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactSelection])));
+                    lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(slot, item, event -> {
+                setItem(slot, artifactStatus[artifactSelection] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
-                            if(true) { //TODO
+                            if(artifactStatus[artifactSelection]) {
                                 PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
                                 data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!artifactStatus[artifactSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactSelection]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactSelection]);
+                                            artifactStatus[artifactSelection] = true;
+                                            DatabaseUtils.setPlayerArtifactStatus(uuid, artifactStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, artifact, category).open(player));
+                                        }
+                                    }
+                                }, () -> open(player)).open(player));
                             }
                         }
-                        if(event.isRightClick() && ArtifactManager.upgrades[artifactSelection].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(artifact, artifactSelection).open(player));
+                        if(event.isRightClick() && artifactStatus[artifactSelection] && ArtifactManager.upgrades[artifactSelection].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactSelection, category, artifactStatus).open(player));
                         }
                     }
                 });
@@ -341,33 +359,57 @@ public final class IUIManager {
         @Override
         public ArtifactSelectorInv getInv(UUID uuid, PersistentDataContainer data) {
             if(data.has(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER)) {
-                return new ArtifactSelectorInv(data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER), 0);
+                return new ArtifactSelectorInv(uuid, data.get(Utils.artifactSelectorIDKey, PersistentDataType.INTEGER), 0);
             }
             return instance;
         }
     }
     private static final class ArtifactUpgradeInv extends CreeperInv {
-        private ArtifactUpgradeInv(final int artifact, final int artifactID) {
+        private ArtifactUpgradeInv(final UUID uuid, final int artifact, final int artifactID, final int category, final boolean[] artifactStatus) {
             super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
-            setItem(0, ItemManager.BACK);
+            setItem(0, ItemManager.BACK, event -> new ArtifactSelectorInv(uuid, artifact, category).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            /*
-            setItem(13, ArtifactManager.artifacts[ArtifactManager.upgrades[artifactID]], event -> {
-                if(event.getWhoClicked() instanceof Player player) {
-                    if(event.isLeftClick()) {
-                        if(true) { //TODO
-                            PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                            data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, ArtifactManager.upgrades[artifactID]);
-                            player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+            final Object lock = DatabaseUtils.getPlayerLock(uuid);
+            for(final int artifactUpgrade : ArtifactManager.upgrades[artifactID]) {
+                ItemStack item = ArtifactManager.artifacts[artifactUpgrade].clone();
+                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                if(artifactStatus[artifactUpgrade]) {
+                    lore.add(equipOnLeftClick);
+                    if(ArtifactManager.upgrades[artifactUpgrade].length > 0) {
+                        lore.add(upgradeOnRightClick);
+                    }
+                } else {
+                    lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactUpgrade])));
+                    lore.add(buyOnLeftClick);
+                }
+                item.lore(lore);
+                setItem(13, artifactStatus[artifactUpgrade] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
+                    if(event.getWhoClicked() instanceof Player player) {
+                        if(event.isLeftClick()) {
+                            if(artifactStatus[artifactUpgrade]) {
+                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
+                                data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactUpgrade);
+                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                            } else {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                    synchronized(lock) {
+                                        if(!artifactStatus[artifactUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactUpgrade]) {
+                                            DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactUpgrade]);
+                                            artifactStatus[artifactUpgrade] = true;
+                                            DatabaseUtils.setPlayerArtifactStatus(uuid, artifactStatus);
+                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactID, category, artifactStatus).open(player));
+                                        }
+                                    }
+                                }, () -> open(player)).open(player));
+                            }
+                        }
+                        if(event.isRightClick() && artifactStatus[artifactUpgrade] && ArtifactManager.upgrades[artifactUpgrade].length > 0) {
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactUpgrade, category, artifactStatus).open(player));
                         }
                     }
-                    if(event.isRightClick() && ArtifactManager.upgrades[artifactID] != -1) {
-                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(artifact, artifactID).open(player));
-                    }
-                }
-            });
-             */
+                });
+            }
         }
     }
     private static final class ConfirmPurchaseDialogue extends CreeperInv {

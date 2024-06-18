@@ -28,7 +28,7 @@ public final class ItemManager {
         ALPHA 0.3.0
         ·地图-调整森林群系，树木更加稀疏，过渡更加平滑
         ·地图-在平原群系一角新增村庄
-        ·新增-更多盔甲
+        ·新增-更多盔甲(后续会完善)
         ·功能-经济系统！
         ·功能-新UI！
         ·功能-计分板！你的击杀和KDR会被记录
@@ -70,7 +70,7 @@ public final class ItemManager {
     public static final ItemStack BACK = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
     public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-    static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier("", 0, AttributeModifier.Operation.ADD_NUMBER);
+    static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier("", 0, AttributeModifier.Operation.ADD_NUMBER); //TODO tweak those uuids
     static final UUID ATTACK_DAMAGE_ATTRIBUTE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     static final UUID ATTACK_SPEED_ATTRIBUTE_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
     static final UUID ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID = UUID.fromString("46E84BED-7B0E-0685-11D5-5BB372F68C4C");

@@ -160,9 +160,7 @@ public final class Utils {
         player.setFallDistance(0);
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(false);
-        if(armorID == ArmorManager.GHAST_ARMOR) {
-            player.setAllowFlight(true);
-        }
+        player.setAllowFlight(armorID == ArmorManager.GHAST_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         player.teleport(spawn);
     }

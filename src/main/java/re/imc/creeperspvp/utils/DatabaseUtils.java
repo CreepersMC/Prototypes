@@ -65,7 +65,20 @@ public final class DatabaseUtils {
         setPlayerArtifactStatus = connection.prepareStatement("UPDATE `player_data` SET `artifact_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
     }
     public static void fina() throws SQLException {
+        checkPlayerExistence.close();
+        registerPlayer.close();
         fetchPlayerEmeralds.close();
+        addPlayerEmeralds.close();
+        fetchPlayerKills.close();
+        incrementPlayerKills.close();
+        fetchPlayerDeaths.close();
+        incrementPlayerDeaths.close();
+        fetchPlayerArtifactStatus.close();
+        setPlayerArmorStatus.close();
+        fetchPlayerWeaponStatus.close();
+        setPlayerWeaponStatus.close();
+        fetchPlayerArtifactStatus.close();
+        setPlayerArtifactStatus.close();
         connection.close();
     }
     public static void playerJoin(UUID uuid) {

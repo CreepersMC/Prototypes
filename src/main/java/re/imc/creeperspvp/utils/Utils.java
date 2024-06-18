@@ -1,8 +1,10 @@
 package re.imc.creeperspvp.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
@@ -19,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public final class Utils {
     public static final byte EFFECT_EXPLOSION = 1;
     public static final byte EFFECT_FREEZE = 2;
     public static final byte EFFECT_POISON = 3;
+    private static ArmorStand dummy;
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
@@ -73,6 +75,15 @@ public final class Utils {
         for(int i = 0; i < artifactKeys.length; i++) {
             artifactKeys[i] = new NamespacedKey(CreepersPVP.instance, "artifact" + i);
         }
+        Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
+            armorStand.setInvisible(true);
+            armorStand.setInvulnerable(true);
+            armorStand.setNoPhysics(true);
+            dummy = (ArmorStand) armorStand;
+        });
+    }
+    public static void fina() {
+        dummy.remove();
     }
     public static void playerJoin(Player player) {
         UUID uuid = player.getUniqueId();
@@ -163,6 +174,15 @@ public final class Utils {
         player.setAllowFlight(armorID == ArmorManager.GHAST_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         player.teleport(spawn);
+    }
+    /**
+     * Paper API is stupid
+     * @return item with modified component
+     */
+    public static ItemStack modifyItem(ItemStack item, String modifier) {
+        dummy.setItem(EquipmentSlot.HAND, item);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "item modify entity " + Utils.dummy.getUniqueId() + " weapon.mainhand " + modifier);
+        return dummy.getItem(EquipmentSlot.HAND);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {
         final ListIterator<ItemStack> i = inv.iterator();

@@ -1,5 +1,4 @@
 package re.imc.creeperspvp.items;
-import de.tr7zw.nbtapi.NBT;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -101,9 +100,10 @@ public final class ArtifactManager {
     public static final int INTERACT = 2;
     public static final int CONSUME = 4;
     public static final int LAUNCH_PROJECTILE = 8;
+    public static final int PLACE_BLOCK = 16;
     public static final int[] useEvents = new int[] {
         LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, -1, -1, -1, -1, LAUNCH_PROJECTILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        PLACE_BLOCK, PLACE_BLOCK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
@@ -148,20 +148,16 @@ public final class ArtifactManager {
         artifacts[SNOWBALL].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
         artifacts[EGG].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
         artifacts[ENDER_PEARL].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
-        NBT.modify(artifacts[TNT], nbt -> {
-            nbt.getOrCreateCompound("can_place_on");
-        });
-        NBT.modify(artifacts[END_CRYSTAL], nbt -> {
-            nbt.getOrCreateCompound("can_place_on");
-        });
         artifacts[TNT].editMeta(meta -> {
             meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
         });
+        artifacts[TNT] = Utils.modifyItem(artifacts[TNT], "[{function:\"set_components\", components:{\"can_place_on\":{}}}]");
         artifacts[END_CRYSTAL].editMeta(meta -> {
             meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
         });
+        artifacts[END_CRYSTAL] = Utils.modifyItem(artifacts[END_CRYSTAL], "[{function:\"set_components\", components:{\"can_place_on\":{}}}]");
         artifacts[FISHING_ROD].editMeta(meta -> {
             meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));

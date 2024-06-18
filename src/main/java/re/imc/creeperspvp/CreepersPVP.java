@@ -33,6 +33,7 @@ public final class CreepersPVP extends JavaPlugin {
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error finalizing database: " + e.getMessage());
         }
+        Utils.fina();
         getLogger().log(Level.INFO, "CreepersPVP finalized.");
         logger = null;
         instance = null;

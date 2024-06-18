@@ -91,15 +91,36 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
-        if(!event.isCancelled()) {
-            switch(event.getBlockPlaced().getType()) {
-                case TNT -> {
-                    event.setCancelled(true);
-                    Location loc = event.getBlockPlaced().getLocation().toCenterLocation();
-                    loc.getWorld().spawn(loc, TNTPrimed.class, tnt -> {
-                        tnt.setFuseTicks(80);
-                        tnt.setSource(event.getPlayer());
-                    });
+        final ItemStack item = event.getItemInHand();
+        final Player player = event.getPlayer();
+        if(item.hasItemMeta()) {
+            final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+            if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
+                final int artifactID = data.getOrDefault(Utils.artifactIDKey, PersistentDataType.INTEGER, -1);
+                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.PLACE_BLOCK) {
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
+                    }
+                    switch(artifactID) {
+                        case ArtifactManager.TNT -> {
+                            event.setCancelled(true);
+                            if()
+                            item.subtract();
+                            Location loc = event.getBlockPlaced().getLocation().toCenterLocation();
+                            loc.getWorld().spawn(loc, TNTPrimed.class, tnt -> {
+                                tnt.setFuseTicks(80);
+                                tnt.setSource(event.getPlayer());
+                            });
+                        }
+                        default -> {}
+                    }
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                        if(item.getAmount() == 1) {
+                            event.setReplacement(item.withType(Material.BARRIER).asOne());
+                        }
+                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, item.asOne());
+                    }
                 }
             }
         }

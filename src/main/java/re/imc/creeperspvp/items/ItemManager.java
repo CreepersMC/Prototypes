@@ -25,6 +25,9 @@ public final class ItemManager {
         祝大家玩得开心XD
         往后翻查看更新日志
         """), Component.text("""
+        ALPHA 0.3.1
+        ·功能-TNT和末影水晶现在可以放置
+        """), Component.text("""
         ALPHA 0.3.0
         ·地图-调整森林群系，树木更加稀疏，过渡更加平滑
         ·地图-在平原群系一角新增村庄

@@ -1,4 +1,5 @@
 package re.imc.creeperspvp.items;
+import net.kyori.adventure.text.event.ClickEvent;
 import re.imc.creeperspvp.iui.IUIManager;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -24,7 +25,8 @@ public final class ItemManager {
         玩家数据也有可能随时清空(虽然目前根本没有什么数据)
         祝大家玩得开心XD
         往后翻查看更新日志
-        """), Component.text("""
+        重锤还是用不了！你可以去
+        """).append(Component.text("Purpur的Github", NamedTextColor.DARK_PURPLE, TextDecoration.UNDERLINED).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/PurpurMC/Purpur/issues"))).append(Component.text("催更1.21")), Component.text("""
         ALPHA 0.3.1
         ·功能-TNT和末影水晶现在可以放置
         """), Component.text("""

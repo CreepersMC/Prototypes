@@ -1,6 +1,7 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import re.imc.creeperspvp.items.ArtifactManager;
@@ -92,34 +93,67 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
         final ItemStack item = event.getItemInHand();
+        if(item.getType() == Material.BARRIER) {
+            event.setCancelled(true);
+            return;
+        }
         final Player player = event.getPlayer();
         if(item.hasItemMeta()) {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
-                final int artifactID = data.getOrDefault(Utils.artifactIDKey, PersistentDataType.INTEGER, -1);
+                final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
                 if(ArtifactManager.useEvents[artifactID] == ArtifactManager.PLACE_BLOCK) {
-                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
-                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
-                    }
                     switch(artifactID) {
                         case ArtifactManager.TNT -> {
                             event.setCancelled(true);
-                            if()
-                            item.subtract();
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> item.subtract());
                             Location loc = event.getBlockPlaced().getLocation().toCenterLocation();
                             loc.getWorld().spawn(loc, TNTPrimed.class, tnt -> {
                                 tnt.setFuseTicks(80);
                                 tnt.setSource(event.getPlayer());
                             });
                         }
-                        default -> {}
+                    }
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
                     if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        final PlayerInventory inv = player.getInventory();
+                        final ItemStack clone = item.clone();
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                         if(item.getAmount() == 1) {
-                            event.setReplacement(item.withType(Material.BARRIER).asOne());
+                            final ItemStack unavailable = clone.withType(Material.BARRIER);
+                            final int slot = Utils.findItem(inv, itemOrdinal);
+                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
                         }
-                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, item.asOne());
+                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onEntityPlace(EntityPlaceEvent event) {
+        final Player player = event.getPlayer();
+        final PlayerInventory inv = player.getInventory();
+        final ItemStack item = inv.getItem(event.getHand());
+        if(item.hasItemMeta()) {
+            final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+            if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
+                final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
+                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.PLACE_ENTITY) {
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
+                    }
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        final ItemStack clone = item.clone();
+                        final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                        if(item.getAmount() == 1) {
+                            final ItemStack unavailable = clone.withType(Material.BARRIER);
+                            final int slot = Utils.findItem(inv, itemOrdinal);
+                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                        }
+                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
                 }
             }

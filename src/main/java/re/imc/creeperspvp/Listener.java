@@ -1,7 +1,7 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import re.imc.creeperspvp.items.ArtifactManager;
@@ -68,7 +68,7 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryClick(InventoryClickEvent event) {
-        if(event.isRightClick() && ((event.getCurrentItem() != null && event.getCurrentItem().getAmount() > 1) || event.getCursor().getAmount() > 1)) {
+        if((event.isRightClick() && ((event.getCurrentItem() != null && event.getCurrentItem().getAmount() > 1) || event.getCursor().getAmount() > 1)) || event.getSlotType() == InventoryType.SlotType.ARMOR) {
             event.setCancelled(true);
         }
     }

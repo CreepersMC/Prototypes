@@ -1,0 +1,11 @@
+#The game mode. Can be one of the following:
+#FFA - Default mode, free combat.
+mode: FFA
+
+#Database configurations
+database:
+  address: 127.0.0.1
+  port: 3306
+  database: creepersmc
+  username: root
+  password: password

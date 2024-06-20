@@ -19,13 +19,7 @@ public final class DatabaseUtils {
     private static PreparedStatement fetchPlayerArtifactStatus;
     private static PreparedStatement setPlayerArtifactStatus;
     private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
-    private static final String databaseAddress = "127.0.0.1"; //TODO
-    private static final String databasePort = "3306";
-    private static final String databaseName = "creepersmc";
-    private static final String databaseUser = "root";
-    private static final String databasePassword = "1145141919810";
     private static Connection connection = null;
-    private static final String databaseConnectionURL = "jdbc:mysql://" + databaseAddress + ":" + databasePort + "/" + databaseName + "?user=" + databaseUser + "&password=" + databasePassword;
     private static final String databaseInit = """
         CREATE TABLE IF NOT EXISTS `player_data`(
             `uuid` BINARY(16) NOT NULL,
@@ -34,7 +28,7 @@ public final class DatabaseUtils {
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
             `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `armor_status` BINARY(8) NOT NULL DEFAULT b'0000000000000000000010000000000000000000000000000000000000000000',
+            `armor_status` BINARY(8) NOT NULL DEFAULT b'0000000000000000000000001000000000000000000000000000000000000000',
             `weapon_status` BINARY(8) NOT NULL DEFAULT b'1000000000000000000000100000000000000000000000000000000000',
             `artifact_status` BINARY(32) NOT NULL DEFAULT b'1000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000',
             PRIMARY KEY(`uuid`)
@@ -47,7 +41,7 @@ public final class DatabaseUtils {
         } catch(ClassNotFoundException e) {
             CreepersPVP.logSevere("Error loading database driver: " + e.getMessage());
         }
-        connection = DriverManager.getConnection(databaseConnectionURL);
+        connection = DriverManager.getConnection("jdbc:mysql://" + CreepersPVP.databaseAddress + ":" + CreepersPVP.databasePort + "/" + CreepersPVP.database + "?user=" + CreepersPVP.databaseUsername + "&password=" + CreepersPVP.databasePassword);
         connection.createStatement().execute(databaseInit);
         checkPlayerExistence = connection.prepareStatement("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
         registerPlayer = connection.prepareStatement("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN(?))");

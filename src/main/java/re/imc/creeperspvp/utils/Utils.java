@@ -177,7 +177,7 @@ public final class Utils {
     }
     /**
      * Paper API is stupid
-     * @return item with modified component
+     * @return item with the modifier applied
      */
     public static ItemStack modifyItem(ItemStack item, String modifier) {
         dummy.setItem(EquipmentSlot.HAND, item);

@@ -27,6 +27,11 @@ public final class ItemManager {
         往后翻查看更新日志
         重锤还是用不了！你可以去
         """).append(Component.text("Purpur的Github", NamedTextColor.DARK_PURPLE, TextDecoration.UNDERLINED).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/PurpurMC/Purpur/issues"))).append(Component.text("催更1.21")), Component.text("""
+        ALPHA 0.4.0
+        ·新增-完善盔甲，添加了一些盔甲和很多升级（没完！后面还会有更多）
+        ·功能-盔甲可以绑定状态效果和物品
+        ·修复-盔甲不再能够被脱下
+        """), Component.text("""
         ALPHA 0.3.1
         ·功能-TNT和末影水晶现在可以放置
         """), Component.text("""
@@ -82,6 +87,7 @@ public final class ItemManager {
     static final UUID ATTACK_SPEED_BONUS_ATTRIBUTE_UUID = UUID.fromString("FA778358-DA02-0464-3236-EFDD9BB1FD75");
     static final UUID[] ARMOR_ATTRIBUTE_UUIDS = new UUID[] {UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B")};
     static final UUID[] ARMOR_TOUGHNESS_UUIDS = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
+    static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
     private ItemManager() {}
     public static void init() {
         ArmorManager.init();
@@ -150,6 +156,20 @@ public final class ItemManager {
             meta.lore(lore);
         } else {
             meta.lore(meleeAttributeLore);
+        }
+    }
+    static void addArmorAttributes(ItemMeta meta, double armor, double toughness, double knockbackResistance) {
+        meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", armor, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
+        meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", toughness, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
+        meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", knockbackResistance, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
+    }
+    static void addArmorAttributes(ItemStack[] items, double[] armor, double[] toughness, double[] knockbackResistance) {
+        for(final int[] i = new int[] {0}; i[0] < 4; i[0]++) {
+            items[i[0]].editMeta(meta -> {
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", armor[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", toughness[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
+                meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", knockbackResistance[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
+            });
         }
     }
     static List<Component> removeItalics(final List<Component> lore) {

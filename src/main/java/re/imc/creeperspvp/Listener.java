@@ -167,21 +167,21 @@ public final class Listener implements org.bukkit.event.Listener {
                     final ItemStack weapon = player.getInventory().getItemInMainHand();
                     if(weapon.hasItemMeta()) {
                         final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
-                        switch(data.getOrDefault(Utils.attackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                            case Utils.EFFECT_CHANNELING -> {}
-                            case Utils.EFFECT_EXPLOSION -> {
+                        switch(data.getOrDefault(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                            case Utils.MELEE_EFFECT_CHANNELING -> {}
+                            case Utils.MELEE_EFFECT_EXPLOSION -> {
                                 Location loc1 = event.getEntity().getLocation();
                                 Location loc2 = player.getLocation();
-                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(player, data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.FLOAT, 0f) * player.getAttackCooldown(), false, false);
+                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(player, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 0f) * player.getAttackCooldown(), false, false);
                             }
-                            case Utils.EFFECT_FREEZE -> {
+                            case Utils.MELEE_EFFECT_FREEZE -> {
                                 if(event.getFinalDamage() > 0) {
-                                    event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                                    event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
                                 }
                             }
-                            case Utils.EFFECT_POISON -> {
+                            case Utils.MELEE_EFFECT_POISON -> {
                                 if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
-                                    entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                                    entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
                                 }
                             }
                         }

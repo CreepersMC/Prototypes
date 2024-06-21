@@ -34,16 +34,17 @@ public final class WeaponManager {
     public static final int MACE = 20;
     public static final int TEMPEST_MACE = 21;
     public static final int HARPOON = 24;
-    public static final int TIDE = 25;
+    public static final int TIDE_REVERSER = 25;
     public static final int TRIDENT = 26;
-    public static final int BLUE_STORM = 27;
+    public static final int AZURE_STORM = 27;
     public static final int BOW = 28;
     public static final int BONE_BOW = 29;
     public static final int CROSSBOW = 30;
     public static final int THE_SLICER = 31;
-    public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), null, null, null, null, new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
+    public static final int AZURE_SEEKER = 32;
+    public static final ItemStack[] weapons = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.BLAZE_ROD), new ItemStack(Material.STICK), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.STRUCTURE_VOID), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
     public static final int[] selections = new int[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, BOW, CROSSBOW};
-    public static final int[][] upgrades = new int[][] {{FREEZING_FOIL}, {}, {BREEZE_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {DIAMOND_SWORD}, {}, {FIREBRAND}, {}, {HIGHLAND_AXE}, {}, {CURSED_AXE}, {}, {DIAMOND_PICKAXE}, {}, {UNKNOWN_UPGRADE}, {}, {TEMPEST_MACE}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    public static final int[][] upgrades = new int[][] {{FREEZING_FOIL}, {}, {BREEZE_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {DIAMOND_SWORD}, {}, {FIREBRAND}, {}, {HIGHLAND_AXE}, {}, {CURSED_AXE}, {}, {DIAMOND_PICKAXE}, {}, {UNKNOWN_UPGRADE}, {}, {TEMPEST_MACE}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {THE_SLICER, AZURE_SEEKER}, {}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private WeaponManager() {}
     static void init() {
@@ -57,8 +58,8 @@ public final class WeaponManager {
             meta.itemName(Component.text("霜冻花剑", NamedTextColor.DARK_AQUA));
             meta.lore(removeItalics(Arrays.asList(Component.text("霜冻附加 II", NamedTextColor.GRAY), Component.text("这种针状的花剑触感冰凉，取敌首级如探囊取物。", NamedTextColor.GRAY))));
             editMeleeAttributes(meta, 4.5, 10);
-            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_FREEZE);
-            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 139);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, Utils.MELEE_EFFECT_FREEZE);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 139);
         });
         weapons[STICK].editMeta(meta -> {
             meta.addEnchant(Enchantment.KNOCKBACK, 2, true);
@@ -82,8 +83,8 @@ public final class WeaponManager {
             meta.itemName(Component.text("梦魇之噬", NamedTextColor.DARK_GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("剧毒 II", NamedTextColor.GRAY), Component.text("刀刃上毒液的致命性可经时间流逝而仍保持效果。", NamedTextColor.GRAY))));
             editMeleeAttributes(meta, 6, 2);
-            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_POISON);
-            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.INTEGER, 150);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, Utils.MELEE_EFFECT_POISON);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 150);
         });
         weapons[SWORD].editMeta(meta -> {
             meta.addEnchant(Enchantment.SWEEPING_EDGE, 3, true);
@@ -138,8 +139,8 @@ public final class WeaponManager {
             meta.itemName(Component.text("诅咒之斧", NamedTextColor.GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("爆炸 I", NamedTextColor.GRAY), Component.text("只需轻轻一划，这把含有诅咒和剧毒的斧头就能使受害者卧床多年。", NamedTextColor.GRAY))));
             editMeleeAttributes(meta, 11, 0.7);
-            meta.getPersistentDataContainer().set(Utils.attackEffectIDKey, PersistentDataType.BYTE, Utils.EFFECT_EXPLOSION);
-            meta.getPersistentDataContainer().set(Utils.attackEffectDataKey, PersistentDataType.FLOAT, 1f);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, Utils.MELEE_EFFECT_EXPLOSION);
+            meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 1f);
         });
         weapons[PICKAXE].editMeta(meta -> {
             meta.itemName(Component.text("镐", NamedTextColor.WHITE));

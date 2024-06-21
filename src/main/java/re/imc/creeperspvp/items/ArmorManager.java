@@ -20,6 +20,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Arrays;
 import java.util.UUID;
 import static re.imc.creeperspvp.items.ItemManager.*;
+//TODO find armor trims for creeper armor, mooshroom armor, ghast armor, snow armor
 public final class ArmorManager {
     public static final int GHOSTLY_ARMOR = 0;
     public static final int GHOST_KINDLER = 1;
@@ -37,14 +38,14 @@ public final class ArmorManager {
     public static final int NAUTILUS_ARMOR = 13;
     public static final int GRIM_ARMOR = 14;
     public static final int WITHER_ARMOR = 15;
-    public static final int RED_MOOSHROOM_ARMOR = 16;
-    public static final int BROWN_MOOSHROOM_ARMOR = 17;
-    public static final int GHAST_ARMOR = 18;
-    public static final int HUNGRY_HORROR = 19;
-    public static final int SNOW_ARMOR = 20;
-    public static final int FROST_ARMOR = 21;
-    public static final int CREEPER_ARMOR = 22;
-    public static final int CREEPY_ARMOR = 23;
+    public static final int CREEPER_ARMOR = 16;
+    public static final int CREEPY_ARMOR = 17;
+    public static final int RED_MOOSHROOM_ARMOR = 18;
+    public static final int BROWN_MOOSHROOM_ARMOR = 19;
+    public static final int GHAST_ARMOR = 20;
+    public static final int HUNGRY_HORROR = 21;
+    public static final int SNOW_ARMOR = 22;
+    public static final int FROST_ARMOR = 23;
     public static final int MERCENARY_ARMOR = 24;
     public static final int RENEGADE_ARMOR = 25;
     public static final int TURTLE_ARMOR = 26;
@@ -74,20 +75,20 @@ public final class ArmorManager {
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)},
         {new ItemStack(Material.SKELETON_SKULL), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.WITHER_SKELETON_SKULL), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
+        {new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
+        {new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {null, null, null, null},
         {null, null, null, null},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)},
-        {new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
-        {new ItemStack(Material.CREEPER_HEAD), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.TURTLE_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
         {new ItemStack(Material.TURTLE_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
-        {null, null, null, null},
-        {null, null, null, null},
+        {new ItemStack(Material.CHAINMAIL_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)},
+        {new ItemStack(Material.CHAINMAIL_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)},
         {new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)},
         {new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS)},
@@ -96,19 +97,26 @@ public final class ArmorManager {
         {new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS)}
     };
     public static final PotionEffect[][] effects = new PotionEffect[][] {{new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.JUMP_BOOST, -1, 1, false, false, true)}, {}, {}, {}, {}, {}, {}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true), new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, true)}, {}, {}, {}, {}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
-    public static final int[] selections = new int[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, GHAST_ARMOR, SNOW_ARMOR, CREEPER_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
-    public static final int[][] upgrades = new int[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {BROWN_MOOSHROOM_ARMOR}, {}, {HUNGRY_HORROR}, {}, {FROST_ARMOR}, {}, {CREEPY_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
+    public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
+    public static final int[] selections = new int[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, GHAST_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
+    public static final int[][] upgrades = new int[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {HUNGRY_HORROR}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private ArmorManager() {}
     static void init() {
         for(ItemStack armor : armor[PHANTOM_ARMOR]) {
             armor.editMeta(meta -> {
-               meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
-               meta.lore(removeItalics(Arrays.asList(Component.text("由幻翼膜制成的盔甲，给予穿戴者像蝠鲼一样滑翔的能力。", NamedTextColor.GRAY))));
+                meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("由幻翼膜制成的盔甲，给予穿戴者像蝠鲼一样滑翔的能力。", NamedTextColor.GRAY))));
             });
         }
-        addArmorAttributes(armor[PHANTOM_ARMOR], new double[] {2, 0, 5, 2}, new double[] {0, 1, 0, 0}, new double[] {0, 0, 0, 0});
+        addArmorAttributes(armor[PHANTOM_ARMOR], new double[] {2, 0, 5, 2}, new double[] {0, 0, 1, 0}, new double[] {0, 0, 0, 0});
+        for(ItemStack armor : armor[DRAGON_ARMOR]) {
+            armor.editMeta(meta -> {
+                meta.itemName(Component.text("", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+        }
+        addArmorAttributes(armor[DRAGON_ARMOR], new double[] {3, 0, 7, 2}, new double[] {0, 0, 2, 1}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[CLIMBING_GEAR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
@@ -213,6 +221,17 @@ public final class ArmorManager {
             meta.setEnchantmentGlintOverride(false);
         });
         addArmorAttributes(armor[PRISMARINE_ARMOR], new double[] {2, 6, 4, 1}, new double[] {0, 1, 0.8, 0}, new double[] {0, 0, 0, 0});
+        for(ItemStack armor : armor[CREEPER_ARMOR]) {
+            armor.editMeta(meta -> {
+                meta.itemName(Component.text("苦力怕盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲以充满悲伤的目光凝视着敌人。", NamedTextColor.GRAY))));
+            });
+        }
+        armor[CREEPER_ARMOR][0].editMeta(meta -> {
+            meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+            meta.setEnchantmentGlintOverride(false);
+        });
+        addArmorAttributes(armor[CREEPER_ARMOR], new double[] {0, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[GHAST_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.itemName(Component.text("恶魂盔甲", NamedTextColor.WHITE));
@@ -236,17 +255,6 @@ public final class ArmorManager {
             meta.setColor(Color.fromRGB(109, 155, 195));
         });
         addArmorAttributes(armor[SNOW_ARMOR], new double[] {2, 6, 5, 1}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
-        for(ItemStack armor : armor[CREEPER_ARMOR]) {
-            armor.editMeta(meta -> {
-                meta.itemName(Component.text("苦力怕盔甲", NamedTextColor.WHITE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲以充满悲伤的目光凝视着敌人。", NamedTextColor.GRAY))));
-            });
-        }
-        armor[CREEPER_ARMOR][0].editMeta(meta -> {
-            meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
-            meta.setEnchantmentGlintOverride(false);
-        });
-        addArmorAttributes(armor[CREEPER_ARMOR], new double[] {1, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[MERCENARY_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.setRarity(ItemRarity.COMMON);
@@ -356,19 +364,42 @@ public final class ArmorManager {
             }
         }
         for(int i = 0; i < 2; i++) {
+            selectors[GHOSTLY_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            selectors[GHOST_KINDLER][i].editMeta(meta -> {
+                meta.itemName(Component.text("", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("焰尾", NamedTextColor.GRAY), Component.text("", NamedTextColor.GRAY))));
+            });
             selectors[PHANTOM_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("幻翼盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("由幻翼膜制成的盔甲，给予穿戴者像蝠鲼一样滑翔的能力。", NamedTextColor.GRAY))));
                 addArmorAttributes(meta, 9, 1, 0);
             });
+            selectors[DRAGON_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+                addArmorAttributes(meta, 12, 4, 0);
+            });
             selectors[CLIMBING_GEAR][i].editMeta(meta -> {
                 meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
+                meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
                 if(meta instanceof ArmorMeta armorMeta) {
                     //armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
                 }
+                addArmorAttributes(meta, 9, 1, 1);
+            });
+            selectors[GOAT_GEAR][i].editMeta(meta -> {
+                meta.addEnchant(Enchantment.FEATHER_FALLING, 10, true);
                 meta.setEnchantmentGlintOverride(false);
+                meta.itemName(Component.text("山羊装", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("用山羊的毛皮制作而成，穿戴后会感觉到跳跃感犹如可以从一个山峰蹦到另一个山峰一样轻浮。", NamedTextColor.GRAY))));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    //armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
+                }
                 addArmorAttributes(meta, 9, 1, 1);
             });
             selectors[BATTLE_ROBE][i].editMeta(meta -> {
@@ -403,9 +434,31 @@ public final class ArmorManager {
                 meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
                 addArmorAttributes(meta, 11, 1.5, 0);
             });
+            selectors[SPIDER_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("蜘蛛盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text(" 6% 吸血光环", NamedTextColor.BLUE), Component.text("", NamedTextColor.GRAY))));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    ((LeatherArmorMeta) armorMeta).setColor(Color.BLACK);
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.SENTRY));
+                }
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                addArmorAttributes(meta, 11, 1.5, 0);
+            });
             selectors[SWIFT_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("轻盈盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("只有懦夫才会穿这身盔甲——至少人们是这么说的。", NamedTextColor.GRAY))));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
+                }
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                addArmorAttributes(meta, 12, 1.6, 0);
+            });
+            selectors[EMBER_ROBES][i].editMeta(meta -> {
+                meta.addEnchant(Enchantment.FIRE_PROTECTION, 10, true);
+                meta.setEnchantmentGlintOverride(false);
+                meta.itemName(Component.text("余烬长袍", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
                 }
@@ -421,6 +474,20 @@ public final class ArmorManager {
                 }
                 meta.setEnchantmentGlintOverride(false);
                 addArmorAttributes(meta, 13, 1.8, 0);
+            });
+            selectors[CREEPER_ARMOR][i].editMeta(meta -> {
+                meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+                meta.setEnchantmentGlintOverride(false);
+                meta.itemName(Component.text("苦力怕盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲以充满悲伤的目光凝视着敌人。", NamedTextColor.GRAY))));
+                addArmorAttributes(meta, 13, 2, 0);
+            });
+            selectors[CREEPY_ARMOR][i].editMeta(meta -> {
+                meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+                meta.setEnchantmentGlintOverride(false);
+                meta.itemName(Component.text("暗影行者", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("隐身", NamedTextColor.GRAY), Component.text("静音", NamedTextColor.GRAY), Component.text("", NamedTextColor.GRAY))));
+                addArmorAttributes(meta, 13, 2, 0);
             });
             selectors[GHAST_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("恶魂盔甲", NamedTextColor.WHITE));
@@ -440,11 +507,14 @@ public final class ArmorManager {
                 }
                 addArmorAttributes(meta, 14, 2, 0);
             });
-            selectors[CREEPER_ARMOR][i].editMeta(meta -> {
-                meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
-                meta.setEnchantmentGlintOverride(false);
-                meta.itemName(Component.text("苦力怕盔甲", NamedTextColor.WHITE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲以充满悲伤的目光凝视着敌人。", NamedTextColor.GRAY))));
+            selectors[FROST_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("冰霜盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("霜冻光环", NamedTextColor.BLUE), Component.text("这件传奇盔甲由永不融化的冰块锻造而成，让穿戴者感觉仿佛与冬天融为一体。", NamedTextColor.GRAY))));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    if(meta instanceof LeatherArmorMeta leatherArmorMeta) {
+                        leatherArmorMeta.setColor(Color.fromRGB(109, 155, 195));
+                    }
+                }
                 addArmorAttributes(meta, 14, 2, 0);
             });
             selectors[MERCENARY_ARMOR][i].editMeta(meta -> {
@@ -464,12 +534,27 @@ public final class ArmorManager {
                 meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
                 addArmorAttributes(meta, 16, 5, 0.5);
             });
+            selectors[NIMBLE_TURTLE_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("轻灵龟甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲是用生活在不定深度的海龟的结实（但出乎意料地轻）外壳制成的。", NamedTextColor.GRAY))));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                addArmorAttributes(meta, 16, 5, 0.5);
+            });
             selectors[SCALE_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("鳞甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件护甲的灵感来自于鱼鳞，在大海边制作完成。", NamedTextColor.GRAY))));
                 meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.COAST));
+                }
+                addArmorAttributes(meta, 17, 6, 0.3);
+            });
+            selectors[HIGHLAND_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("高地护甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("荆棘I x4", NamedTextColor.GRAY), Component.text("据说这件盔甲是由龙鳞制作的。", NamedTextColor.GRAY))));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.EMERALD, TrimPattern.COAST));
                 }
                 addArmorAttributes(meta, 17, 6, 0.3);
             });
@@ -484,6 +569,17 @@ public final class ArmorManager {
                 }
                 addArmorAttributes(meta, 18, 7, 0.4);
             });
+            selectors[TITANS_SHROUD][i].editMeta(meta -> {
+                meta.itemName(Component.text("泰坦战甲", NamedTextColor.AQUA));
+                meta.lore(removeItalics(Arrays.asList(Component.text("关于泰坦战甲的励志故事，已经在南瓜牧场上流传了好几代。", NamedTextColor.GRAY))));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", -0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", -0.75, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.HOST));
+                }
+                addArmorAttributes(meta, 20, 10, 0.6);
+            });
             selectors[SHULKER_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("潜影贝盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("潜影贝盔甲的硬度可以媲美坚硬的钻石。", NamedTextColor.GRAY))));
@@ -493,6 +589,16 @@ public final class ArmorManager {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.SPIRE));
                 }
                 addArmorAttributes(meta, 20, 8, 0.5);
+            });
+            selectors[STURDY_SHULKER_ARMOR][i].editMeta(meta -> {
+                meta.itemName(Component.text("坚固潜影贝盔甲", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("他们说进攻就是最好的防守，但对于这个垒壳，大概只能祝你好运了。", NamedTextColor.GRAY))));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                if(meta instanceof ArmorMeta armorMeta) {
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.SPIRE));
+                }
+                addArmorAttributes(meta, 20, 12, 0.5);
             });
             for(ItemStack[] selectors : selectors) {
                 if(selectors != null) {

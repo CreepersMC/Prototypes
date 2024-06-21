@@ -28,8 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
-    public static NamespacedKey attackEffectIDKey;
-    public static NamespacedKey attackEffectDataKey;
+    public static NamespacedKey rangedArrowVelocityKey;
+    public static NamespacedKey rangedAttackSpeedKey;
+    public static NamespacedKey armorAuraIDKey;
+    public static NamespacedKey armorAuraDataKey;
+    public static NamespacedKey meleeAttackEffectIDKey;
+    public static NamespacedKey meleeAttackEffectDataKey;
+    public static NamespacedKey rangedAttackEffectIDKey;
+    public static NamespacedKey rangedAttackEffectDataKey;
     public static NamespacedKey itemOrdinalKey;
     public static NamespacedKey artifactIDKey;
     public static NamespacedKey weaponIDKey;
@@ -44,10 +50,13 @@ public final class Utils {
     public static final NamespacedKey[] weaponKeys = new NamespacedKey[2];
     public static final NamespacedKey[] artifactKeys = new NamespacedKey[3];
     public static final byte UTIL_SPAWN = 0;
-    public static final byte EFFECT_CHANNELING = 0;
-    public static final byte EFFECT_EXPLOSION = 1;
-    public static final byte EFFECT_FREEZE = 2;
-    public static final byte EFFECT_POISON = 3;
+    public static final byte ARMOR_AURA_FREEZE = 0;
+    public static final byte ARMOR_AURA_LIFESTEAL = 1;
+    public static final byte MELEE_EFFECT_CHANNELING = 0;
+    public static final byte MELEE_EFFECT_EXPLOSION = 1;
+    public static final byte MELEE_EFFECT_FREEZE = 2;
+    public static final byte MELEE_EFFECT_POISON = 3;
+    public static final byte RANGED_EFFECT_FREEZE = 0;
     private static ArmorStand dummy;
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
@@ -56,8 +65,14 @@ public final class Utils {
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
     private Utils() {}
     public static void init() {
-        attackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-id");
-        attackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "attack-effect-data");
+        rangedArrowVelocityKey = new NamespacedKey(CreepersPVP.instance, "ranged-arrow-velocity");
+        rangedAttackSpeedKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-speed");
+        armorAuraIDKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-id");
+        armorAuraDataKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-data");
+        meleeAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-id");
+        meleeAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-data");
+        rangedAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-id");
+        rangedAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-data");
         itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
         artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
         weaponIDKey = new NamespacedKey(CreepersPVP.instance, "weapon-id");

@@ -153,12 +153,12 @@ public final class ArtifactManager {
             meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
         });
-        artifacts[TNT] = Utils.modifyItem(artifacts[TNT], "[{function:\"set_components\", components:{\"can_place_on\":{}}}]");
+        artifacts[TNT] = Utils.modifyItem(artifacts[TNT], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
         artifacts[END_CRYSTAL].editMeta(meta -> {
             meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
         });
-        artifacts[END_CRYSTAL] = Utils.modifyItem(artifacts[END_CRYSTAL], "[{function:\"set_components\", components:{\"can_place_on\":{}}}]");
+        artifacts[END_CRYSTAL] = Utils.modifyItem(artifacts[END_CRYSTAL], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
         artifacts[FISHING_ROD].editMeta(meta -> {
             meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));

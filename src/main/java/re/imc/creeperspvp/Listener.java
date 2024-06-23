@@ -1,7 +1,13 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import fr.mrmicky.fastinv.FastInv;
+import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import re.imc.creeperspvp.items.ArtifactManager;
@@ -85,6 +91,18 @@ public final class Listener implements org.bukkit.event.Listener {
         event.blockList().clear();
     }
     @EventHandler(priority = EventPriority.LOW)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if(event.getPlayer().getGameMode() != GameMode.CREATIVE && !(event.getInventory() instanceof PlayerInventory || event.getInventory().getHolder() instanceof FastInv)) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockBreak(BlockBreakEvent event) {
+        if(event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
     public void onEntityShootBow(EntityShootBowEvent event) {
         if(event.getEntity() instanceof Player && event.getProjectile() instanceof Arrow arrow && arrow.getBasePotionType() == null) {
             arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
@@ -129,6 +147,8 @@ public final class Listener implements org.bukkit.event.Listener {
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
                 }
+            } else {
+                event.setCancelled(player.getGameMode() == GameMode.CREATIVE);
             }
         }
     }
@@ -156,6 +176,8 @@ public final class Listener implements org.bukkit.event.Listener {
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
                 }
+            } else {
+                event.setCancelled(player.getGameMode() == GameMode.CREATIVE);
             }
         }
     }
@@ -163,25 +185,62 @@ public final class Listener implements org.bukkit.event.Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         switch(event.getCause()) {
             case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
-                if(event.getDamager() instanceof final Player player) {
-                    final ItemStack weapon = player.getInventory().getItemInMainHand();
-                    if(weapon.hasItemMeta()) {
-                        final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
-                        switch(data.getOrDefault(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                            case Utils.MELEE_EFFECT_CHANNELING -> {}
-                            case Utils.MELEE_EFFECT_EXPLOSION -> {
-                                Location loc1 = event.getEntity().getLocation();
-                                Location loc2 = player.getLocation();
-                                loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(player, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 0f) * player.getAttackCooldown(), false, false);
-                            }
-                            case Utils.MELEE_EFFECT_FREEZE -> {
-                                if(event.getFinalDamage() > 0) {
-                                    event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                if(event.getDamager() instanceof final LivingEntity damager) {
+                    final EntityEquipment equipment = damager.getEquipment();
+                    if(equipment != null) {
+                        final ItemStack weapon = equipment.getItemInMainHand();
+                        if(weapon.hasItemMeta()) {
+                            final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
+                            switch(data.getOrDefault(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                                case Utils.MELEE_EFFECT_CHANNELING -> {
+                                }
+                                case Utils.MELEE_EFFECT_EXPLOSION -> {
+                                    Location loc1 = event.getEntity().getLocation();
+                                    Location loc2 = damager.getLocation();
+                                    loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(damager, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 0f) * (damager instanceof HumanEntity humanDamager ? humanDamager.getAttackCooldown() : 1), false, false);
+                                }
+                                case Utils.MELEE_EFFECT_FREEZE -> {
+                                    if(event.getFinalDamage() > 0 && equipment.getBoots().getType() != Material.LEATHER_BOOTS) {
+                                        event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                                    }
+                                }
+                                case Utils.MELEE_EFFECT_POISON -> {
+                                    if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
+                                        entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                                    }
                                 }
                             }
-                            case Utils.MELEE_EFFECT_POISON -> {
-                                if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
-                                    entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                        }
+                    }
+                }
+            }
+        }
+        if(event.getDamager() instanceof final LivingEntity damager) {
+            final EntityEquipment equipment = damager.getEquipment();
+            if(equipment != null) {
+                for(ItemStack armor : equipment.getArmorContents()) {
+                    if(armor != null && armor.hasItemMeta()) {
+                        final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
+                        switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                            case Utils.ARMOR_AURA_LIFESTEAL -> damager.heal(event.getDamage() * data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 1f), EntityRegainHealthEvent.RegainReason.WITHER);
+                        }
+                    }
+                }
+            }
+        }
+        if(event.getEntity() instanceof final LivingEntity damagee) {
+            final EntityEquipment equipment = damagee.getEquipment();
+            if(equipment != null) {
+                for(ItemStack armor : equipment.getArmorContents()) {
+                    if(armor != null && armor.hasItemMeta()) {
+                        final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
+                        switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                            case Utils.ARMOR_AURA_FREEZE -> {
+                                damagee.heal(event.getDamage() * data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 1f), EntityRegainHealthEvent.RegainReason.WITHER);
+                            }
+                            case Utils.ARMOR_AURA_SHULKING -> {
+                                if(damagee.getHealth() - event.getFinalDamage() < damagee.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 0.5) {
+
                                 }
                             }
                         }

@@ -5,6 +5,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
@@ -28,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
+    public static NamespacedKey customItemUsedTimeKey;
+    public static NamespacedKey customItemStartUsingTimeKey;
     public static NamespacedKey rangedArrowVelocityKey;
     public static NamespacedKey rangedAttackSpeedKey;
     public static NamespacedKey armorAuraIDKey;
@@ -52,6 +55,7 @@ public final class Utils {
     public static final byte UTIL_SPAWN = 0;
     public static final byte ARMOR_AURA_FREEZE = 0;
     public static final byte ARMOR_AURA_LIFESTEAL = 1;
+    public static final byte ARMOR_AURA_SHULKING = 2;
     public static final byte MELEE_EFFECT_CHANNELING = 0;
     public static final byte MELEE_EFFECT_EXPLOSION = 1;
     public static final byte MELEE_EFFECT_FREEZE = 2;
@@ -65,6 +69,8 @@ public final class Utils {
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
     private Utils() {}
     public static void init() {
+        customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
+        customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
         rangedArrowVelocityKey = new NamespacedKey(CreepersPVP.instance, "ranged-arrow-velocity");
         rangedAttackSpeedKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-speed");
         armorAuraIDKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-id");
@@ -117,6 +123,36 @@ public final class Utils {
             infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
+        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            if(player.hasActiveItem()) {
+                final ItemStack item = player.getActiveItem();
+                item.editMeta(meta -> {
+                    PersistentDataContainer data = meta.getPersistentDataContainer();
+                    final int currentTime = Bukkit.getCurrentTick();
+                    if(data.has(customItemStartUsingTimeKey, PersistentDataType.INTEGER)) {
+                        System.out.println("flag1");
+                        int startTime = data.get(customItemStartUsingTimeKey, PersistentDataType.INTEGER);
+                        int usedTime = data.get(customItemUsedTimeKey, PersistentDataType.INTEGER);
+                        if(startTime + usedTime + 1 == currentTime) {
+                            usedTime++;
+                            data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
+                            player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
+                            item.getItemMeta().setCustomModelData(usedTime);
+                        } else {
+                            data.remove(customItemStartUsingTimeKey);
+                            data.remove(customItemUsedTimeKey);
+                        }
+                    } else {
+                        System.out.println("flag2");
+                        int usedTime = player.getActiveItemUsedTime();
+                        data.set(customItemStartUsingTimeKey, PersistentDataType.INTEGER, currentTime - usedTime);
+                        data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
+                        player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
+                    }
+                    System.out.println("used time: " + data.get(customItemUsedTimeKey, PersistentDataType.INTEGER) + " kst: " + data.get(customItemUsedTimeKey, PersistentDataType.INTEGER) * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
+                });
+            }
+        }, null, 1, 1);
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
             int pos = inv.first(Material.ARROW);
             if(pos != -1) {
@@ -187,6 +223,7 @@ public final class Utils {
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(false);
         player.setAllowFlight(armorID == ArmorManager.GHAST_ARMOR);
+        player.setSilent(armorID == ArmorManager.CREEPY_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         player.teleport(spawn);
     }
@@ -196,7 +233,7 @@ public final class Utils {
      */
     public static ItemStack modifyItem(ItemStack item, String modifier) {
         dummy.setItem(EquipmentSlot.HAND, item);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "item modify entity " + Utils.dummy.getUniqueId() + " weapon.mainhand " + modifier);
+        Bukkit.dispatchCommand(dummy, "item modify entity @s weapon.mainhand " + modifier);
         return dummy.getItem(EquipmentSlot.HAND);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {
@@ -268,5 +305,18 @@ public final class Utils {
                 gainArtifactScheduler.remove(uuid);
             }
         }
+    }
+    private static int getCustomMaxUseDuration(ItemStack item) {
+        switch(item.getType()) {
+            case BOW, CROSSBOW, TRIDENT -> {
+                if(item.hasItemMeta()) {
+                    PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+                    if(data.has(rangedAttackSpeedKey)) {
+                        return Math.round(20 / data.get(rangedAttackSpeedKey, PersistentDataType.FLOAT));
+                    }
+                }
+            }
+        }
+        return item.getMaxItemUseDuration();
     }
 }

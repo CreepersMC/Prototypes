@@ -185,10 +185,14 @@ public final class WeaponManager {
         weapons[BOW].editMeta(meta -> {
             meta.itemName(Component.text("弓", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.getPersistentDataContainer().set(Utils.rangedArrowVelocityKey, PersistentDataType.FLOAT, 1f);
+            meta.getPersistentDataContainer().set(Utils.rangedAttackSpeedKey, PersistentDataType.FLOAT, 2f);
         });
         weapons[CROSSBOW].editMeta(meta -> {
             meta.itemName(Component.text("弩", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.getPersistentDataContainer().set(Utils.rangedArrowVelocityKey, PersistentDataType.FLOAT, 1f);
+            meta.getPersistentDataContainer().set(Utils.rangedAttackSpeedKey, PersistentDataType.FLOAT, 0.8f);
         });
         for(final int[] i = {0}; i[0] < weapons.length; i[0]++) {
             if(weapons[i[0]] != null) {

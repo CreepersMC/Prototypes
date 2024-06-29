@@ -28,8 +28,8 @@ public final class DatabaseUtils {
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
             `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
-            `armor_status` BINARY(8) NOT NULL DEFAULT b'0000000000000000000000001000000000000000000000000000000000000000',
-            `weapon_status` BINARY(8) NOT NULL DEFAULT b'1000000000000000000000100000000000000000000000000000000000',
+            `armor_status` BINARY(6) NOT NULL DEFAULT b'000000000000000000000000100000000000000000000000',
+            `weapon_status` BINARY(10) NOT NULL DEFAULT b'00000000010000000000000000000000000100000000000000000000000000000000000000000000',
             `artifact_status` BINARY(32) NOT NULL DEFAULT b'1000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000',
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
@@ -191,7 +191,7 @@ public final class DatabaseUtils {
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
         }
-        return new boolean[64];
+        return new boolean[48];
     }
     public static void setPlayerArmorStatus(UUID uuid, boolean[] val) {
         try {
@@ -217,7 +217,7 @@ public final class DatabaseUtils {
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
         }
-        return new boolean[64];
+        return new boolean[80];
     }
     public static void setPlayerWeaponStatus(UUID uuid, boolean[] val) {
         try {

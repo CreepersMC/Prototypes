@@ -41,6 +41,7 @@ public final class IUIManager {
     private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW));
     private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN));
     private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA));
+    private static final int[][] upgradeSlots = {{}, {13}, {12, 14}, {11, 13, 15}, {10, 12, 14, 16}, {11, 12, 13, 14, 15}, {10, 11, 12, 13, 14 ,15}, {10, 11, 12, 13, 14, 15, 16}};
     public static void init() {
         FastInvManager.register(CreepersPVP.instance);
     }
@@ -141,7 +142,8 @@ public final class IUIManager {
             setItem(0, ItemManager.BACK, event -> new ArmorSelectorInv(uuid).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
-            for(final int armorUpgrade : ArmorManager.upgrades[armorID]) {
+            for(int i = 0; i < ArmorManager.upgrades[armorID].length; i++) {
+                final int armorUpgrade = ArmorManager.upgrades[armorID][i];
                 ItemStack item = ArmorManager.selectors[armorUpgrade][armorStatus[armorUpgrade] ? 1 : 0].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 if(armorStatus[armorUpgrade]) {
@@ -154,7 +156,7 @@ public final class IUIManager {
                     lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(13, item, event -> {
+                setItem(upgradeSlots[ArmorManager.upgrades[armorID].length][i], item, event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(armorStatus[armorUpgrade]) {
@@ -255,7 +257,8 @@ public final class IUIManager {
             setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
-            for(final int weaponUpgrade : WeaponManager.upgrades[weaponID]) {
+            for(int i = 0; i < WeaponManager.upgrades[weaponID].length; i++) {
+                final int weaponUpgrade = WeaponManager.upgrades[weaponID][i];
                 ItemStack item = WeaponManager.weapons[weaponUpgrade].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 if(weaponStatus[weaponUpgrade]) {
@@ -268,7 +271,7 @@ public final class IUIManager {
                     lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(13, weaponStatus[weaponUpgrade] ? item : item.withType(Material.GRAY_DYE), event -> {
+                setItem(upgradeSlots[WeaponManager.upgrades[weaponID].length][i], weaponStatus[weaponUpgrade] ? item : item.withType(Material.GRAY_DYE), event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(weaponStatus[weaponUpgrade]) {
@@ -371,7 +374,8 @@ public final class IUIManager {
             setItem(0, ItemManager.BACK, event -> new ArtifactSelectorInv(uuid, artifact, category).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
-            for(final int artifactUpgrade : ArtifactManager.upgrades[artifactID]) {
+            for(int i = 0; i < ArtifactManager.upgrades[artifactID].length; i++) {
+                final int artifactUpgrade = ArtifactManager.upgrades[artifactID][i];
                 ItemStack item = ArtifactManager.artifacts[artifactUpgrade].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 if(artifactStatus[artifactUpgrade]) {
@@ -384,7 +388,7 @@ public final class IUIManager {
                     lore.add(buyOnLeftClick);
                 }
                 item.lore(lore);
-                setItem(13, artifactStatus[artifactUpgrade] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
+                setItem(upgradeSlots[ArtifactManager.upgrades[artifactID].length][i], artifactStatus[artifactUpgrade] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(artifactStatus[artifactUpgrade]) {

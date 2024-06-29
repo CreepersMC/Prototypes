@@ -1,11 +1,14 @@
 package re.imc.creeperspvp.utils;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.title.TitlePart;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
@@ -22,6 +25,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
@@ -29,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
+    public static NamespacedKey customItemUsageKey;
     public static NamespacedKey customItemUsedTimeKey;
     public static NamespacedKey customItemStartUsingTimeKey;
     public static NamespacedKey rangedArrowVelocityKey;
@@ -40,8 +46,9 @@ public final class Utils {
     public static NamespacedKey rangedAttackEffectIDKey;
     public static NamespacedKey rangedAttackEffectDataKey;
     public static NamespacedKey itemOrdinalKey;
-    public static NamespacedKey artifactIDKey;
     public static NamespacedKey weaponIDKey;
+    public static NamespacedKey artifactIDKey;
+    public static NamespacedKey multiItemKey;
     public static NamespacedKey iuiIDKey;
     public static NamespacedKey iuiDataKey;
     public static NamespacedKey weaponSelectorIDKey;
@@ -60,15 +67,22 @@ public final class Utils {
     public static final byte MELEE_EFFECT_EXPLOSION = 1;
     public static final byte MELEE_EFFECT_FREEZE = 2;
     public static final byte MELEE_EFFECT_POISON = 3;
-    public static final byte RANGED_EFFECT_FREEZE = 0;
+    public static final byte RANGED_EFFECT_CHANNELING = 0;
+    public static final byte RANGED_EFFECT_FREEZE = 1;
+    public static final byte RANGED_EFFECT_WIND = 2;
+    private static final int DEATH_SPECTATE_TIME = 60;
     private static ArmorStand dummy;
+    private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
+    private static final UUID resourcePackUUID = UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447"); //使用五郎的UUID
+    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create(""), "")).prompt(Component.text("WIP")).required(false).replace(true).build();
     private Utils() {}
     public static void init() {
+        customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
         customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
         customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
         rangedArrowVelocityKey = new NamespacedKey(CreepersPVP.instance, "ranged-arrow-velocity");
@@ -80,8 +94,9 @@ public final class Utils {
         rangedAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-id");
         rangedAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-data");
         itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
-        artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
         weaponIDKey = new NamespacedKey(CreepersPVP.instance, "weapon-id");
+        artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
+        multiItemKey = new NamespacedKey(CreepersPVP.instance, "multi-item");
         iuiIDKey = new NamespacedKey(CreepersPVP.instance, "iui-id");
         iuiDataKey = new NamespacedKey(CreepersPVP.instance, "iui-data");
         weaponSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "weapon");
@@ -107,6 +122,7 @@ public final class Utils {
         dummy.remove();
     }
     public static void playerJoin(Player player) {
+        //player.sendResourcePacks(resourcePackRequest);
         UUID uuid = player.getUniqueId();
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
@@ -128,28 +144,34 @@ public final class Utils {
                 final ItemStack item = player.getActiveItem();
                 item.editMeta(meta -> {
                     PersistentDataContainer data = meta.getPersistentDataContainer();
-                    final int currentTime = Bukkit.getCurrentTick();
-                    if(data.has(customItemStartUsingTimeKey, PersistentDataType.INTEGER)) {
-                        System.out.println("flag1");
-                        int startTime = data.get(customItemStartUsingTimeKey, PersistentDataType.INTEGER);
-                        int usedTime = data.get(customItemUsedTimeKey, PersistentDataType.INTEGER);
-                        if(startTime + usedTime + 1 == currentTime) {
-                            usedTime++;
-                            data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
-                            player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
-                            item.getItemMeta().setCustomModelData(usedTime);
+                    if(data.has(customItemUsageKey)) {
+                        final int currentTime = Bukkit.getCurrentTick();
+                        final int vanillaMaxUseDuration = getVanillaMaxUseDuration(item);
+                        if(data.has(customItemStartUsingTimeKey, PersistentDataType.INTEGER)) {
+                            final int startTime = data.get(customItemStartUsingTimeKey, PersistentDataType.INTEGER);
+                            final int customMaxUseTime = getCustomMaxUseDuration(item);
+                            int usedTime = data.get(customItemUsedTimeKey, PersistentDataType.INTEGER);
+                            final Duration duration = Duration.ofMillis(Math.max(1, customMaxUseTime / ItemManager.PROGRESS_BARS.length) * 50L);
+                            player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, duration, duration));
+                            player.sendTitlePart(TitlePart.SUBTITLE, ItemManager.PROGRESS_BARS[Math.min(usedTime * ItemManager.PROGRESS_BARS.length / customMaxUseTime, ItemManager.PROGRESS_BARS.length - 1)]);
+                            player.sendTitlePart(TitlePart.TITLE, Component.empty());
+                            if(startTime + usedTime + 1 == currentTime && usedTime < customMaxUseTime) {
+                                data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, ++usedTime);
+                                player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * vanillaMaxUseDuration / customMaxUseTime);
+                                if(player.hasResourcePack()) {
+                                    item.getItemMeta().setCustomModelData(getCustomModelData(item, usedTime));
+                                }
+                            } else if(usedTime != customMaxUseTime) {
+                                data.remove(customItemStartUsingTimeKey);
+                                data.remove(customItemUsedTimeKey);
+                            }
                         } else {
-                            data.remove(customItemStartUsingTimeKey);
-                            data.remove(customItemUsedTimeKey);
+                            int usedTime = player.getActiveItemUsedTime();
+                            data.set(customItemStartUsingTimeKey, PersistentDataType.INTEGER, currentTime - usedTime);
+                            data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
+                            player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * vanillaMaxUseDuration / getCustomMaxUseDuration(item));
                         }
-                    } else {
-                        System.out.println("flag2");
-                        int usedTime = player.getActiveItemUsedTime();
-                        data.set(customItemStartUsingTimeKey, PersistentDataType.INTEGER, currentTime - usedTime);
-                        data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
-                        player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
                     }
-                    System.out.println("used time: " + data.get(customItemUsedTimeKey, PersistentDataType.INTEGER) + " kst: " + data.get(customItemUsedTimeKey, PersistentDataType.INTEGER) * item.getMaxItemUseDuration() / getCustomMaxUseDuration(item));
                 });
             }
         }, null, 1, 1);
@@ -159,6 +181,10 @@ public final class Utils {
                 inv.getItem(pos).setAmount(64);
             }
         }, null, 61, 61);
+    }
+    public static void playerQuit(Player player) {
+        deathSpectatingPlayers.remove(player.getUniqueId());
+        player.removeResourcePack(resourcePackUUID);
     }
     public static void playerInit(Player player) {
         removeGainArtifactSchedulers(player.getUniqueId());
@@ -200,8 +226,28 @@ public final class Utils {
         inv.setItem(EquipmentSlot.CHEST, ArmorManager.armor[armorID][1]);
         inv.setItem(EquipmentSlot.LEGS, ArmorManager.armor[armorID][2]);
         inv.setItem(EquipmentSlot.FEET, ArmorManager.armor[armorID][3]);
-        inv.setItem(0, WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)]);
-        inv.setItem(1, WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)]);
+        final ItemStack weapon1 = WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)];
+        inv.setItem(0, weapon1);
+        if(weapon1.hasItemMeta()) {
+            PersistentDataContainer weapon1Data = weapon1.getItemMeta().getPersistentDataContainer();
+            if(weapon1Data.has(multiItemKey, PersistentDataType.INTEGER)) {
+                final int multiItems = weapon1Data.get(multiItemKey, PersistentDataType.INTEGER);
+                for(int i = 1; i < multiItems; i++) {
+                    inv.setItem(36 - i * 9, weapon1);
+                }
+            }
+        }
+        final ItemStack weapon2 = WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)];
+        inv.setItem(1, weapon2);
+        if(weapon2.hasItemMeta()) {
+            PersistentDataContainer weapon2Data = weapon2.getItemMeta().getPersistentDataContainer();
+            if(weapon2Data.has(multiItemKey, PersistentDataType.INTEGER)) {
+                final int multiItems = weapon2Data.get(multiItemKey, PersistentDataType.INTEGER);
+                for(int i = 1; i < multiItems; i++) {
+                    inv.setItem(37 - i * 9, weapon2);
+                }
+            }
+        }
         inv.setItem(2, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ArtifactManager.SNOWBALL)]);
         inv.setItem(3, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ArtifactManager.BREAD)]);
         inv.setItem(4, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ArtifactManager.SHIELD)]);
@@ -223,9 +269,32 @@ public final class Utils {
         player.setGameMode(GameMode.ADVENTURE);
         player.setInvulnerable(false);
         player.setAllowFlight(armorID == ArmorManager.GHAST_ARMOR);
-        player.setSilent(armorID == ArmorManager.CREEPY_ARMOR);
+        player.setSilent(armorID == ArmorManager.GHOST_KINDLER || armorID == ArmorManager.CREEPY_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         player.teleport(spawn);
+    }
+    public static void playerDeath(Player player) {
+        deathSpectatingPlayers.put(player.getUniqueId(), Bukkit.getCurrentTick());
+    }
+    public static boolean attemptStopSpectatingEntity(Player player) {
+        final UUID uuid = player.getUniqueId();
+        if(deathSpectatingPlayers.containsKey(uuid)) {
+            if(Bukkit.getCurrentTick() - deathSpectatingPlayers.get(uuid) >= DEATH_SPECTATE_TIME) {
+                deathSpectatingPlayers.remove(uuid);
+                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> playerInit(player));
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+    public static Location shulk(Location location) {
+        dummy.teleport(location);
+        dummy.setItem(EquipmentSlot.HAND, new ItemStack(Material.CHORUS_FRUIT));
+        dummy.startUsingItem(EquipmentSlot.HAND);
+        dummy.completeUsingActiveItem();
+        dummy.setItem(EquipmentSlot.HAND, null);
+        return dummy.getLocation();
     }
     /**
      * Paper API is stupid
@@ -233,7 +302,7 @@ public final class Utils {
      */
     public static ItemStack modifyItem(ItemStack item, String modifier) {
         dummy.setItem(EquipmentSlot.HAND, item);
-        Bukkit.dispatchCommand(dummy, "item modify entity @s weapon.mainhand " + modifier);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "item modify entity " + dummy.getUniqueId() + " weapon.mainhand " + modifier);
         return dummy.getItem(EquipmentSlot.HAND);
     }
     public static int findItem(PlayerInventory inv, int itemOrdinal) {
@@ -260,13 +329,12 @@ public final class Utils {
             final int[] timer = {0};
             scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
                 timer[0]++;
-                timer[0] %= ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length;
+                timer[0] %= ItemManager.PROGRESS_BARS.length;
                 final int slot = Utils.findItem(inv, itemOrdinal);
                 final ItemStack currentItem = slot == -1 ? player.getItemOnCursor() : inv.getItem(slot);
                 if(currentItem != null) {
                     if(timer[0] == 0) {
                         if(currentItem.getType() == Material.BARRIER) {
-                            item.editMeta(meta -> meta.displayName(null));
                             if(slot == -1) {
                                 player.setItemOnCursor(item);
                             } else {
@@ -284,12 +352,15 @@ public final class Utils {
                             }
                         }
                     } else {
-                        if(currentItem.getType() == Material.BARRIER) {
-                            currentItem.editMeta(meta -> meta.displayName(ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES[timer[0]]));
+                        ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                        if(currentItem.getType() == Material.BARRIER && (itemInHand.hasItemMeta() && itemInHand.getItemMeta().getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) == itemOrdinal)) {
+                            player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, Duration.ofMillis(ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length * 50L), Duration.ofMillis(ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length * 50L)));
+                            player.sendTitlePart(TitlePart.SUBTITLE, ItemManager.PROGRESS_BARS[timer[0]]);
+                            player.sendTitlePart(TitlePart.TITLE, Component.empty());
                         }
                     }
                 }
-            }, null, ArtifactManager.gainCooldowns[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length, ArtifactManager.gainCooldowns[artifactID] / ItemManager.ARTIFACT_UNAVAILABLE_DISPLAY_NAMES.length));
+            }, null, ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length, ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length));
         }
     }
     private static boolean hasGainArtifactScheduler(int itemOrdinal, UUID uuid) {
@@ -306,17 +377,28 @@ public final class Utils {
             }
         }
     }
+    private static int getVanillaMaxUseDuration(ItemStack item) {
+        switch(item.getType()) {
+            case BOW -> {
+                return 20;
+            }
+        }
+        return item.getMaxItemUseDuration();
+    }
     private static int getCustomMaxUseDuration(ItemStack item) {
         switch(item.getType()) {
             case BOW, CROSSBOW, TRIDENT -> {
                 if(item.hasItemMeta()) {
                     PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
-                    if(data.has(rangedAttackSpeedKey)) {
+                    if(data.has(rangedAttackSpeedKey, PersistentDataType.FLOAT)) {
                         return Math.round(20 / data.get(rangedAttackSpeedKey, PersistentDataType.FLOAT));
                     }
                 }
             }
         }
         return item.getMaxItemUseDuration();
+    }
+    private static int getCustomModelData(ItemStack item, int usedDuration) {
+        return usedDuration * 3 / getCustomMaxUseDuration(item);
     }
 }

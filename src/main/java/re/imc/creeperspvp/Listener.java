@@ -8,6 +8,7 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.damage.DamageSource;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -41,9 +42,8 @@ import java.time.Duration;
 public final class Listener implements org.bukkit.event.Listener {
     public static final Listener instance = new Listener();
     private static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
-    private static final Component freeSpectating = Component.text("正在自由旁观");
     private static final Component leaveDeathSpectate = Component.textOfChildren(Component.text("按 "), Component.keybind("key.sneak"), Component.text(" 退出旁观"));
-    private static final Component leaveFreeSpectate = Component.text("输入 /spawn 退出观战");
+    public static final Title freeSpectateTitle = Title.title(Component.text("正在自由旁观"), Component.text("输入 /spawn 退出观战"), spectateTitleTimes);
     private Listener() {}
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
@@ -58,11 +58,11 @@ public final class Listener implements org.bukkit.event.Listener {
                 killer.sendActionBar(deathMessage);
             }
         }
-        if(killer != null) {
+        if(killer != null && !killer.getUniqueId().equals(player.getUniqueId())) {
             DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), 5);
             DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
         }
-        player.showTitle(Title.title(killer == null ? freeSpectating : Component.text("正在旁观 ").append(killer.displayName()), killer == null ? leaveFreeSpectate : leaveDeathSpectate, spectateTitleTimes));
+        player.showTitle(killer == null ? freeSpectateTitle : Title.title(Component.text("正在旁观 ").append(killer.displayName()), leaveDeathSpectate, spectateTitleTimes));
         DatabaseUtils.incrementPlayerDeaths(player.getUniqueId());
         Utils.playerDeath(player);
         Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
@@ -131,7 +131,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 data.remove(Utils.customItemStartUsingTimeKey);
                 data.remove(Utils.customItemUsedTimeKey);
                 data.copyTo(event.getProjectile().getPersistentDataContainer(), true);
-                event.getProjectile().setVelocity(event.getProjectile().getVelocity().multiply(data.getOrDefault(Utils.rangedArrowVelocityKey, PersistentDataType.FLOAT, 1f)));
+                event.getProjectile().setVelocity(event.getProjectile().getVelocity().multiply(data.getOrDefault(Utils.projectileVelocityKey, PersistentDataType.FLOAT, 1f)));
             });
         }
         if(event.getEntity() instanceof Player && event.getProjectile() instanceof Arrow arrow && arrow.getBasePotionType() == null) {
@@ -250,7 +250,10 @@ public final class Listener implements org.bukkit.event.Listener {
                     switch(data.getOrDefault(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
                         case Utils.RANGED_EFFECT_CHANNELING -> {
                             final Location loc = event.getEntity().getLocation();
-                            loc.getWorld().strikeLightning(loc);
+                            final double chance = Utils.getChannellingChance(loc);
+                            if((!(arrow instanceof Trident) || !arrow.getItemStack().hasItemMeta() || !arrow.getItemStack().getItemMeta().hasEnchant(Enchantment.CHANNELING) || chance < 1) && Utils.random.nextDouble() < chance) {
+                                loc.getWorld().strikeLightning(loc);
+                            }
                         }
                         case Utils.RANGED_EFFECT_FREEZE -> {
                             if(event.getFinalDamage() > 0) { //TODO
@@ -383,6 +386,10 @@ public final class Listener implements org.bukkit.event.Listener {
         final Player player = event.getPlayer();
         if(item.hasItemMeta()) {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+            item.editMeta(meta -> {
+                data.copyTo(event.getProjectile().getPersistentDataContainer(), true);
+                event.getProjectile().setVelocity(event.getProjectile().getVelocity().multiply(data.getOrDefault(Utils.projectileVelocityKey, PersistentDataType.FLOAT, 1f)));
+            });
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
                 if(ArtifactManager.useEvents[artifactID] == ArtifactManager.LAUNCH_PROJECTILE) {

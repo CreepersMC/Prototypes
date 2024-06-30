@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -29,15 +30,17 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
+    public static final Random random = new Random();
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
     public static NamespacedKey customItemUsageKey;
     public static NamespacedKey customItemUsedTimeKey;
     public static NamespacedKey customItemStartUsingTimeKey;
-    public static NamespacedKey rangedArrowVelocityKey;
+    public static NamespacedKey projectileVelocityKey;
     public static NamespacedKey rangedAttackSpeedKey;
     public static NamespacedKey armorAuraIDKey;
     public static NamespacedKey armorAuraDataKey;
@@ -71,6 +74,7 @@ public final class Utils {
     public static final byte RANGED_EFFECT_FREEZE = 1;
     public static final byte RANGED_EFFECT_WIND = 2;
     private static final int DEATH_SPECTATE_TIME = 60;
+    private static final Block skyLightGetter = new Location(Bukkit.getWorld("world"), 0, 256, 0).getBlock();
     private static ArmorStand dummy;
     private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
@@ -85,7 +89,7 @@ public final class Utils {
         customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
         customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
         customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
-        rangedArrowVelocityKey = new NamespacedKey(CreepersPVP.instance, "ranged-arrow-velocity");
+        projectileVelocityKey = new NamespacedKey(CreepersPVP.instance, "projectile-velocity");
         rangedAttackSpeedKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-speed");
         armorAuraIDKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-id");
         armorAuraDataKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-data");
@@ -295,6 +299,18 @@ public final class Utils {
         dummy.completeUsingActiveItem();
         dummy.setItem(EquipmentSlot.HAND, null);
         return dummy.getLocation();
+    }
+    public static double getChannellingChance(Location location) {
+        if(location.getBlock().getLightFromSky() == skyLightGetter.getLightFromSky()) {
+            if(location.getWorld().isThundering()) {
+                return 1;
+            } else if(location.getWorld().hasStorm()) {
+                return 0.75;
+            } else {
+                return 0.5;
+            }
+        }
+        return 0;
     }
     /**
      * Paper API is stupid

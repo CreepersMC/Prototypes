@@ -236,7 +236,8 @@ public final class WeaponManager {
             meta.setRarity(ItemRarity.EPIC);
             meta.itemName(Component.text("蓝色风暴", NamedTextColor.BLUE));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
-            editMeleeAttributes(meta, 9, 1.2);
+            editMeleeAttributes(meta, 9, 1.1);
+            meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_CHANNELING);
         });
         weapons[SHORTBOW].editMeta(meta -> {
             meta.itemName(Component.text("短弓", NamedTextColor.WHITE));
@@ -367,8 +368,8 @@ public final class WeaponManager {
             meta.addEnchant(Enchantment.MULTISHOT, 1, true);
             meta.addEnchant(Enchantment.CHANNELING, 1, true);
             meta.setEnchantmentGlintOverride(false);
-            meta.itemName(Component.text("散射弩", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("这种弩经过了改装，可以装载并发射多发箭矢，同时也算是半件乐器。", NamedTextColor.GRAY))));
+            meta.itemName(Component.text("雷电琴弩", NamedTextColor.AQUA));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             editRangedAttributes(meta, 1, 0.7f);
             meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_CHANNELING);
         });

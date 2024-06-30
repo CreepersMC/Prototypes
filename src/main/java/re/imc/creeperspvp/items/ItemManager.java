@@ -26,6 +26,12 @@ public final class ItemManager {
         不要吐槽远程武器装填动画！会改的！
         往后翻查看更新日志
         """), Component.text("""
+        ALPHA 0.4.1
+        ·功能-指令/spectate
+        ·调整-引雷不再在非露天环境下生效，匹配原版
+        ·调整-引雷在晴天有50%几率生效，雨天75%，雷暴100%
+        ·修复-自杀不再计入击杀数和绿宝石
+        """), Component.text("""
         ALPHA 0.4.0
         ·新增-扩展MC远程武器系统，加入了很多远程武器！
         ·新增-完善盔甲，添加了一些盔甲和很多升级(没完！后面还会有更多)
@@ -36,7 +42,7 @@ public final class ItemManager {
         """), Component.text("""
         ·功能-加入了一些盔甲效果(吸血，霜冻，潜影)
         ·功能-物品现在可以拥有多个升级
-        ·功能-引雷附魔现在可以在非雷雨天生效
+        ·功能-引雷附魔现在可以在非雷雨天以及远程武器上生效
         ·修复-法器冷却进度现在被显示在副标题中而非物品名中，不再会出现在死亡消息中
         ·修复-间接击杀不计入击杀数和绿宝石
         ·修复-盔甲不再能够被脱下
@@ -170,7 +176,7 @@ public final class ItemManager {
     static void editRangedAttributes(ItemMeta meta, float velocity, float speed) {
         final PersistentDataContainer data = meta.getPersistentDataContainer();
         data.set(Utils.customItemUsageKey, PersistentDataType.TAG_CONTAINER, data.getAdapterContext().newPersistentDataContainer());
-        data.set(Utils.rangedArrowVelocityKey, PersistentDataType.FLOAT, velocity);
+        data.set(Utils.projectileVelocityKey, PersistentDataType.FLOAT, velocity);
         data.set(Utils.rangedAttackSpeedKey, PersistentDataType.FLOAT, speed);
         final List<Component> meleeAttributeLore = removeItalics(Arrays.asList(Component.empty(), Component.text("当使用时：", NamedTextColor.GRAY), Component.text(" " + velocity + " 箭矢速度", NamedTextColor.DARK_GREEN), Component.text(" " + speed + " 蓄力速度", NamedTextColor.DARK_GREEN)));
         if(meta.hasLore()) {

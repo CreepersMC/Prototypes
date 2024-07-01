@@ -29,20 +29,45 @@ public final class ArtifactManager {
     public static final int DRAGON_CHARGE = CATEGORY_PROJECTILES + 9;
     public static final int WITHER_CHARGE = CATEGORY_PROJECTILES + 10;
     public static final int SHULKER_BULLET = CATEGORY_PROJECTILES + 12;
-    public static final int SPLASH_POTION_OF_HASTE = CATEGORY_PROJECTILES + 13;
-    public static final int SPLASH_POTION_OF_LEAPING = CATEGORY_PROJECTILES + 14;
-    public static final int SPLASH_POTION_OF_SWIFTNESS = CATEGORY_PROJECTILES + 15;
-    public static final int SPLASH_POTION_OF_HEALING = CATEGORY_PROJECTILES + 16;
-    public static final int SPLASH_POTION_OF_REGENERATION = CATEGORY_PROJECTILES + 17;
-    public static final int SPLASH_POTION_OF_SATURATION = CATEGORY_PROJECTILES + 18;
-    public static final int SPLASH_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 20;
-    public static final int SPLASH_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 21;
-    public static final int SPLASH_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 22;
-    public static final int SPLASH_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 23;
-    public static final int SPLASH_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 24;
-    public static final int SPLASH_POTION_OF_HARMING = CATEGORY_PROJECTILES + 25;
-    public static final int SPLASH_POTION_OF_POISON = CATEGORY_PROJECTILES + 26;
-    public static final int SPLASH_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 27;
+    public static final int MUNDANE_SPLASH_POTION = CATEGORY_PROJECTILES + 13;
+    public static final int SPLASH_POTION_OF_HASTE = CATEGORY_PROJECTILES + 14;
+    public static final int SPLASH_POTION_OF_LEAPING = CATEGORY_PROJECTILES + 15;
+    public static final int SPLASH_POTION_OF_SWIFTNESS = CATEGORY_PROJECTILES + 16;
+    public static final int SPLASH_POTION_OF_HEALING = CATEGORY_PROJECTILES + 17;
+    public static final int SPLASH_POTION_OF_REGENERATION = CATEGORY_PROJECTILES + 18;
+    public static final int SPLASH_POTION_OF_SATURATION = CATEGORY_PROJECTILES + 19;
+    public static final int AWKWARD_SPLASH_POTION = CATEGORY_PROJECTILES + 20;
+    public static final int SPLASH_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 21;
+    public static final int SPLASH_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 22;
+    public static final int THICK_SPLASH_POTION = CATEGORY_PROJECTILES + 23;
+    public static final int SPLASH_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 24;
+    public static final int SPLASH_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 25;
+    public static final int SPLASH_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 26;
+    public static final int SPLASH_POTION_OF_HARMING = CATEGORY_PROJECTILES + 27;
+    public static final int SPLASH_POTION_OF_POISON = CATEGORY_PROJECTILES + 28;
+    public static final int SPLASH_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 29;
+    public static final int AWKWARD_LINGERING_POTION = CATEGORY_PROJECTILES + 30;
+    public static final int LINGERING_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 31;
+    public static final int LINGERING_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 32;
+    public static final int THICK_LINGERING_POTION = CATEGORY_PROJECTILES + 33;
+    public static final int LINGERING_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 34;
+    public static final int LINGERING_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 35;
+    public static final int LINGERING_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 36;
+    public static final int LINGERING_POTION_OF_HARMING = CATEGORY_PROJECTILES + 37;
+    public static final int LINGERING_POTION_OF_POISON = CATEGORY_PROJECTILES + 38;
+    public static final int LINGERING_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 39;
+    public static final int SPECTRAL_ARROW = CATEGORY_PROJECTILES + 40;
+    public static final int SEEKER_ARROW = CATEGORY_PROJECTILES + 41;
+    public static final int AWKWARD_TIPPED_ARROW = CATEGORY_PROJECTILES + 42;
+    public static final int TIPPED_ARROW_OF_LEVITATION = CATEGORY_PROJECTILES + 43;
+    public static final int TIPPED_ARROW_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 44;
+    public static final int THICK_TIPPED_ARROW = CATEGORY_PROJECTILES + 45;
+    public static final int TIPPED_ARROW_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 46;
+    public static final int TIPPED_ARROW_OF_BLINDNESS = CATEGORY_PROJECTILES + 47;
+    public static final int TIPPED_ARROW_OF_SLOWNESS = CATEGORY_PROJECTILES + 48;
+    public static final int TIPPED_ARROW_OF_HARMING = CATEGORY_PROJECTILES + 49;
+    public static final int TIPPED_ARROW_OF_POISON = CATEGORY_PROJECTILES + 50;
+    public static final int TIPPED_ARROW_OF_WEAKNESS = CATEGORY_PROJECTILES + 51;
     public static final int TNT = CATEGORY_EXPLOSIVES_AND_TRAPS;
     public static final int END_CRYSTAL = CATEGORY_EXPLOSIVES_AND_TRAPS + 2;
     public static final int FISHING_ROD = CATEGORY_EXPLOSIVES_AND_TRAPS + 3;
@@ -84,12 +109,7 @@ public final class ArtifactManager {
     public static final int MILK_BUKET = CATEGORY_FOOD + 36;
     public static final int SHIELD = CATEGORY_DEFENSES_AND_BUFFS;
     public static final int TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 1;
-    public static final ItemStack[] artifacts = new ItemStack[] {
-        new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-        new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-        new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), null, new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-        new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-    };
+    public static final ItemStack[][] artifacts = new ItemStack[256][2];
     public static final int[] useCooldowns = new int[] {
         4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -114,7 +134,7 @@ public final class ArtifactManager {
         90, 180, 120, 360, 1080, 60, -1, 90, 240, 90, 240, 60, 180, 60, 180, 300, 180, 60, 180, 180, 180, 30, 150, 150, 60, 150, 90, 150, 30, 240, 240, 30, 180, 60, 60, 60, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {SHIELD}};
+    public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, WIND_CHARGE, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {SHIELD}};
     public static final int[][] upgrades = new int[][] {
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -146,84 +166,100 @@ public final class ArtifactManager {
             meta.itemName(Component.text("防御与增益", NamedTextColor.BLUE));
             meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
-        artifacts[SNOWBALL].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
-        artifacts[EGG].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
-        artifacts[ENDER_PEARL].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
-        artifacts[TNT].editMeta(meta -> {
-            meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
-        });
-        artifacts[TNT] = Utils.modifyItem(artifacts[TNT], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
-        artifacts[END_CRYSTAL].editMeta(meta -> {
-            meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
-        });
-        artifacts[END_CRYSTAL] = Utils.modifyItem(artifacts[END_CRYSTAL], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
-        artifacts[FISHING_ROD].editMeta(meta -> {
-            meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
-        });
-        artifacts[CARROT].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
-        artifacts[GOLDEN_CARROT].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
-        artifacts[APPLE].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
-        artifacts[GOLDEN_APPLE].editMeta(meta -> {
-            meta.setRarity(ItemRarity.UNCOMMON);
-            meta.itemName(Component.text("金苹果", NamedTextColor.YELLOW));
-        });
-        artifacts[ENCHANTED_GOLDEN_APPLE].editMeta(meta -> meta.itemName(Component.text("附魔金苹果", NamedTextColor.LIGHT_PURPLE)));
-        artifacts[MELON_SLICE].editMeta(meta -> meta.itemName(Component.text("西瓜片", NamedTextColor.WHITE)));
-        artifacts[BEEF].editMeta(meta -> meta.itemName(Component.text("生牛肉", NamedTextColor.WHITE)));
-        artifacts[COOKED_BEEF].editMeta(meta -> meta.itemName(Component.text("牛排", NamedTextColor.WHITE)));
-        artifacts[PORKCHOP].editMeta(meta -> meta.itemName(Component.text("生猪排", NamedTextColor.WHITE)));
-        artifacts[COOKED_PORKCHOP].editMeta(meta -> meta.itemName(Component.text("熟猪排", NamedTextColor.WHITE)));
-        artifacts[MUTTON].editMeta(meta -> meta.itemName(Component.text("生羊肉", NamedTextColor.WHITE)));
-        artifacts[COOKED_MUTTON].editMeta(meta -> meta.itemName(Component.text("熟羊肉", NamedTextColor.WHITE)));
-        artifacts[SALMON].editMeta(meta -> meta.itemName(Component.text("生鲑鱼", NamedTextColor.WHITE)));
-        artifacts[COOKED_SALMON].editMeta(meta -> meta.itemName(Component.text("熟鲑鱼", NamedTextColor.WHITE)));
-        artifacts[RABBIT_STEW].editMeta(meta -> meta.itemName(Component.text("兔肉煲", NamedTextColor.WHITE)));
-        artifacts[BEETROOT_SOUP].editMeta(meta -> meta.itemName(Component.text("甜菜汤", NamedTextColor.WHITE)));
-        artifacts[CHICKEN].editMeta(meta -> meta.itemName(Component.text("生鸡肉", NamedTextColor.WHITE)));
-        artifacts[COOKED_CHICKEN].editMeta(meta -> meta.itemName(Component.text("熟鸡肉", NamedTextColor.WHITE)));
-        artifacts[MUSHROOM_STEW].editMeta(meta -> meta.itemName(Component.text("蘑菇煲", NamedTextColor.WHITE)));
-        artifacts[SUSPICIOUS_STEW].editMeta(meta -> meta.itemName(Component.text("迷之炖菜", NamedTextColor.WHITE)));
-        artifacts[POTATO].editMeta(meta -> meta.itemName(Component.text("马铃薯", NamedTextColor.WHITE)));
-        artifacts[BAKED_POTATO].editMeta(meta -> meta.itemName(Component.text("烤马铃薯", NamedTextColor.WHITE)));
-        artifacts[BREAD].editMeta(meta -> meta.itemName(Component.text("面包", NamedTextColor.WHITE)));
-        artifacts[COD].editMeta(meta -> meta.itemName(Component.text("生鳕鱼", NamedTextColor.WHITE)));
-        artifacts[COOKED_COD].editMeta(meta -> meta.itemName(Component.text("熟鳕鱼", NamedTextColor.WHITE)));
-        artifacts[RABBIT].editMeta(meta -> meta.itemName(Component.text("生兔肉", NamedTextColor.WHITE)));
-        artifacts[COOKED_RABBIT].editMeta(meta -> meta.itemName(Component.text("熟兔肉", NamedTextColor.WHITE)));
-        artifacts[BEETROOT].editMeta(meta -> meta.itemName(Component.text("甜菜根", NamedTextColor.WHITE)));
-        artifacts[PUMPKIN_PIE].editMeta(meta -> meta.itemName(Component.text("南瓜派", NamedTextColor.WHITE)));
-        artifacts[CHORUS_FRUIT].editMeta(meta -> meta.itemName(Component.text("紫颂果", NamedTextColor.WHITE)));
-        artifacts[DRIED_KELP].editMeta(meta -> meta.itemName(Component.text("干海带", NamedTextColor.WHITE)));
-        artifacts[HONEY_BOTTLE].editMeta(meta -> meta.itemName(Component.text("蜂蜜瓶", NamedTextColor.WHITE)));
-        artifacts[COOKIE].editMeta(meta -> meta.itemName(Component.text("曲奇", NamedTextColor.WHITE)));
-        artifacts[SWEET_BERRIES].editMeta(meta -> meta.itemName(Component.text("甜浆果", NamedTextColor.WHITE)));
-        artifacts[GLOW_BERRIES].editMeta(meta -> meta.itemName(Component.text("发光浆果", NamedTextColor.WHITE)));
-        artifacts[MILK_BUKET].editMeta(meta -> meta.itemName(Component.text("奶桶", NamedTextColor.WHITE)));
-        artifacts[SHIELD].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
-        artifacts[TOTEM_OF_UNDYING].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
-        for(final int[] i = new int[] {0}; i[0] < artifacts.length; i[0]++) {
-            if(artifacts[i[0]] != null) {
-                artifacts[i[0]].editMeta(meta -> {
-                    meta.setUnbreakable(true);
-                    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-                    if(!meta.hasRarity()) {
-                        meta.setRarity(ItemRarity.COMMON);
-                    }
-                    if(gainCooldowns[i[0]] != -1) {
-                        Component gainCooldownDescription = Component.text("冷却时长：" + gainCooldowns[i[0]] / 20, NamedTextColor.DARK_GREEN);
-                        if(meta.hasLore()) {
-                            List<Component> lore = new ArrayList<>(meta.lore());
-                            lore.add(gainCooldownDescription);
-                            meta.lore(removeItalics(lore));
-                        } else {
-                            meta.lore(removeItalics(Arrays.asList(gainCooldownDescription)));
+        final ItemStack[] artifacts0 = new ItemStack[]{
+            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 6), new ItemStack(Material.FIRE_CHARGE, 3), null, new ItemStack(Material.FIRE_CHARGE, 6), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), null, null, null, null, null, null, new ItemStack(Material.SPLASH_POTION), null, null, new ItemStack(Material.SPLASH_POTION), null, null, null, null, null, null, new ItemStack(Material.LINGERING_POTION), null, null, new ItemStack(Material.LINGERING_POTION), null, null, null, null, null, null, new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 4), null, null, new ItemStack(Material.TIPPED_ARROW, 4), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), null, new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+        };
+        //for(int i = 0; i < 256; i++) {
+        //    System.out.print(i + " ");
+        //    System.out.println(artifacts0[i] == null ? "null" : artifacts0[i].getType());
+        //}
+        for(int i = 0; i < artifacts0.length; i++) {
+            artifacts[i][0] = new ItemStack(Material.GRAY_DYE);
+            artifacts[i][1] = artifacts0[i];
+        }
+        for(int i = 0; i < 2; i++) {
+            artifacts[SNOWBALL][i].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
+            artifacts[EGG][i].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
+            artifacts[ENDER_PEARL][i].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
+            artifacts[TNT][i].editMeta(meta -> {
+                meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
+            });
+            artifacts[TNT][i] = Utils.modifyItem(artifacts[TNT][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
+            artifacts[END_CRYSTAL][i].editMeta(meta -> {
+                meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
+            });
+            artifacts[END_CRYSTAL][i] = Utils.modifyItem(artifacts[END_CRYSTAL][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
+            artifacts[FISHING_ROD][i].editMeta(meta -> {
+                meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
+            });
+            artifacts[CARROT][i].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
+            artifacts[GOLDEN_CARROT][i].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
+            artifacts[APPLE][i].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
+            artifacts[GOLDEN_APPLE][i].editMeta(meta -> {
+                meta.setRarity(ItemRarity.UNCOMMON);
+                meta.itemName(Component.text("金苹果", NamedTextColor.YELLOW));
+            });
+            artifacts[ENCHANTED_GOLDEN_APPLE][i].editMeta(meta -> meta.itemName(Component.text("附魔金苹果", NamedTextColor.LIGHT_PURPLE)));
+            artifacts[MELON_SLICE][i].editMeta(meta -> meta.itemName(Component.text("西瓜片", NamedTextColor.WHITE)));
+            artifacts[BEEF][i].editMeta(meta -> meta.itemName(Component.text("生牛肉", NamedTextColor.WHITE)));
+            artifacts[COOKED_BEEF][i].editMeta(meta -> meta.itemName(Component.text("牛排", NamedTextColor.WHITE)));
+            artifacts[PORKCHOP][i].editMeta(meta -> meta.itemName(Component.text("生猪排", NamedTextColor.WHITE)));
+            artifacts[COOKED_PORKCHOP][i].editMeta(meta -> meta.itemName(Component.text("熟猪排", NamedTextColor.WHITE)));
+            artifacts[MUTTON][i].editMeta(meta -> meta.itemName(Component.text("生羊肉", NamedTextColor.WHITE)));
+            artifacts[COOKED_MUTTON][i].editMeta(meta -> meta.itemName(Component.text("熟羊肉", NamedTextColor.WHITE)));
+            artifacts[SALMON][i].editMeta(meta -> meta.itemName(Component.text("生鲑鱼", NamedTextColor.WHITE)));
+            artifacts[COOKED_SALMON][i].editMeta(meta -> meta.itemName(Component.text("熟鲑鱼", NamedTextColor.WHITE)));
+            artifacts[RABBIT_STEW][i].editMeta(meta -> meta.itemName(Component.text("兔肉煲", NamedTextColor.WHITE)));
+            artifacts[BEETROOT_SOUP][i].editMeta(meta -> meta.itemName(Component.text("甜菜汤", NamedTextColor.WHITE)));
+            artifacts[CHICKEN][i].editMeta(meta -> meta.itemName(Component.text("生鸡肉", NamedTextColor.WHITE)));
+            artifacts[COOKED_CHICKEN][i].editMeta(meta -> meta.itemName(Component.text("熟鸡肉", NamedTextColor.WHITE)));
+            artifacts[MUSHROOM_STEW][i].editMeta(meta -> meta.itemName(Component.text("蘑菇煲", NamedTextColor.WHITE)));
+            artifacts[SUSPICIOUS_STEW][i].editMeta(meta -> meta.itemName(Component.text("迷之炖菜", NamedTextColor.WHITE)));
+            artifacts[POTATO][i].editMeta(meta -> meta.itemName(Component.text("马铃薯", NamedTextColor.WHITE)));
+            artifacts[BAKED_POTATO][i].editMeta(meta -> meta.itemName(Component.text("烤马铃薯", NamedTextColor.WHITE)));
+            artifacts[BREAD][i].editMeta(meta -> meta.itemName(Component.text("面包", NamedTextColor.WHITE)));
+            artifacts[COD][i].editMeta(meta -> meta.itemName(Component.text("生鳕鱼", NamedTextColor.WHITE)));
+            artifacts[COOKED_COD][i].editMeta(meta -> meta.itemName(Component.text("熟鳕鱼", NamedTextColor.WHITE)));
+            artifacts[RABBIT][i].editMeta(meta -> meta.itemName(Component.text("生兔肉", NamedTextColor.WHITE)));
+            artifacts[COOKED_RABBIT][i].editMeta(meta -> meta.itemName(Component.text("熟兔肉", NamedTextColor.WHITE)));
+            artifacts[BEETROOT][i].editMeta(meta -> meta.itemName(Component.text("甜菜根", NamedTextColor.WHITE)));
+            artifacts[PUMPKIN_PIE][i].editMeta(meta -> meta.itemName(Component.text("南瓜派", NamedTextColor.WHITE)));
+            artifacts[CHORUS_FRUIT][i].editMeta(meta -> meta.itemName(Component.text("紫颂果", NamedTextColor.WHITE)));
+            artifacts[DRIED_KELP][i].editMeta(meta -> meta.itemName(Component.text("干海带", NamedTextColor.WHITE)));
+            artifacts[HONEY_BOTTLE][i].editMeta(meta -> meta.itemName(Component.text("蜂蜜瓶", NamedTextColor.WHITE)));
+            artifacts[COOKIE][i].editMeta(meta -> meta.itemName(Component.text("曲奇", NamedTextColor.WHITE)));
+            artifacts[SWEET_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("甜浆果", NamedTextColor.WHITE)));
+            artifacts[GLOW_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("发光浆果", NamedTextColor.WHITE)));
+            artifacts[MILK_BUKET][i].editMeta(meta -> meta.itemName(Component.text("奶桶", NamedTextColor.WHITE)));
+            artifacts[SHIELD][i].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
+            artifacts[TOTEM_OF_UNDYING][i].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
+            for(final int[] j = new int[]{0}; j[0] < artifacts.length; j[0]++) {
+                if(artifacts[j[0]][i] != null) {
+                    artifacts[j[0]][i].editMeta(meta -> {
+                        meta.setUnbreakable(true);
+                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                        if(!meta.hasRarity()) {
+                            meta.setRarity(ItemRarity.COMMON);
                         }
-                    }
-                    meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, i[0]);
-                });
+                        if(gainCooldowns[j[0]] != -1) {
+                            Component gainCooldownDescription = Component.text("冷却时长：" + gainCooldowns[j[0]] / 20, NamedTextColor.DARK_GREEN);
+                            if(meta.hasLore()) {
+                                List<Component> lore = new ArrayList<>(meta.lore());
+                                lore.add(gainCooldownDescription);
+                                meta.lore(removeItalics(lore));
+                            } else {
+                                meta.lore(removeItalics(Arrays.asList(gainCooldownDescription)));
+                            }
+                        }
+                        meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, j[0]);
+                    });
+                }
             }
         }
     }

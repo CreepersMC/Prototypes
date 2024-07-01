@@ -129,6 +129,8 @@ public final class Utils {
         //player.sendResourcePacks(resourcePackRequest);
         UUID uuid = player.getUniqueId();
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        final Objective health = scoreboard.registerNewObjective("health", Criteria.HEALTH, Component.text("HP", NamedTextColor.RED), RenderType.HEARTS);
+        health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.getScore(".emeralds").setScore(2);
@@ -141,6 +143,7 @@ public final class Utils {
             infoBoard.getScore(".kills").customName(Utils.kills.append(Component.text(kills)));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
             infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            player.setExperienceLevelAndProgress(DatabaseUtils.fetchPlayerXp(uuid));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
@@ -230,7 +233,7 @@ public final class Utils {
         inv.setItem(EquipmentSlot.CHEST, ArmorManager.armor[armorID][1]);
         inv.setItem(EquipmentSlot.LEGS, ArmorManager.armor[armorID][2]);
         inv.setItem(EquipmentSlot.FEET, ArmorManager.armor[armorID][3]);
-        final ItemStack weapon1 = WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)];
+        final ItemStack weapon1 = WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)][1];
         inv.setItem(0, weapon1);
         if(weapon1.hasItemMeta()) {
             PersistentDataContainer weapon1Data = weapon1.getItemMeta().getPersistentDataContainer();
@@ -241,7 +244,7 @@ public final class Utils {
                 }
             }
         }
-        final ItemStack weapon2 = WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)];
+        final ItemStack weapon2 = WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)][1];
         inv.setItem(1, weapon2);
         if(weapon2.hasItemMeta()) {
             PersistentDataContainer weapon2Data = weapon2.getItemMeta().getPersistentDataContainer();
@@ -252,9 +255,9 @@ public final class Utils {
                 }
             }
         }
-        inv.setItem(2, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ArtifactManager.SNOWBALL)]);
-        inv.setItem(3, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ArtifactManager.BREAD)]);
-        inv.setItem(4, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ArtifactManager.SHIELD)]);
+        inv.setItem(2, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ArtifactManager.SNOWBALL)][1]);
+        inv.setItem(3, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ArtifactManager.BREAD)][1]);
+        inv.setItem(4, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ArtifactManager.SHIELD)][1]);
         //TODO
         for(int i = 0; i < 5; i++) {
             int finalI = i;
@@ -356,14 +359,14 @@ public final class Utils {
                             } else {
                                 inv.setItem(slot, item);
                             }
-                            if(ArtifactManager.artifacts[artifactID].getAmount() == 1) {
+                            if(ArtifactManager.artifacts[artifactID][1].getAmount() == 1) {
                                 task.cancel();
                             }
                         } else {
-                            if(currentItem.getAmount() < ArtifactManager.artifacts[artifactID].getAmount()) {
+                            if(currentItem.getAmount() < ArtifactManager.artifacts[artifactID][1].getAmount()) {
                                 currentItem.add();
                             }
-                            if(currentItem.getAmount() >= ArtifactManager.artifacts[artifactID].getAmount()) {
+                            if(currentItem.getAmount() >= ArtifactManager.artifacts[artifactID][1].getAmount()) {
                                 task.cancel();
                             }
                         }

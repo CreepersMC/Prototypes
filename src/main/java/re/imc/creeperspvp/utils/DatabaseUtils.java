@@ -8,6 +8,8 @@ public final class DatabaseUtils {
     private static PreparedStatement registerPlayer;
     private static PreparedStatement fetchPlayerEmeralds;
     private static PreparedStatement addPlayerEmeralds;
+    private static PreparedStatement fetchPlayerXp;
+    private static PreparedStatement addPlayerXp;
     private static PreparedStatement fetchPlayerKills;
     private static PreparedStatement incrementPlayerKills;
     private static PreparedStatement fetchPlayerDeaths;
@@ -24,6 +26,7 @@ public final class DatabaseUtils {
         CREATE TABLE IF NOT EXISTS `player_data`(
             `uuid` BINARY(16) NOT NULL,
             `emeralds` BIGINT NOT NULL DEFAULT 0,
+            `xp` INT NOT NULL DEFAULT 0,
             `kills` INT NOT NULL DEFAULT 0,
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -47,6 +50,8 @@ public final class DatabaseUtils {
         registerPlayer = connection.prepareStatement("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN(?))");
         fetchPlayerEmeralds = connection.prepareStatement("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
         addPlayerEmeralds = connection.prepareStatement("UPDATE `player_data` SET `emeralds` = `emeralds` + ? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerXp = connection.prepareStatement("SELECT `xp` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
+        addPlayerXp = connection.prepareStatement("UPDATE `player_data` SET `xp` = `xp` + ? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerKills = connection.prepareStatement("SELECT `kills` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
         incrementPlayerKills = connection.prepareStatement("UPDATE `player_data` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerDeaths = connection.prepareStatement("SELECT `deaths` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
@@ -63,6 +68,8 @@ public final class DatabaseUtils {
         registerPlayer.close();
         fetchPlayerEmeralds.close();
         addPlayerEmeralds.close();
+        fetchPlayerXp.close();
+        addPlayerXp.close();
         fetchPlayerKills.close();
         incrementPlayerKills.close();
         fetchPlayerDeaths.close();
@@ -123,6 +130,32 @@ public final class DatabaseUtils {
                 addPlayerEmeralds.setLong(1, amount);
                 addPlayerEmeralds.setString(2, uuid.toString());
                 addPlayerEmeralds.executeUpdate();
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+        }
+    }
+    public static int fetchPlayerXp(UUID uuid) {
+        try {
+            final ResultSet result;
+            synchronized(fetchPlayerXp) {
+                fetchPlayerXp.setString(1, uuid.toString());
+                result = fetchPlayerXp.executeQuery();
+            }
+            if(result.next()) {
+                return result.getInt("xp");
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return 0;
+    }
+    public static void addPlayerXp(UUID uuid, int amount) {
+        try {
+            synchronized(addPlayerXp) {
+                addPlayerXp.setInt(1, amount);
+                addPlayerXp.setString(2, uuid.toString());
+                addPlayerXp.executeUpdate();
             }
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing database update: " + e.getMessage());

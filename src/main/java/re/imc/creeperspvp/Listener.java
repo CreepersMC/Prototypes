@@ -59,7 +59,9 @@ public final class Listener implements org.bukkit.event.Listener {
             }
         }
         if(killer != null && !killer.getUniqueId().equals(player.getUniqueId())) {
-            DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), 5);
+            final double flag = Math.sqrt(1D * DatabaseUtils.fetchPlayerKills(player.getUniqueId()) / Math.max(DatabaseUtils.fetchPlayerDeaths(player.getUniqueId()), 1)) * Math.log1p(player.getLevel());
+            DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), Math.max(Math.round(5 * flag), 1));
+            DatabaseUtils.addPlayerXp(killer.getUniqueId(), Math.toIntExact(Math.max(Math.round(2 * flag), 1)));
             DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
         }
         player.showTitle(killer == null ? freeSpectateTitle : Title.title(Component.text("正在旁观 ").append(killer.displayName()), leaveDeathSpectate, spectateTitleTimes));

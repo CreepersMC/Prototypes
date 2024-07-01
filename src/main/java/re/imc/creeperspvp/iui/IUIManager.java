@@ -23,6 +23,7 @@ import re.imc.creeperspvp.items.WeaponManager;
 import re.imc.creeperspvp.utils.DatabaseUtils;
 import re.imc.creeperspvp.utils.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -199,19 +200,21 @@ public final class IUIManager {
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             int slot = 10;
             for(final int weaponSelection : WeaponManager.selections) {
-                ItemStack item = WeaponManager.weapons[weaponSelection].clone();
-                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                if(weaponStatus[weaponSelection]) {
-                    lore.add(equipOnLeftClick);
-                    if(WeaponManager.upgrades[weaponSelection].length > 0) {
-                        lore.add(upgradeOnRightClick);
+                ItemStack[] items = new ItemStack[] {WeaponManager.weapons[weaponSelection][0].clone(), WeaponManager.weapons[weaponSelection][1].clone()};
+                for(final ItemStack item : items) {
+                    List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                    if(weaponStatus[weaponSelection]) {
+                        lore.add(equipOnLeftClick);
+                        if(WeaponManager.upgrades[weaponSelection].length > 0) {
+                            lore.add(upgradeOnRightClick);
+                        }
+                    } else {
+                        lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponSelection])));
+                        lore.add(buyOnLeftClick);
                     }
-                } else {
-                    lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponSelection])));
-                    lore.add(buyOnLeftClick);
+                    item.lore(lore);
                 }
-                item.lore(lore);
-                setItem(slot, weaponStatus[weaponSelection] ? item : item.withType(Material.GRAY_DYE), event -> {
+                setItem(slot, items[weaponStatus[weaponSelection] ? 1 : 0], event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(weaponStatus[weaponSelection]) {
@@ -219,7 +222,7 @@ public final class IUIManager {
                                 data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!weaponStatus[weaponSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
@@ -252,26 +255,28 @@ public final class IUIManager {
     }
     private static final class WeaponUpgradeInv extends CreeperInv {
         private WeaponUpgradeInv(final UUID uuid, final int weapon, final int weaponID, final boolean[] weaponStatus) {
-            super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID].displayName()));
+            super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID][0].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(int i = 0; i < WeaponManager.upgrades[weaponID].length; i++) {
                 final int weaponUpgrade = WeaponManager.upgrades[weaponID][i];
-                ItemStack item = WeaponManager.weapons[weaponUpgrade].clone();
-                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                if(weaponStatus[weaponUpgrade]) {
-                    lore.add(equipOnLeftClick);
-                    if(WeaponManager.upgrades[weaponUpgrade].length > 0) {
-                        lore.add(upgradeOnRightClick);
+                ItemStack[] items = new ItemStack[] {WeaponManager.weapons[weaponUpgrade][0].clone(), WeaponManager.weapons[weaponUpgrade][1].clone()};
+                for(final ItemStack item : items) {
+                    List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                    if(weaponStatus[weaponUpgrade]) {
+                        lore.add(equipOnLeftClick);
+                        if(WeaponManager.upgrades[weaponUpgrade].length > 0) {
+                            lore.add(upgradeOnRightClick);
+                        }
+                    } else {
+                        lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponUpgrade])));
+                        lore.add(buyOnLeftClick);
                     }
-                } else {
-                    lore.add(priceTag.append(Component.text(WeaponManager.prices[weaponUpgrade])));
-                    lore.add(buyOnLeftClick);
+                    item.lore(lore);
                 }
-                item.lore(lore);
-                setItem(upgradeSlots[WeaponManager.upgrades[weaponID].length][i], weaponStatus[weaponUpgrade] ? item : item.withType(Material.GRAY_DYE), event -> {
+                setItem(upgradeSlots[WeaponManager.upgrades[weaponID].length][i], items[weaponStatus[weaponUpgrade] ? 1 : 0], event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(weaponStatus[weaponUpgrade]) {
@@ -279,7 +284,7 @@ public final class IUIManager {
                                 data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponUpgrade);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!weaponStatus[weaponUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponUpgrade]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
@@ -316,19 +321,21 @@ public final class IUIManager {
             final boolean[] artifactStatus = DatabaseUtils.fetchPlayerArtifactStatus(uuid);
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(final int artifactSelection : ArtifactManager.selections[category]) {
-                ItemStack item = ArtifactManager.artifacts[artifactSelection].clone();
-                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                if(artifactStatus[artifactSelection]) {
-                    lore.add(equipOnLeftClick);
-                    if(ArtifactManager.upgrades[artifactSelection].length > 0) {
-                        lore.add(upgradeOnRightClick);
+                ItemStack[] items = {ArtifactManager.artifacts[artifactSelection][0].clone(), ArtifactManager.artifacts[artifactSelection][1].clone()};
+                for(final ItemStack item : items) {
+                    List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                    if(artifactStatus[artifactSelection]) {
+                        lore.add(equipOnLeftClick);
+                        if(ArtifactManager.upgrades[artifactSelection].length > 0) {
+                            lore.add(upgradeOnRightClick);
+                        }
+                    } else {
+                        lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactSelection])));
+                        lore.add(buyOnLeftClick);
                     }
-                } else {
-                    lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactSelection])));
-                    lore.add(buyOnLeftClick);
+                    item.lore(lore);
                 }
-                item.lore(lore);
-                setItem(slot, artifactStatus[artifactSelection] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
+                setItem(slot, items[artifactStatus[artifactSelection] ? 1 : 0], event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(artifactStatus[artifactSelection]) {
@@ -336,7 +343,7 @@ public final class IUIManager {
                                 data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactSelection);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!artifactStatus[artifactSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactSelection]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactSelection]);
@@ -369,26 +376,28 @@ public final class IUIManager {
     }
     private static final class ArtifactUpgradeInv extends CreeperInv {
         private ArtifactUpgradeInv(final UUID uuid, final int artifact, final int artifactID, final int category, final boolean[] artifactStatus) {
-            super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID].displayName()));
+            super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID][0].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArtifactSelectorInv(uuid, artifact, category).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(int i = 0; i < ArtifactManager.upgrades[artifactID].length; i++) {
                 final int artifactUpgrade = ArtifactManager.upgrades[artifactID][i];
-                ItemStack item = ArtifactManager.artifacts[artifactUpgrade].clone();
-                List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
-                if(artifactStatus[artifactUpgrade]) {
-                    lore.add(equipOnLeftClick);
-                    if(ArtifactManager.upgrades[artifactUpgrade].length > 0) {
-                        lore.add(upgradeOnRightClick);
+                ItemStack[] items = {ArtifactManager.artifacts[artifactUpgrade][0].clone(), ArtifactManager.artifacts[artifactUpgrade][1].clone()};
+                for(final ItemStack item : items) {
+                    List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
+                    if(artifactStatus[artifactUpgrade]) {
+                        lore.add(equipOnLeftClick);
+                        if(ArtifactManager.upgrades[artifactUpgrade].length > 0) {
+                            lore.add(upgradeOnRightClick);
+                        }
+                    } else {
+                        lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactUpgrade])));
+                        lore.add(buyOnLeftClick);
                     }
-                } else {
-                    lore.add(priceTag.append(Component.text(ArtifactManager.prices[artifactUpgrade])));
-                    lore.add(buyOnLeftClick);
+                    item.lore(lore);
                 }
-                item.lore(lore);
-                setItem(upgradeSlots[ArtifactManager.upgrades[artifactID].length][i], artifactStatus[artifactUpgrade] ? item : item.withType(Material.GRAY_DYE).asOne(), event -> {
+                setItem(upgradeSlots[ArtifactManager.upgrades[artifactID].length][i], items[artifactStatus[artifactUpgrade] ? 1 : 0], event -> {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(artifactStatus[artifactUpgrade]) {
@@ -396,7 +405,7 @@ public final class IUIManager {
                                 data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactUpgrade);
                                 player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(item, () -> {
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!artifactStatus[artifactUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactUpgrade]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactUpgrade]);

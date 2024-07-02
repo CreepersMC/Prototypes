@@ -1,15 +1,17 @@
 package re.imc.creeperspvp;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
@@ -26,8 +28,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -95,6 +95,10 @@ public final class Listener implements org.bukkit.event.Listener {
         event.setCancelled(true);
     }
     @EventHandler(priority = EventPriority.LOW)
+    public void onEntityPickUpItem(EntityPickupItemEvent event) {
+        event.setCancelled(true);
+    }
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryClick(InventoryClickEvent event) {
         if((event.isRightClick() && ((event.getCurrentItem() != null && event.getCurrentItem().getAmount() > 1) || event.getCursor().getAmount() > 1)) || event.getSlotType() == InventoryType.SlotType.ARMOR) {
             event.setCancelled(true);
@@ -136,11 +140,50 @@ public final class Listener implements org.bukkit.event.Listener {
                 event.getProjectile().setVelocity(event.getProjectile().getVelocity().multiply(data.getOrDefault(Utils.projectileVelocityKey, PersistentDataType.FLOAT, 1f)));
             });
         }
-        if(event.getEntity() instanceof Player && event.getProjectile() instanceof Arrow arrow && arrow.getBasePotionType() == null) {
+        if(event.getProjectile() instanceof AbstractArrow arrow) {
             arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         }
     }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockBurn(BlockBurnEvent event) {
+        event.setCancelled(true);
+    }
     @EventHandler(priority = EventPriority.LOW)
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if(event.getEntity() instanceof final LargeFireball fireball) {
+            for(final Entity target: fireball.getNearbyEntities(0.0625, 0.0625, 0.0625)) {
+                target.setFireTicks((int) Math.max(target.getFireTicks(), (target instanceof Attributable attributable && attributable.getAttribute(Attribute.GENERIC_BURNING_TIME) != null ? attributable.getAttribute(Attribute.GENERIC_BURNING_TIME).getValue() : 1) * 120));
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerReadyArrow(PlayerReadyArrowEvent event) {
+        final ItemStack arrow = event.getArrow();
+        final Player player = event.getPlayer();
+        if(arrow.hasItemMeta()) {
+            final PersistentDataContainer data = arrow.getItemMeta().getPersistentDataContainer();
+            if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
+                final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.READY_ARROW) > 0) {
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(arrow.getType(), ArtifactManager.useCooldowns[artifactID]);
+                    }
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        final PlayerInventory inv = player.getInventory();
+                        final ItemStack clone = arrow.clone();
+                        final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                        if(arrow.getAmount() == 1) {
+                            final ItemStack unavailable = clone.withType(Material.BARRIER);
+                            final int slot = Utils.findItem(inv, itemOrdinal);
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, unavailable));
+                        }
+                        Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         final ItemStack item = event.getItemInHand();
         if(item.getType() == Material.BARRIER) {
@@ -152,7 +195,7 @@ public final class Listener implements org.bukkit.event.Listener {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.PLACE_BLOCK) {
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.PLACE_BLOCK) > 0) {
                     switch(artifactID) {
                         case ArtifactManager.TNT -> {
                             event.setCancelled(true);
@@ -184,7 +227,7 @@ public final class Listener implements org.bukkit.event.Listener {
             }
         }
     }
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityPlace(EntityPlaceEvent event) {
         final Player player = event.getPlayer();
         final PlayerInventory inv = player.getInventory();
@@ -193,7 +236,7 @@ public final class Listener implements org.bukkit.event.Listener {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.PLACE_ENTITY) {
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.PLACE_ENTITY) > 0) {
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
@@ -316,14 +359,30 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
         final ItemStack item = event.getItem();
-        if(item != null) {
+        final Player player = event.getPlayer();
+        if(item != null && !item.isEmpty()) {
             final ItemMeta meta = item.getItemMeta();
-            final Player player = event.getPlayer();
             if(meta != null) {
                 final PersistentDataContainer data = meta.getPersistentDataContainer();
                 if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER) && item.getType() != Material.BARRIER) {
                     final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                    if(ArtifactManager.useEvents[artifactID] == ArtifactManager.INTERACT) {
+                    if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                        Class<? extends Projectile> clazz = null;
+                        switch(artifactID) {
+                            case ArtifactManager.FIRE_CHARGE -> clazz = SmallFireball.class;
+                            case ArtifactManager.EXPLOSIVE_FIRE_CHARGE -> clazz = LargeFireball.class;
+                        }
+                        if(clazz != null) {
+                            player.launchProjectile(clazz, player.getEyeLocation().getDirection(), projectile -> {
+                                if(!new PlayerLaunchProjectileEvent(player, item, projectile).callEvent()) {
+                                    projectile.remove();
+                                } else {
+                                    event.setCancelled(true);
+                                }
+                            });
+                        }
+                    }
+                    if((ArtifactManager.useEvents[artifactID] & ArtifactManager.INTERACT) > 0) {
                         if(ArtifactManager.useCooldowns[artifactID] != -1) {
                             player.setCooldown(event.getMaterial(), ArtifactManager.useCooldowns[artifactID]);
                         }
@@ -356,6 +415,10 @@ public final class Listener implements org.bukkit.event.Listener {
                     }
                 }
             }
+        } else {
+            if(player.isGliding()) {
+                player.fireworkBoost(Utils.fireworkBooster);
+            }
         }
     }
     @EventHandler(priority = EventPriority.HIGH)
@@ -366,7 +429,7 @@ public final class Listener implements org.bukkit.event.Listener {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.getOrDefault(Utils.artifactIDKey, PersistentDataType.INTEGER, -1);
-                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.CONSUME) {
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.CONSUME) > 0) {
                     event.setReplacement(null);
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
@@ -394,7 +457,7 @@ public final class Listener implements org.bukkit.event.Listener {
             });
             if(data.has(Utils.artifactIDKey, PersistentDataType.INTEGER)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.INTEGER);
-                if(ArtifactManager.useEvents[artifactID] == ArtifactManager.LAUNCH_PROJECTILE) {
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.LAUNCH_PROJECTILE) > 0) {
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
@@ -409,6 +472,9 @@ public final class Listener implements org.bukkit.event.Listener {
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
+                }
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.CUSTOM) > 0) {
+                    item.subtract();
                 }
             }
         }

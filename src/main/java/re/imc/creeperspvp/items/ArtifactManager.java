@@ -2,11 +2,16 @@ package re.imc.creeperspvp.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import re.imc.creeperspvp.utils.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +40,7 @@ public final class ArtifactManager {
     public static final int SPLASH_POTION_OF_SWIFTNESS = CATEGORY_PROJECTILES + 16;
     public static final int SPLASH_POTION_OF_HEALING = CATEGORY_PROJECTILES + 17;
     public static final int SPLASH_POTION_OF_REGENERATION = CATEGORY_PROJECTILES + 18;
-    public static final int SPLASH_POTION_OF_SATURATION = CATEGORY_PROJECTILES + 19;
+    public static final int SPLASH_POTION_OF_STRENGTH = CATEGORY_PROJECTILES + 19;
     public static final int AWKWARD_SPLASH_POTION = CATEGORY_PROJECTILES + 20;
     public static final int SPLASH_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 21;
     public static final int SPLASH_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 22;
@@ -107,8 +112,18 @@ public final class ArtifactManager {
     public static final int SWEET_BERRIES = CATEGORY_FOOD + 34;
     public static final int GLOW_BERRIES = CATEGORY_FOOD + 35;
     public static final int MILK_BUKET = CATEGORY_FOOD + 36;
-    public static final int SHIELD = CATEGORY_DEFENSES_AND_BUFFS;
-    public static final int TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 1;
+    public static final int MUNDANE_POTION = CATEGORY_DEFENSES_AND_BUFFS;
+    public static final int POTION_OF_HASTE = CATEGORY_DEFENSES_AND_BUFFS + 1;
+    public static final int POTION_OF_LEAPING = CATEGORY_DEFENSES_AND_BUFFS + 2;
+    public static final int POTION_OF_SWIFTNESS = CATEGORY_DEFENSES_AND_BUFFS + 3;
+    public static final int POTION_OF_HEALING = CATEGORY_DEFENSES_AND_BUFFS + 4;
+    public static final int POTION_OF_REGENERATION = CATEGORY_DEFENSES_AND_BUFFS + 5;
+    public static final int POTION_OF_STRENGTH = CATEGORY_DEFENSES_AND_BUFFS + 6;
+    public static final int AWKWARD_POTION = CATEGORY_DEFENSES_AND_BUFFS + 7;
+    public static final int POTION_OF_LEVITATION = CATEGORY_DEFENSES_AND_BUFFS + 8;
+    public static final int POTION_OF_SLOW_FALLING = CATEGORY_DEFENSES_AND_BUFFS + 9;
+    public static final int SHIELD = CATEGORY_DEFENSES_AND_BUFFS + 10;
+    public static final int TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 11;
     public static final ItemStack[][] artifacts = new ItemStack[256][2];
     public static final int[] useCooldowns = new int[] {
         4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -120,26 +135,27 @@ public final class ArtifactManager {
     public static final int INTERACT = 2;
     public static final int CONSUME = 4;
     public static final int LAUNCH_PROJECTILE = 8;
-    public static final int PLACE_BLOCK = 16;
-    public static final int PLACE_ENTITY = 32;
+    public static final int READY_ARROW = 16;
+    public static final int PLACE_BLOCK = 32;
+    public static final int PLACE_ENTITY = 64;
     public static final int[] useEvents = new int[] {
-        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, -1, -1, -1, -1, LAUNCH_PROJECTILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        PLACE_BLOCK, -1, PLACE_ENTITY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, 0, LAUNCH_PROJECTILE, 0, 0, 0, 0, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PLACE_BLOCK, 0, PLACE_ENTITY, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     public static final int[] gainCooldowns = new int[] {
-        20, 40, 300, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        20, 40, 300, -1, 60, 60, -1, -1, 100, -1, -1, -1, -1, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         120, -1, 200, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         90, 180, 120, 360, 1080, 60, -1, 90, 240, 90, 240, 60, 180, 60, 180, 300, 180, 60, 180, 180, 180, 30, 150, 150, 60, 150, 90, 150, 30, 240, 240, 30, 180, 60, 60, 60, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        480, 480, 480, 480, 480, 480, 480, 480, 480, 480, -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, WIND_CHARGE, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {SHIELD}};
+    public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, WIND_CHARGE, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {MUNDANE_POTION, AWKWARD_POTION, SHIELD}};
     public static final int[][] upgrades = new int[][] {
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {EXPLOSIVE_FIRE_CHARGE}, {}, {}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_HASTE, SPLASH_POTION_OF_LEAPING, SPLASH_POTION_OF_SWIFTNESS, SPLASH_POTION_OF_HEALING, SPLASH_POTION_OF_REGENERATION, SPLASH_POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_LEVITATION, SPLASH_POTION_OF_SLOW_FALLING}, {}, {}, {SPLASH_POTION_OF_ATTACK_FATIGUE, SPLASH_POTION_OF_BLINDNESS, SPLASH_POTION_OF_SLOWNESS, SPLASH_POTION_OF_HARMING, SPLASH_POTION_OF_POISON, SPLASH_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {LINGERING_POTION_OF_LEVITATION, LINGERING_POTION_OF_SLOW_FALLING}, {}, {}, {LINGERING_POTION_OF_ATTACK_FATIGUE, LINGERING_POTION_OF_BLINDNESS, LINGERING_POTION_OF_SLOWNESS, LINGERING_POTION_OF_HARMING, LINGERING_POTION_OF_POISON, LINGERING_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {TIPPED_ARROW_OF_LEVITATION, TIPPED_ARROW_OF_SLOW_FALLING}, {}, {}, {TIPPED_ARROW_OF_ATTACK_FATIGUE, TIPPED_ARROW_OF_BLINDNESS, TIPPED_ARROW_OF_SLOWNESS, TIPPED_ARROW_OF_HARMING, TIPPED_ARROW_OF_POISON, TIPPED_ARROW_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {GOLDEN_CARROT}, {}, {GOLDEN_APPLE}, {}, {}, {}, {}, {COOKED_BEEF}, {}, {COOKED_PORKCHOP}, {}, {COOKED_MUTTON}, {}, {COOKED_SALMON}, {}, {}, {}, {COOKED_CHICKEN}, {}, {}, {}, {BAKED_POTATO}, {}, {}, {COOKED_COD}, {}, {COOKED_RABBIT}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {POTION_OF_HASTE, POTION_OF_LEAPING, POTION_OF_SWIFTNESS, POTION_OF_HEALING, POTION_OF_REGENERATION, POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {POTION_OF_LEVITATION, POTION_OF_SLOW_FALLING}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     };
     public static final long[] prices = new long[] {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -160,17 +176,17 @@ public final class ArtifactManager {
         });
         artifactCategorySelectors[CATEGORY_FOOD / 64].editMeta(meta -> {
             meta.itemName(Component.text("食物", NamedTextColor.GREEN));
-            meta.lore(removeItalics(Arrays.asList(Component.text("可以吃的物品", NamedTextColor.DARK_GREEN), enterOnClick)));
+            meta.lore(removeItalics(Arrays.asList(Component.text("可以提供饥饿值和饱和度的物品", NamedTextColor.DARK_GREEN), enterOnClick)));
         });
         artifactCategorySelectors[CATEGORY_DEFENSES_AND_BUFFS / 64].editMeta(meta -> {
             meta.itemName(Component.text("防御与增益", NamedTextColor.BLUE));
             meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
-        final ItemStack[] artifacts0 = new ItemStack[]{
-            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 6), new ItemStack(Material.FIRE_CHARGE, 3), null, new ItemStack(Material.FIRE_CHARGE, 6), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), null, null, null, null, null, null, new ItemStack(Material.SPLASH_POTION), null, null, new ItemStack(Material.SPLASH_POTION), null, null, null, null, null, null, new ItemStack(Material.LINGERING_POTION), null, null, new ItemStack(Material.LINGERING_POTION), null, null, null, null, null, null, new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 4), null, null, new ItemStack(Material.TIPPED_ARROW, 4), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+        final ItemStack[] artifacts0 = new ItemStack[] {
+            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), null, new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), null, new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
         };
         //for(int i = 0; i < 256; i++) {
         //    System.out.print(i + " ");
@@ -184,6 +200,267 @@ public final class ArtifactManager {
             artifacts[SNOWBALL][i].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
             artifacts[EGG][i].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
             artifacts[ENDER_PEARL][i].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
+            artifacts[FIRE_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("火焰弹", NamedTextColor.WHITE));
+            });
+            artifacts[EXPLOSIVE_FIRE_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("烈焰弹", NamedTextColor.RED));
+            });
+            artifacts[WIND_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("风弹", NamedTextColor.WHITE));
+            });
+            artifacts[MUNDANE_SPLASH_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型平凡的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.MUNDANE);
+                }
+            });
+            artifacts[SPLASH_POTION_OF_HASTE][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型急迫药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.HASTE, 900, 2), false);
+                    potionMeta.setColor(Color.fromRGB(14270531));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_LEAPING][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型跳跃药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(16646020));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_SWIFTNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型迅捷药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(3402751));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_HEALING][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型治疗药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 1), false);
+                    potionMeta.setColor(Color.fromRGB(16262179));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_REGENERATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型恢复药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.REGENERATION, 225, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13458603));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_STRENGTH][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型力量药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.STRENGTH, 450, 0), false);
+                    potionMeta.setColor(Color.fromRGB(16762624));
+                }
+            });
+            artifacts[AWKWARD_SPLASH_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型粗制的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.AWKWARD);
+                }
+            });
+            artifacts[SPLASH_POTION_OF_LEVITATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型漂浮药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 100, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13565951));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_SLOW_FALLING][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型缓降药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(15978425));
+                }
+            });
+            artifacts[THICK_SPLASH_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型浓稠的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.THICK);
+                }
+            });
+            artifacts[SPLASH_POTION_OF_ATTACK_FATIGUE][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型攻击疲劳药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 900, 2), false);
+                    potionMeta.setColor(Color.fromRGB(4866583));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_BLINDNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型失明药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(2039587));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_SLOWNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型迟缓药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(9154528));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_HARMING][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型伤害药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 1), false);
+                    potionMeta.setColor(Color.fromRGB(11101546));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_POISON][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型剧毒药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 225, 1), false);
+                    potionMeta.setColor(Color.fromRGB(8889187));
+                }
+            });
+            artifacts[SPLASH_POTION_OF_WEAKNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("喷溅型虚弱药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.WEAKNESS, 450, 0), false);
+                    potionMeta.setColor(Color.fromRGB(4738376));
+                }
+            });
+            artifacts[AWKWARD_LINGERING_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型粗制的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.AWKWARD);
+                }
+            });
+            artifacts[LINGERING_POTION_OF_LEVITATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型漂浮药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 100, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13565951));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_SLOW_FALLING][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型缓降药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(15978425));
+                }
+            });
+            artifacts[THICK_LINGERING_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型浓稠的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.THICK);
+                }
+            });
+            artifacts[LINGERING_POTION_OF_ATTACK_FATIGUE][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型攻击疲劳药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 900, 2), false);
+                    potionMeta.setColor(Color.fromRGB(4866583));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_BLINDNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型失明药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(2039587));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_SLOWNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型迟缓药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(9154528));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_HARMING][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型伤害药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 1), false);
+                    potionMeta.setColor(Color.fromRGB(11101546));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_POISON][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型剧毒药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 225, 1), false);
+                    potionMeta.setColor(Color.fromRGB(8889187));
+                }
+            });
+            artifacts[LINGERING_POTION_OF_WEAKNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("滞留型虚弱药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.WEAKNESS, 450, 0), false);
+                    potionMeta.setColor(Color.fromRGB(4738376));
+                }
+            });
+            artifacts[AWKWARD_TIPPED_ARROW][i].editMeta(meta -> {
+                meta.itemName(Component.text("粗制之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.AWKWARD);
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_LEVITATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("漂浮之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 100, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13565951));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_SLOW_FALLING][i].editMeta(meta -> {
+                meta.itemName(Component.text("缓降之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(15978425));
+                }
+            });
+            artifacts[THICK_TIPPED_ARROW][i].editMeta(meta -> {
+                meta.itemName(Component.text("浓稠之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.THICK);
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_ATTACK_FATIGUE][i].editMeta(meta -> {
+                meta.itemName(Component.text("攻击疲劳之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 900, 2), false);
+                    potionMeta.setColor(Color.fromRGB(4866583));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_BLINDNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("失明之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(2039587));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_SLOWNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("迟缓之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(9154528));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_HARMING][i].editMeta(meta -> {
+                meta.itemName(Component.text("伤害之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 1), false);
+                    potionMeta.setColor(Color.fromRGB(11101546));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_POISON][i].editMeta(meta -> {
+                meta.itemName(Component.text("剧毒之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 225, 1), false);
+                    potionMeta.setColor(Color.fromRGB(8889187));
+                }
+            });
+            artifacts[TIPPED_ARROW_OF_WEAKNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("虚弱之箭", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.WEAKNESS, 450, 0), false);
+                    potionMeta.setColor(Color.fromRGB(4738376));
+                }
+            });
             artifacts[TNT][i].editMeta(meta -> {
                 meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
@@ -237,6 +514,74 @@ public final class ArtifactManager {
             artifacts[SWEET_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("甜浆果", NamedTextColor.WHITE)));
             artifacts[GLOW_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("发光浆果", NamedTextColor.WHITE)));
             artifacts[MILK_BUKET][i].editMeta(meta -> meta.itemName(Component.text("奶桶", NamedTextColor.WHITE)));
+            artifacts[MUNDANE_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("平凡的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.MUNDANE);
+                }
+            });
+            artifacts[POTION_OF_HASTE][i].editMeta(meta -> {
+                meta.itemName(Component.text("急迫药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.HASTE, 900, 2), false);
+                    potionMeta.setColor(Color.fromRGB(14270531));
+                }
+            });
+            artifacts[POTION_OF_LEAPING][i].editMeta(meta -> {
+                meta.itemName(Component.text("跳跃药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(16646020));
+                }
+            });
+            artifacts[POTION_OF_SWIFTNESS][i].editMeta(meta -> {
+                meta.itemName(Component.text("迅捷药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 900, 1), false);
+                    potionMeta.setColor(Color.fromRGB(3402751));
+                }
+            });
+            artifacts[POTION_OF_HEALING][i].editMeta(meta -> {
+                meta.itemName(Component.text("治疗药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 1), false);
+                    potionMeta.setColor(Color.fromRGB(16262179));
+                }
+            });
+            artifacts[POTION_OF_REGENERATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("恢复药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.REGENERATION, 225, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13458603));
+                }
+            });
+            artifacts[POTION_OF_STRENGTH][i].editMeta(meta -> {
+                meta.itemName(Component.text("力量药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.STRENGTH, 450, 0), false);
+                    potionMeta.setColor(Color.fromRGB(16762624));
+                }
+            });
+            artifacts[AWKWARD_POTION][i].editMeta(meta -> {
+                meta.itemName(Component.text("粗制的药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setBasePotionType(PotionType.AWKWARD);
+                }
+            });
+            artifacts[POTION_OF_LEVITATION][i].editMeta(meta -> {
+                meta.itemName(Component.text("漂浮药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 100, 1), false);
+                    potionMeta.setColor(Color.fromRGB(13565951));
+                }
+            });
+            artifacts[POTION_OF_SLOW_FALLING][i].editMeta(meta -> {
+                meta.itemName(Component.text("缓降药水", NamedTextColor.WHITE));
+                if(meta instanceof PotionMeta potionMeta) {
+                    potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 900, 0), false);
+                    potionMeta.setColor(Color.fromRGB(15978425));
+                }
+            });
             artifacts[SHIELD][i].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
             artifacts[TOTEM_OF_UNDYING][i].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
             for(final int[] j = new int[]{0}; j[0] < artifacts.length; j[0]++) {

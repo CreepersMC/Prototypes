@@ -6,10 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
@@ -21,7 +18,6 @@ import org.bukkit.potion.PotionEffectType;
 import re.imc.creeperspvp.utils.Utils;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import static re.imc.creeperspvp.items.ItemManager.*;
 //TODO find armor trims for creeper armor, mooshroom armor, ghast armor, snow armor, turtle armor
 public final class ArmorManager {
@@ -100,7 +96,7 @@ public final class ArmorManager {
         {new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS)}
     };
     public static final PotionEffect[][] effects = new PotionEffect[][] {{new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, true, true)}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.JUMP_BOOST, -1, 1, false, false, true)}, {}, {}, {}, {}, {}, {}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true), new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
+    public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
     public static final int[] selections = new int[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, GHAST_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
     public static final int[][] upgrades = new int[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -130,7 +126,7 @@ public final class ArmorManager {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
-                //meta.setTrim(new ArmorTrim(TrimMaterial.NETHERITE, TrimPattern.FLOW));
+                meta.setTrim(new ArmorTrim(TrimMaterial.NETHERITE, TrimPattern.FLOW));
             });
         }
         armor[CLIMBING_GEAR][3].editMeta(meta -> {
@@ -142,7 +138,7 @@ public final class ArmorManager {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.itemName(Component.text("山羊装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("用山羊的毛皮制作而成，穿戴后会感觉到跳跃感犹如可以从一个山峰蹦到另一个山峰一样轻浮。", NamedTextColor.GRAY))));
-                //meta.setTrim(new ArmorTrim(TrimMaterial.NETHERITE, TrimPattern.FLOW));
+                meta.setTrim(new ArmorTrim(TrimMaterial.NETHERITE, TrimPattern.FLOW));
             });
         }
         armor[GOAT_GEAR][3].editMeta(meta -> {
@@ -161,7 +157,7 @@ public final class ArmorManager {
             });
         }
         armor[BATTLE_ROBE][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[BATTLE_ROBE], new double[] {1, 3, 5, 2}, new double[] {0, 0.5, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[SPLENDID_ROBE]) {
@@ -175,7 +171,7 @@ public final class ArmorManager {
                 meta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
             });
         }
-        armor[SPLENDID_ROBE][1].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST)));
+        armor[SPLENDID_ROBE][1].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST)));
         addArmorAttributes(armor[SPLENDID_ROBE], new double[] {1, 3, 5, 2}, new double[] {0, 0.5, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[THIEF_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
@@ -188,8 +184,8 @@ public final class ArmorManager {
             });
         }
         armor[THIEF_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[THIEF_ARMOR], new double[] {1, 3, 5, 2}, new double[] {0, 0.5, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[SPIDER_ARMOR]) {
@@ -203,8 +199,8 @@ public final class ArmorManager {
             });
         }
         armor[SPIDER_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
             List<Component> lore = meta.lore();
             lore.add(0, Component.text("15% 吸血光环", NamedTextColor.BLUE));
             meta.lore(removeItalics(lore));
@@ -223,7 +219,7 @@ public final class ArmorManager {
             meta.addEnchant(Enchantment.SWIFT_SNEAK, 3, true);
             meta.setEnchantmentGlintOverride(false);
         });
-        armor[SWIFT_ARMOR][3].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET)));
+        armor[SWIFT_ARMOR][3].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.FEET)));
         for(ItemStack armor : armor[EMBER_ROBES]) {
             armor.editMeta(ArmorMeta.class, meta -> {
                 meta.itemName(Component.text("余烬长袍", NamedTextColor.WHITE));
@@ -236,7 +232,7 @@ public final class ArmorManager {
             meta.addEnchant(Enchantment.FIRE_PROTECTION, 10, true);
             meta.setEnchantmentGlintOverride(false);
         });
-        armor[EMBER_ROBES][3].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET)));
+        armor[EMBER_ROBES][3].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.FEET)));
         addArmorAttributes(armor[SWIFT_ARMOR], new double[] {2, 5, 4, 1}, new double[] {0, 0.8, 0.8, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[PRISMARINE_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
@@ -326,7 +322,7 @@ public final class ArmorManager {
             });
         }
         armor[GHAST_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.67, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.67, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[GHAST_ARMOR], new double[] {2, 5, 5, 2}, new double[] {0, 0.7, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[SNOW_ARMOR]) {
@@ -380,7 +376,7 @@ public final class ArmorManager {
                 meta.lore(removeItalics(Arrays.asList(Component.text("龟甲的灵感来自于乌龟坚韧且坚硬的外壳。", NamedTextColor.GRAY))));
             });
         }
-        armor[TURTLE_ARMOR][0].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.HEAD)));
+        armor[TURTLE_ARMOR][0].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.HEAD)));
         addArmorAttributes(armor[TURTLE_ARMOR], new double[] {3, 6, 5, 2}, new double[] {1, 1, 1, 0}, new double[] {0.3, 0.1, 0.1, 0});
         for(ItemStack armor : armor[NIMBLE_TURTLE_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
@@ -390,7 +386,7 @@ public final class ArmorManager {
         }
         armor[NIMBLE_TURTLE_ARMOR][0].editMeta(meta -> {
             meta.addEnchant(Enchantment.RESPIRATION, 1, true);
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.HEAD));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.HEAD));
         });
         armor[NIMBLE_TURTLE_ARMOR][3].editMeta(meta -> {
             meta.addEnchant(Enchantment.DEPTH_STRIDER, 3, true);
@@ -407,8 +403,8 @@ public final class ArmorManager {
         armor[GUARDS_ARMOR][1].editMeta(meta -> {
             meta.addEnchant(Enchantment.PROJECTILE_PROTECTION, 8, true);
             meta.setEnchantmentGlintOverride(false);
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[GUARDS_ARMOR], new double[] {1, 8, 7, 1}, new double[] {0, 3, 3, 0}, new double[] {0, 0.2, 0.2, 0});
         for(ItemStack armor : armor[CURIOUS_ARMOR]) {
@@ -421,8 +417,8 @@ public final class ArmorManager {
         armor[CURIOUS_ARMOR][1].editMeta(meta -> {
             meta.addEnchant(Enchantment.PROJECTILE_PROTECTION, 8, true);
             meta.setEnchantmentGlintOverride(false);
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
             List<Component> lore = meta.lore();
             lore.add(0, Component.text("潜影光环", NamedTextColor.BLUE));
             meta.lore(removeItalics(lore));
@@ -436,7 +432,7 @@ public final class ArmorManager {
                 meta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.COAST));
             });
         }
-        armor[SCALE_ARMOR][2].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.LEGS)));
+        armor[SCALE_ARMOR][2].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.LEGS)));
         addArmorAttributes(armor[SCALE_ARMOR], new double[] {2, 6, 7, 2}, new double[] {0, 1, 3, 2}, new double[] {0, 0, 0.2, 0.1});
         for(ItemStack armor : armor[HIGHLAND_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
@@ -446,7 +442,7 @@ public final class ArmorManager {
                 meta.setTrim(new ArmorTrim(TrimMaterial.EMERALD, TrimPattern.COAST));
             });
         }
-        armor[HIGHLAND_ARMOR][2].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.LEGS)));
+        armor[HIGHLAND_ARMOR][2].editMeta(meta -> meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.LEGS)));
         addArmorAttributes(armor[HIGHLAND_ARMOR], new double[] {2, 6, 7, 2}, new double[] {0, 1, 3, 2}, new double[] {0, 0, 0.2, 0.1});
         for(ItemStack armor : armor[DARK_ARMOR]) {
             armor.editMeta(ArmorMeta.class, meta -> {
@@ -456,9 +452,9 @@ public final class ArmorManager {
             });
         }
         armor[DARK_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", -0.6, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.6, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[DARK_ARMOR], new double[] {3, 8, 5, 2}, new double[] {3, 3, 1, 0}, new double[] {0.2, 0.2, 0, 0});
         for(ItemStack armor : armor[TITANS_SHROUD]) {
@@ -469,9 +465,9 @@ public final class ArmorManager {
         }
         armor[TITANS_SHROUD][0].editMeta(ArmorMeta.class, meta -> meta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.HOST)));
         armor[TITANS_SHROUD][1].editMeta(ArmorMeta.class, meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", -0.7, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.7, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
             meta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.HOST));
         });
         armor[TITANS_SHROUD][2].editMeta(ArmorMeta.class, meta -> meta.setTrim(new ArmorTrim(TrimMaterial.NETHERITE, TrimPattern.HOST)));
@@ -485,8 +481,8 @@ public final class ArmorManager {
             });
         }
         armor[SHULKER_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[SHULKER_ARMOR], new double[] {3, 8, 7, 2}, new double[] {2, 2, 2, 2}, new double[] {0.1, 0.2, 0.1, 0.1});
         for(ItemStack armor : armor[STURDY_SHULKER_ARMOR]) {
@@ -497,8 +493,8 @@ public final class ArmorManager {
             });
         }
         armor[STURDY_SHULKER_ARMOR][1].editMeta(meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[STURDY_SHULKER_ARMOR], new double[] {3, 8, 7, 2}, new double[] {3, 3, 3, 3}, new double[] {0.1, 0.2, 0.2, 0.1});
         for(ItemStack[] armor : armor) {
@@ -560,7 +556,7 @@ public final class ArmorManager {
                     ((LeatherArmorMeta) armorMeta).setColor(Color.BLACK);
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.VEX));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 11, 1.5, 0);
             });
             selectors[SPLENDID_ROBE][i].editMeta(meta -> {
@@ -571,7 +567,7 @@ public final class ArmorManager {
                     ((LeatherArmorMeta) armorMeta).setColor(Color.BLACK);
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.VEX));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 11, 1.5, 0);
             });
             selectors[THIEF_ARMOR][i].editMeta(meta -> {
@@ -581,8 +577,8 @@ public final class ArmorManager {
                     ((LeatherArmorMeta) armorMeta).setColor(Color.OLIVE);
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SENTRY));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 11, 1.5, 0);
             });
             selectors[SPIDER_ARMOR][i].editMeta(meta -> {
@@ -592,8 +588,8 @@ public final class ArmorManager {
                     ((LeatherArmorMeta) armorMeta).setColor(Color.BLACK);
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.SENTRY));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 11, 1.5, 0);
             });
             selectors[SWIFT_ARMOR][i].editMeta(meta -> {
@@ -602,7 +598,7 @@ public final class ArmorManager {
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 12, 1.6, 0);
             });
             selectors[EMBER_ROBES][i].editMeta(meta -> {
@@ -613,7 +609,7 @@ public final class ArmorManager {
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.WAYFINDER));
                 }
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.33, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 12, 1.6, 0);
             });
             selectors[PRISMARINE_ARMOR][i].editMeta(meta -> {
@@ -706,19 +702,19 @@ public final class ArmorManager {
             selectors[TURTLE_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("龟甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("龟甲的灵感来自于乌龟坚韧且坚硬的外壳。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 16, 5, 0.5);
             });
             selectors[NIMBLE_TURTLE_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("轻灵龟甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲是用生活在不定深度的海龟的结实（但出乎意料地轻）外壳制成的。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.15, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 addArmorAttributes(meta, 16, 5, 0.5);
             });
             selectors[SCALE_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("鳞甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件护甲的灵感来自于鱼鳞，在大海边制作完成。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.COAST));
                 }
@@ -727,7 +723,7 @@ public final class ArmorManager {
             selectors[HIGHLAND_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("高地护甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("荆棘I x4", NamedTextColor.GRAY), Component.text("据说这件盔甲是由龙鳞制作的。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.EMERALD, TrimPattern.COAST));
                 }
@@ -738,8 +734,8 @@ public final class ArmorManager {
                 meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("守卫之甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("授予给世界守护者的盔甲。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.IRON, TrimPattern.WARD));
                 }
@@ -750,8 +746,8 @@ public final class ArmorManager {
                 meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("奇特盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("潜影光环", NamedTextColor.BLUE), Component.text("没有人知道这种奇怪的盔甲来自何方，但你似乎对它有种亲切感。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.WARD));
                 }
@@ -760,9 +756,9 @@ public final class ArmorManager {
             selectors[DARK_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("暗黑盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("在锻造厂最黑暗的深处制造而成，是灾厄村民精锐部队的盔甲。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", -0.6, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.6, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.HOST));
                 }
@@ -771,9 +767,9 @@ public final class ArmorManager {
             selectors[TITANS_SHROUD][i].editMeta(meta -> {
                 meta.itemName(Component.text("泰坦战甲", NamedTextColor.AQUA));
                 meta.lore(removeItalics(Arrays.asList(Component.text("关于泰坦战甲的励志故事，已经在南瓜牧场上流传了好几代。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "", -0.7, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.2, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.7, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.HOST));
                 }
@@ -782,8 +778,8 @@ public final class ArmorManager {
             selectors[SHULKER_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("潜影贝盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("潜影贝盔甲的硬度可以媲美坚硬的钻石。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.SPIRE));
                 }
@@ -792,8 +788,8 @@ public final class ArmorManager {
             selectors[STURDY_SHULKER_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("坚固潜影贝盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("他们说进攻就是最好的防守，但对于这个垒壳，大概只能祝你好运了。", NamedTextColor.GRAY))));
-                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTACK_SPEED_BONUS_ATTRIBUTE_UUID, "", -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID, "", -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
                 if(meta instanceof ArmorMeta armorMeta) {
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.SPIRE));
                 }

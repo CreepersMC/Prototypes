@@ -6,10 +6,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scoreboard.*;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
@@ -20,7 +20,6 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -35,8 +34,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     public static final Random random = new Random();
+    public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
+    public static NamespacedKey armorBonusKey;
+    public static NamespacedKey attributeBonusKey;
     public static NamespacedKey customItemUsageKey;
     public static NamespacedKey customItemUsedTimeKey;
     public static NamespacedKey customItemStartUsingTimeKey;
@@ -86,6 +88,11 @@ public final class Utils {
     private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create(""), "")).prompt(Component.text("WIP")).required(false).replace(true).build();
     private Utils() {}
     public static void init() {
+        fireworkBooster.editMeta(FireworkMeta.class, meta -> {
+            meta.setPower(1);
+        });
+        armorBonusKey = new NamespacedKey(CreepersPVP.instance, "armor_bonus");
+        attributeBonusKey = new NamespacedKey(CreepersPVP.instance, "attribute_bonus");
         customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
         customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
         customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
@@ -114,6 +121,59 @@ public final class Utils {
         }
         for(int i = 0; i < artifactKeys.length; i++) {
             artifactKeys[i] = new NamespacedKey(CreepersPVP.instance, "artifact" + i);
+        }
+        for(final World world : Bukkit.getWorlds()) {
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
+            world.setGameRule(GameRule.BLOCK_EXPLOSION_DROP_DECAY, true);
+            world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            world.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, false);
+            world.setGameRule(GameRule.COMMAND_MODIFICATION_BLOCK_LIMIT, 0);
+            world.setGameRule(GameRule.DISABLE_RAIDS, true);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            world.setGameRule(GameRule.DO_ENTITY_DROPS, false);
+            world.setGameRule(GameRule.DO_FIRE_TICK, true);
+            world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+            world.setGameRule(GameRule.DO_INSOMNIA, false);
+            world.setGameRule(GameRule.DO_LIMITED_CRAFTING, true);
+            world.setGameRule(GameRule.DO_MOB_LOOT, false);
+            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+            world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            world.setGameRule(GameRule.DO_TILE_DROPS, false);
+            world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+            world.setGameRule(GameRule.DO_VINES_SPREAD, false);
+            world.setGameRule(GameRule.DO_WARDEN_SPAWNING, false);
+            world.setGameRule(GameRule.DO_WEATHER_CYCLE, true);
+            world.setGameRule(GameRule.DROWNING_DAMAGE, true);
+            world.setGameRule(GameRule.ENDER_PEARLS_VANISH_ON_DEATH, true);
+            world.setGameRule(GameRule.FALL_DAMAGE, true);
+            world.setGameRule(GameRule.FIRE_DAMAGE, true);
+            world.setGameRule(GameRule.FORGIVE_DEAD_PLAYERS, true);
+            world.setGameRule(GameRule.FREEZE_DAMAGE, true);
+            world.setGameRule(GameRule.GLOBAL_SOUND_EVENTS, true);
+            world.setGameRule(GameRule.KEEP_INVENTORY, true);
+            world.setGameRule(GameRule.LAVA_SOURCE_CONVERSION, false);
+            world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, true);
+            world.setGameRule(GameRule.MAX_COMMAND_CHAIN_LENGTH, 65536);
+            world.setGameRule(GameRule.MAX_COMMAND_FORK_COUNT, 65536);
+            world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 24);
+            world.setGameRule(GameRule.MOB_EXPLOSION_DROP_DECAY, true);
+            world.setGameRule(GameRule.MOB_GRIEFING, false);
+            world.setGameRule(GameRule.NATURAL_REGENERATION, true);
+            world.setGameRule(GameRule.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY, 1);
+            world.setGameRule(GameRule.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY, 1);
+            world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 101);
+            world.setGameRule(GameRule.PROJECTILES_CAN_BREAK_BLOCKS, false);
+            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+            world.setGameRule(GameRule.REDUCED_DEBUG_INFO, true);
+            world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK, true);
+            world.setGameRule(GameRule.SHOW_DEATH_MESSAGES, true);
+            world.setGameRule(GameRule.SNOW_ACCUMULATION_HEIGHT, 1);
+            world.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 1);
+            world.setGameRule(GameRule.SPAWN_RADIUS, 0);
+            world.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
+            world.setGameRule(GameRule.TNT_EXPLOSION_DROP_DECAY, false);
+            world.setGameRule(GameRule.UNIVERSAL_ANGER, false);
+            world.setGameRule(GameRule.WATER_SOURCE_CONVERSION, false);
         }
         Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
             armorStand.setInvisible(true);
@@ -153,10 +213,10 @@ public final class Utils {
                     PersistentDataContainer data = meta.getPersistentDataContainer();
                     if(data.has(customItemUsageKey)) {
                         final int currentTime = Bukkit.getCurrentTick();
-                        final int vanillaMaxUseDuration = getVanillaMaxUseDuration(item);
+                        final int vanillaMaxUseDuration = getVanillaMaxUseDuration(item, player);
                         if(data.has(customItemStartUsingTimeKey, PersistentDataType.INTEGER)) {
                             final int startTime = data.get(customItemStartUsingTimeKey, PersistentDataType.INTEGER);
-                            final int customMaxUseTime = getCustomMaxUseDuration(item);
+                            final int customMaxUseTime = getCustomMaxUseDuration(item, player);
                             int usedTime = data.get(customItemUsedTimeKey, PersistentDataType.INTEGER);
                             final Duration duration = Duration.ofMillis(Math.max(1, customMaxUseTime / ItemManager.PROGRESS_BARS.length) * 50L);
                             player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, duration, duration));
@@ -164,9 +224,9 @@ public final class Utils {
                             player.sendTitlePart(TitlePart.TITLE, Component.empty());
                             if(startTime + usedTime + 1 == currentTime && usedTime < customMaxUseTime) {
                                 data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, ++usedTime);
-                                player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * vanillaMaxUseDuration / customMaxUseTime);
+                                player.setActiveItemRemainingTime(item.getMaxItemUseDuration(player) - usedTime * vanillaMaxUseDuration / customMaxUseTime);
                                 if(player.hasResourcePack()) {
-                                    item.getItemMeta().setCustomModelData(getCustomModelData(item, usedTime));
+                                    item.getItemMeta().setCustomModelData(getCustomModelData(item, player, usedTime));
                                 }
                             } else if(usedTime != customMaxUseTime) {
                                 data.remove(customItemStartUsingTimeKey);
@@ -176,7 +236,7 @@ public final class Utils {
                             int usedTime = player.getActiveItemUsedTime();
                             data.set(customItemStartUsingTimeKey, PersistentDataType.INTEGER, currentTime - usedTime);
                             data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, usedTime);
-                            player.setActiveItemRemainingTime(item.getMaxItemUseDuration() - usedTime * vanillaMaxUseDuration / getCustomMaxUseDuration(item));
+                            player.setActiveItemRemainingTime(item.getMaxItemUseDuration(player) - usedTime * vanillaMaxUseDuration / getCustomMaxUseDuration(item, player));
                         }
                     }
                 });
@@ -396,15 +456,15 @@ public final class Utils {
             }
         }
     }
-    private static int getVanillaMaxUseDuration(ItemStack item) {
+    private static int getVanillaMaxUseDuration(ItemStack item, LivingEntity entity) {
         switch(item.getType()) {
             case BOW -> {
                 return 20;
             }
         }
-        return item.getMaxItemUseDuration();
+        return item.getMaxItemUseDuration(entity);
     }
-    private static int getCustomMaxUseDuration(ItemStack item) {
+    private static int getCustomMaxUseDuration(ItemStack item, LivingEntity entity) {
         switch(item.getType()) {
             case BOW, CROSSBOW, TRIDENT -> {
                 if(item.hasItemMeta()) {
@@ -415,9 +475,9 @@ public final class Utils {
                 }
             }
         }
-        return item.getMaxItemUseDuration();
+        return item.getMaxItemUseDuration(entity);
     }
-    private static int getCustomModelData(ItemStack item, int usedDuration) {
-        return usedDuration * 3 / getCustomMaxUseDuration(item);
+    private static int getCustomModelData(ItemStack item, LivingEntity entity, int usedDuration) {
+        return usedDuration * 3 / getCustomMaxUseDuration(item, entity);
     }
 }

@@ -1,4 +1,7 @@
 package re.imc.creeperspvp.items;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import re.imc.creeperspvp.iui.IUIManager;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -8,8 +11,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,14 +23,23 @@ public final class ItemManager {
         欢迎来到CreepersPVP：FFA！
         本游戏还处于开发阶段，所以有很多功能还不稳定
         玩家数据也有可能随时清空
+        
         祝大家玩得开心XD
-        不要吐槽远程武器装填动画！会改的！
+        不要吐槽远程武器装填动画！会改的！下次一定！
+        1.21！1.21！1.21！重锤，风弹和旋风棒可以用了！
         往后翻查看更新日志
         """), Component.text("""
         ALPHA 0.5.0
         ·新增-更多法器！
         ·功能-经验系统！等级沿用原版
         ·功能-玩家生命值现在会在玩家名下方显示
+        ·功能-使用鞘翅滑翔时可以空手左键来推进
+        ·功能-火焰弹现在可以投掷为小火球，烈焰弹投掷为火球
+        ·功能-重新启用原版火焰所有机制，但是方块现在不会烧毁
+        """), Component.text("""
+        ·功能-火球可以像小火球那样直接点燃实体
+        ·功能-特殊箭矢不再能够被捡起
+        ·修复-玩家不再能够捡起掉落物
         ·修复-弩在未购买时物品数据丢失
         """), Component.text("""
         ALPHA 0.4.1
@@ -101,14 +111,12 @@ public final class ItemManager {
     public static final ItemStack BACK = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
     public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-    static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier("", 0, AttributeModifier.Operation.ADD_NUMBER); //TODO tweak those uuids
-    static final UUID ATTACK_DAMAGE_ATTRIBUTE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
-    static final UUID ATTACK_SPEED_ATTRIBUTE_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
-    static final UUID ATTACK_DAMAGE_BONUS_ATTRIBUTE_UUID = UUID.fromString("46E84BED-7B0E-0685-11D5-5BB372F68C4C");
-    static final UUID ATTACK_SPEED_BONUS_ATTRIBUTE_UUID = UUID.fromString("FA778358-DA02-0464-3236-EFDD9BB1FD75");
-    static final UUID[] ARMOR_ATTRIBUTE_UUIDS = new UUID[] {UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B")};
-    static final UUID[] ARMOR_TOUGHNESS_UUIDS = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
-    static final EquipmentSlot[] armorSlots = new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.BODY};
+    static final NamespacedKey[] armorKeys = new NamespacedKey[] {NamespacedKey.minecraft("armor.helmet"), NamespacedKey.minecraft("armor.chestplate"), NamespacedKey.minecraft("armor.leggings"), NamespacedKey.minecraft("armor.boots")};
+    static final NamespacedKey entityArmorKey = NamespacedKey.minecraft("armor.body");
+    static final NamespacedKey baseAttackDamageKey = NamespacedKey.minecraft("base_attack_damage");
+    static final NamespacedKey baseAttackSpeedKey = NamespacedKey.minecraft("base_attack_speed");
+    private static final AttributeModifier EMPTY_ATTRIBUTE_MODIFIER = new AttributeModifier(NamespacedKey.minecraft("empty"), 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
+    static final EquipmentSlotGroup[] armorSlotGroups = new EquipmentSlotGroup[] {EquipmentSlotGroup.HEAD, EquipmentSlotGroup.CHEST, EquipmentSlotGroup.LEGS, EquipmentSlotGroup.FEET, EquipmentSlotGroup.BODY};
     private ItemManager() {}
     public static void init() {
         ArmorManager.init();
@@ -167,8 +175,8 @@ public final class ItemManager {
     static void editMeleeAttributes(ItemMeta meta, double damage, double speed) {
         meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE);
         meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_ATTRIBUTE_UUID, "", damage - 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_ATTRIBUTE_UUID, "", speed - 4, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));
+        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(baseAttackDamageKey, damage - 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(baseAttackSpeedKey, speed - 4, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         final List<Component> meleeAttributeLore = removeItalics(Arrays.asList(Component.empty(), Component.text("在主手时：", NamedTextColor.GRAY), Component.text(" " + (damage + (meta.hasEnchant(Enchantment.SHARPNESS) ? meta.getEnchantLevel(Enchantment.SHARPNESS) * 0.5 + 0.5 : 0)) + " 攻击伤害", NamedTextColor.DARK_GREEN), Component.text(" " + speed + " 攻击速度", NamedTextColor.DARK_GREEN)));
         if(meta.hasLore()) {
@@ -194,16 +202,16 @@ public final class ItemManager {
         }
     }
     static void addArmorAttributes(ItemMeta meta, double armor, double toughness, double knockbackResistance) {
-        meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", armor, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
-        meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", toughness, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
-        meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[1], "", knockbackResistance, AttributeModifier.Operation.ADD_NUMBER, armorSlots[1]));
+        meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(armorKeys[1], armor, AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[1]));
+        meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(armorKeys[1], toughness, AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[1]));
+        meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(armorKeys[1], knockbackResistance, AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[1]));
     }
     static void addArmorAttributes(ItemStack[] items, double[] armor, double[] toughness, double[] knockbackResistance) {
         for(final int[] i = new int[] {0}; i[0] < 4; i[0]++) {
             items[i[0]].editMeta(meta -> {
-                meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", armor[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
-                meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", toughness[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
-                meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(ARMOR_ATTRIBUTE_UUIDS[i[0]], "", knockbackResistance[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlots[i[0]]));
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(armorKeys[i[0]], armor[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[i[0]]));
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(armorKeys[i[0]], toughness[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[i[0]]));
+                meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(armorKeys[i[0]], knockbackResistance[i[0]], AttributeModifier.Operation.ADD_NUMBER, armorSlotGroups[i[0]]));
             });
         }
     }

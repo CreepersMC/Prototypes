@@ -5,6 +5,8 @@ import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import io.papermc.paper.registry.event.RegistryEvents;
+import io.papermc.paper.registry.keys.EnchantmentKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
@@ -17,6 +19,9 @@ public final class Bootstrapper implements PluginBootstrap {
     @Override
     public void bootstrap(@NotNull BootstrapContext bootstrapContext) {
         LifecycleEventManager<BootstrapContext> manager = bootstrapContext.getLifecycleManager();
+        manager.registerEventHandler(RegistryEvents.ENCHANTMENT.entryAdd().newHandler(event -> {
+            event.builder().maxLevel(2);
+        }).filter(EnchantmentKeys.MULTISHOT));
         manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
             commands.register(Commands.literal("spawn").requires(source -> source.getExecutor() instanceof final Player player && player.getGameMode() == GameMode.SPECTATOR).executes(context -> {

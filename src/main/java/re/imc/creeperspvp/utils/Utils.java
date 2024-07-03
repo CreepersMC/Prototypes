@@ -88,9 +88,7 @@ public final class Utils {
     private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create(""), "")).prompt(Component.text("WIP")).required(false).replace(true).build();
     private Utils() {}
     public static void init() {
-        fireworkBooster.editMeta(FireworkMeta.class, meta -> {
-            meta.setPower(1);
-        });
+        fireworkBooster.editMeta(FireworkMeta.class, meta -> meta.setPower(1));
         armorBonusKey = new NamespacedKey(CreepersPVP.instance, "armor_bonus");
         attributeBonusKey = new NamespacedKey(CreepersPVP.instance, "attribute_bonus");
         customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
@@ -262,13 +260,13 @@ public final class Utils {
         }
         final PlayerInventory inv = player.getInventory();
         inv.clear();
-        inv.setItem(0, ItemManager.ARMOR_SELECTOR);
-        inv.setItem(1, ItemManager.WEAPON_SELECTORS[0]);
-        inv.setItem(2, ItemManager.WEAPON_SELECTORS[1]);
+        inv.setItem(0, ItemManager.SELECT_ARMOR);
+        inv.setItem(1, ItemManager.SELECT_WEAPONS);
+        inv.setItem(2, ItemManager.SELECT_ARTIFACTS);
         inv.setItem(4, ItemManager.DEPLOY);
-        inv.setItem(6, ItemManager.ARTIFACT_SELECTORS[0]);
-        inv.setItem(7, ItemManager.ARTIFACT_SELECTORS[1]);
-        inv.setItem(8, ItemManager.ARTIFACT_SELECTORS[2]);
+        inv.setItem(6, ItemManager.GUIDEBOOK);
+        inv.setItem(7, ItemManager.SETTINGS);
+        inv.setItem(8, ItemManager.SERVERS);
         inv.setHeldItemSlot(4);
         player.clearActivePotionEffects();
         player.setArrowsInBody(0);

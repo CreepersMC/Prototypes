@@ -29,7 +29,8 @@ public final class ArtifactManager {
     public static final int EYE_OF_ENDER = CATEGORY_PROJECTILES + 3;
     public static final int FIRE_CHARGE = CATEGORY_PROJECTILES + 4;
     public static final int EXPLOSIVE_FIRE_CHARGE = CATEGORY_PROJECTILES + 5;
-    public static final int ICE_BOMB = CATEGORY_PROJECTILES + 7;
+    public static final int LIGHTNING_CHARGE = CATEGORY_PROJECTILES + 6;
+    public static final int ICE_CHARGE = CATEGORY_PROJECTILES + 7;
     public static final int WIND_CHARGE = CATEGORY_PROJECTILES + 8;
     public static final int DRAGON_CHARGE = CATEGORY_PROJECTILES + 9;
     public static final int WITHER_CHARGE = CATEGORY_PROJECTILES + 10;

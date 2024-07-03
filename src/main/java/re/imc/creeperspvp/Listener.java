@@ -83,7 +83,7 @@ public final class Listener implements org.bukkit.event.Listener {
         DatabaseUtils.playerJoin(event.getPlayer().getUniqueId());
         Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
-        event.getPlayer().openBook(ItemManager.welcome);
+        event.getPlayer().openBook(ItemManager.GUIDEBOOK);
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {

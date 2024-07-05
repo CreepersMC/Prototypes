@@ -11,65 +11,65 @@ import re.imc.creeperspvp.utils.Utils;
 import java.util.Arrays;
 import static re.imc.creeperspvp.items.ItemManager.*;
 public final class WeaponManager {
-    public static final int RAPIER = 0;
-    public static final int FREEZING_FOIL = 1;
-    public static final int STICK = 2;
-    public static final int BREEZE_ROD = 3;
-    public static final int BLAZE_ROD = 4;
-    public static final int TERROR_ROD = 5;
-    public static final int SICKLES = 6;
-    public static final int NIGHTMARES_BITE = 8;
-    public static final int SWORD = 9;
-    public static final int DIAMOND_SWORD = 10;
-    public static final int CLAYMORE = 11;
-    public static final int FIREBRAND = 12;
-    public static final int AXE = 14;
-    public static final int HIGHLAND_AXE = 15;
-    public static final int HEAVY_AXE = 16;
-    public static final int CURSED_AXE = 18;
-    public static final int PICKAXE = 19;
-    public static final int DIAMOND_PICKAXE = 20;
-    public static final int UNKNOWN = 21;
-    public static final int UNKNOWN_UPGRADE = 22;
-    public static final int MACE = 23;
-    public static final int TEMPEST_MACE = 24;
-    public static final int HARPOON = 27;
-    public static final int TIDE_REVERSER = 28;
-    public static final int TRIDENT = 29;
-    public static final int AZURE_STORM = 30;
-    public static final int SHORTBOW = 32;
-    public static final int MECHANICAL_SHORTBOW = 33;
-    public static final int PURPLE_STORM = 34;
-    public static final int BOW = 35;
-    public static final int BONE_BOW = 36;
-    public static final int SNOW_BOW = 38;
-    public static final int WINTERS_TOUCH = 39;
-    public static final int WIND_BOW = 40;
-    public static final int ECHO_OF_THE_VALLEY = 41;
-    public static final int LONGBOW = 42;
-    public static final int RED_SNAKE = 43;
-    public static final int GUARDIAN_BOW = 44;
-    public static final int POWER_BOW = 45;
-    public static final int ELITE_POWER_BOW = 46;
-    public static final int SABREWING = 47;
-    public static final int RAPID_CROSSBOW = 48;
-    public static final int AUTO_CROSSBOW = 49;
-    public static final int BUTTERFLY_CROSSBOW = 50;
-    public static final int CROSSBOW = 51;
-    public static final int THE_SLICER = 52;
-    public static final int AZURE_SEEKER = 53;
-    public static final int SCATTER_CROSSBOW = 54;
-    public static final int HARP_CROSSBOW = 55;
-    public static final int LIGHTNING_HARP_CROSSBOW = 56;
-    public static final int DUAL_CROSSBOWS = 57;
-    public static final int HEAVY_CROSSBOW = 60;
-    public static final int DOOM_CROSSBOW = 61;
-    public static final int SLAYER_CROSSBOW = 62;
-    public static final int COG_CROSSBOW = 63;
-    public static final int PIGLINS_PRIDE = 64;
+    public static final short RAPIER = 0;
+    public static final short FREEZING_FOIL = 1;
+    public static final short STICK = 2;
+    public static final short BREEZE_ROD = 3;
+    public static final short BLAZE_ROD = 4;
+    public static final short TERROR_ROD = 5;
+    public static final short SICKLES = 6;
+    public static final short NIGHTMARES_BITE = 8;
+    public static final short SWORD = 9;
+    public static final short DIAMOND_SWORD = 10;
+    public static final short CLAYMORE = 11;
+    public static final short FIREBRAND = 12;
+    public static final short AXE = 14;
+    public static final short HIGHLAND_AXE = 15;
+    public static final short HEAVY_AXE = 16;
+    public static final short CURSED_AXE = 18;
+    public static final short PICKAXE = 19;
+    public static final short DIAMOND_PICKAXE = 20;
+    public static final short UNKNOWN = 21;
+    public static final short UNKNOWN_UPGRADE = 22;
+    public static final short MACE = 23;
+    public static final short TEMPEST_MACE = 24;
+    public static final short HARPOON = 27;
+    public static final short TIDE_REVERSER = 28;
+    public static final short TRIDENT = 29;
+    public static final short AZURE_STORM = 30;
+    public static final short SHORTBOW = 32;
+    public static final short MECHANICAL_SHORTBOW = 33;
+    public static final short PURPLE_STORM = 34;
+    public static final short BOW = 35;
+    public static final short BONE_BOW = 36;
+    public static final short SNOW_BOW = 38;
+    public static final short WINTERS_TOUCH = 39;
+    public static final short WIND_BOW = 40;
+    public static final short ECHO_OF_THE_VALLEY = 41;
+    public static final short LONGBOW = 42;
+    public static final short RED_SNAKE = 43;
+    public static final short GUARDIAN_BOW = 44;
+    public static final short POWER_BOW = 45;
+    public static final short ELITE_POWER_BOW = 46;
+    public static final short SABREWING = 47;
+    public static final short RAPID_CROSSBOW = 48;
+    public static final short AUTO_CROSSBOW = 49;
+    public static final short BUTTERFLY_CROSSBOW = 50;
+    public static final short CROSSBOW = 51;
+    public static final short THE_SLICER = 52;
+    public static final short AZURE_SEEKER = 53;
+    public static final short SCATTER_CROSSBOW = 54;
+    public static final short HARP_CROSSBOW = 55;
+    public static final short LIGHTNING_HARP_CROSSBOW = 56;
+    public static final short DUAL_CROSSBOWS = 57;
+    public static final short HEAVY_CROSSBOW = 60;
+    public static final short DOOM_CROSSBOW = 61;
+    public static final short SLAYER_CROSSBOW = 62;
+    public static final short COG_CROSSBOW = 63;
+    public static final short PIGLINS_PRIDE = 64;
     public static final ItemStack[][] weapons = new ItemStack[80][2];
-    public static final int[] selections = new int[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, SHORTBOW, BOW, SNOW_BOW, WIND_BOW, LONGBOW, POWER_BOW, RAPID_CROSSBOW, CROSSBOW, SCATTER_CROSSBOW, DUAL_CROSSBOWS, HEAVY_CROSSBOW, COG_CROSSBOW};
-    public static final int[][] upgrades = new int[][] {{FREEZING_FOIL}, {}, {BREEZE_ROD, BLAZE_ROD, TERROR_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {}, {DIAMOND_SWORD}, {}, {FIREBRAND}, {}, {}, {HIGHLAND_AXE}, {}, {CURSED_AXE}, {}, {}, {DIAMOND_PICKAXE}, {}, {}, {}, {TEMPEST_MACE}, {}, {}, {}, {TIDE_REVERSER}, {}, {AZURE_STORM}, {}, {}, {MECHANICAL_SHORTBOW}, {}, {}, {BONE_BOW}, {}, {}, {WINTERS_TOUCH}, {}, {ECHO_OF_THE_VALLEY}, {}, {RED_SNAKE, GUARDIAN_BOW}, {}, {}, {ELITE_POWER_BOW}, {}, {}, {AUTO_CROSSBOW}, {}, {}, {THE_SLICER}, {}, {}, {HARP_CROSSBOW, LIGHTNING_HARP_CROSSBOW}, {}, {}, {}, {}, {}, {DOOM_CROSSBOW, SLAYER_CROSSBOW}, {}, {}, {PIGLINS_PRIDE}, {}};
+    public static final short[] selections = new short[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, SHORTBOW, BOW, SNOW_BOW, WIND_BOW, LONGBOW, POWER_BOW, RAPID_CROSSBOW, CROSSBOW, SCATTER_CROSSBOW, DUAL_CROSSBOWS, HEAVY_CROSSBOW, COG_CROSSBOW};
+    public static final short[][] upgrades = new short[][] {{FREEZING_FOIL}, {}, {BREEZE_ROD, BLAZE_ROD, TERROR_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {}, {DIAMOND_SWORD}, {}, {FIREBRAND}, {}, {}, {HIGHLAND_AXE}, {}, {CURSED_AXE}, {}, {}, {DIAMOND_PICKAXE}, {}, {}, {}, {TEMPEST_MACE}, {}, {}, {}, {TIDE_REVERSER}, {}, {AZURE_STORM}, {}, {}, {MECHANICAL_SHORTBOW}, {}, {}, {BONE_BOW}, {}, {}, {WINTERS_TOUCH}, {}, {ECHO_OF_THE_VALLEY}, {}, {RED_SNAKE, GUARDIAN_BOW}, {}, {}, {ELITE_POWER_BOW}, {}, {}, {AUTO_CROSSBOW}, {}, {}, {THE_SLICER}, {}, {}, {HARP_CROSSBOW, LIGHTNING_HARP_CROSSBOW}, {}, {}, {}, {}, {}, {DOOM_CROSSBOW, SLAYER_CROSSBOW}, {}, {}, {PIGLINS_PRIDE}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private WeaponManager() {}
     static void init() {
@@ -269,7 +269,7 @@ public final class WeaponManager {
             });
             weapons[SNOW_BOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("冰雪之弓", NamedTextColor.WHITE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("在战斗中与冰雪之弓交战的人还必须做好面对凛冽寒风的准备。", NamedTextColor.GRAY))));
+                meta.lore(removeItalics(Arrays.asList(Component.text("冻矢", NamedTextColor.GRAY), Component.text("在战斗中与冰雪之弓交战的人还必须做好面对凛冽寒风的准备。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1, 0.85f);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_FREEZE);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 139);
@@ -278,7 +278,7 @@ public final class WeaponManager {
                 meta.addEnchant(Enchantment.MULTISHOT, 1, true);
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("凛冬之触", NamedTextColor.BLUE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("据说由这把传奇的弓发射的箭带有寒冷冬风的力量。", NamedTextColor.GRAY))));
+                meta.lore(removeItalics(Arrays.asList(Component.text("冻矢", NamedTextColor.GRAY), Component.text("据说由这把传奇的弓发射的箭带有寒冷冬风的力量。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1, 0.85f);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_FREEZE);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 139);
@@ -372,7 +372,6 @@ public final class WeaponManager {
             weapons[LIGHTNING_HARP_CROSSBOW][i].editMeta(meta -> {
                 meta.addEnchant(Enchantment.MULTISHOT, 1, true);
                 meta.addEnchant(Enchantment.CHANNELING, 1, true);
-                meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("雷电琴弩", NamedTextColor.AQUA));
                 meta.lore(removeItalics(Arrays.asList(Component.text("闪电的力量极大地改变了这张弩发射时的声音。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1, 0.7f);
@@ -417,7 +416,7 @@ public final class WeaponManager {
                 editRangedAttributes(meta, 1f, 0.8f);
                 addMultiItemAttribute(meta, 3);
             });
-            for(final int[] j = {0}; j[0] < weapons.length; j[0]++) {
+            for(final short[] j = new short[]{0}; j[0] < weapons.length; j[0]++) {
                 if(weapons[j[0]][i] != null) {
                     weapons[j[0]][i].editMeta(meta -> {
                         meta.setUnbreakable(true);
@@ -425,7 +424,7 @@ public final class WeaponManager {
                         if(!meta.hasRarity()) {
                             meta.setRarity(ItemRarity.COMMON);
                         }
-                        meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.INTEGER, j[0]);
+                        meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.SHORT, j[0]);
                     });
                 }
             }

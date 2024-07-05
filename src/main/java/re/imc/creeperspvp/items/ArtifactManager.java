@@ -3,10 +3,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -18,142 +20,149 @@ import java.util.Arrays;
 import java.util.List;
 import static re.imc.creeperspvp.items.ItemManager.*;
 public final class ArtifactManager {
-    public static final int CATEGORY_PROJECTILES = 0;
-    public static final int CATEGORY_EXPLOSIVES_AND_TRAPS = 64;
-    public static final int CATEGORY_FOOD = 128;
-    public static final int CATEGORY_DEFENSES_AND_BUFFS = 192;
+    public static final short CATEGORY_PROJECTILES = 0;
+    public static final short CATEGORY_EXPLOSIVES_AND_TRAPS = 64;
+    public static final short CATEGORY_FOOD = 128;
+    public static final short CATEGORY_DEFENSES_AND_BUFFS = 192;
     public static final ItemStack[] artifactCategorySelectors = new ItemStack[] {new ItemStack(Material.ARROW), new ItemStack(Material.TNT), new ItemStack(Material.APPLE), new ItemStack(Material.SHIELD)};
-    public static final int SNOWBALL = CATEGORY_PROJECTILES;
-    public static final int EGG = CATEGORY_PROJECTILES + 1;
-    public static final int ENDER_PEARL = CATEGORY_PROJECTILES + 2;
-    public static final int EYE_OF_ENDER = CATEGORY_PROJECTILES + 3;
-    public static final int FIRE_CHARGE = CATEGORY_PROJECTILES + 4;
-    public static final int EXPLOSIVE_FIRE_CHARGE = CATEGORY_PROJECTILES + 5;
-    public static final int LIGHTNING_CHARGE = CATEGORY_PROJECTILES + 6;
-    public static final int ICE_CHARGE = CATEGORY_PROJECTILES + 7;
-    public static final int WIND_CHARGE = CATEGORY_PROJECTILES + 8;
-    public static final int DRAGON_CHARGE = CATEGORY_PROJECTILES + 9;
-    public static final int WITHER_CHARGE = CATEGORY_PROJECTILES + 10;
-    public static final int SHULKER_BULLET = CATEGORY_PROJECTILES + 12;
-    public static final int MUNDANE_SPLASH_POTION = CATEGORY_PROJECTILES + 13;
-    public static final int SPLASH_POTION_OF_HASTE = CATEGORY_PROJECTILES + 14;
-    public static final int SPLASH_POTION_OF_LEAPING = CATEGORY_PROJECTILES + 15;
-    public static final int SPLASH_POTION_OF_SWIFTNESS = CATEGORY_PROJECTILES + 16;
-    public static final int SPLASH_POTION_OF_HEALING = CATEGORY_PROJECTILES + 17;
-    public static final int SPLASH_POTION_OF_REGENERATION = CATEGORY_PROJECTILES + 18;
-    public static final int SPLASH_POTION_OF_STRENGTH = CATEGORY_PROJECTILES + 19;
-    public static final int AWKWARD_SPLASH_POTION = CATEGORY_PROJECTILES + 20;
-    public static final int SPLASH_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 21;
-    public static final int SPLASH_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 22;
-    public static final int THICK_SPLASH_POTION = CATEGORY_PROJECTILES + 23;
-    public static final int SPLASH_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 24;
-    public static final int SPLASH_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 25;
-    public static final int SPLASH_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 26;
-    public static final int SPLASH_POTION_OF_HARMING = CATEGORY_PROJECTILES + 27;
-    public static final int SPLASH_POTION_OF_POISON = CATEGORY_PROJECTILES + 28;
-    public static final int SPLASH_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 29;
-    public static final int AWKWARD_LINGERING_POTION = CATEGORY_PROJECTILES + 30;
-    public static final int LINGERING_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 31;
-    public static final int LINGERING_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 32;
-    public static final int THICK_LINGERING_POTION = CATEGORY_PROJECTILES + 33;
-    public static final int LINGERING_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 34;
-    public static final int LINGERING_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 35;
-    public static final int LINGERING_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 36;
-    public static final int LINGERING_POTION_OF_HARMING = CATEGORY_PROJECTILES + 37;
-    public static final int LINGERING_POTION_OF_POISON = CATEGORY_PROJECTILES + 38;
-    public static final int LINGERING_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 39;
-    public static final int SPECTRAL_ARROW = CATEGORY_PROJECTILES + 40;
-    public static final int SEEKER_ARROW = CATEGORY_PROJECTILES + 41;
-    public static final int AWKWARD_TIPPED_ARROW = CATEGORY_PROJECTILES + 42;
-    public static final int TIPPED_ARROW_OF_LEVITATION = CATEGORY_PROJECTILES + 43;
-    public static final int TIPPED_ARROW_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 44;
-    public static final int THICK_TIPPED_ARROW = CATEGORY_PROJECTILES + 45;
-    public static final int TIPPED_ARROW_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 46;
-    public static final int TIPPED_ARROW_OF_BLINDNESS = CATEGORY_PROJECTILES + 47;
-    public static final int TIPPED_ARROW_OF_SLOWNESS = CATEGORY_PROJECTILES + 48;
-    public static final int TIPPED_ARROW_OF_HARMING = CATEGORY_PROJECTILES + 49;
-    public static final int TIPPED_ARROW_OF_POISON = CATEGORY_PROJECTILES + 50;
-    public static final int TIPPED_ARROW_OF_WEAKNESS = CATEGORY_PROJECTILES + 51;
-    public static final int TNT = CATEGORY_EXPLOSIVES_AND_TRAPS;
-    public static final int END_CRYSTAL = CATEGORY_EXPLOSIVES_AND_TRAPS + 2;
-    public static final int FISHING_ROD = CATEGORY_EXPLOSIVES_AND_TRAPS + 3;
-    public static final int CARROT = CATEGORY_FOOD;
-    public static final int GOLDEN_CARROT = CATEGORY_FOOD + 1;
-    public static final int APPLE = CATEGORY_FOOD + 2;
-    public static final int GOLDEN_APPLE = CATEGORY_FOOD + 3;
-    public static final int ENCHANTED_GOLDEN_APPLE = CATEGORY_FOOD + 4;
-    public static final int MELON_SLICE = CATEGORY_FOOD + 5;
-    public static final int BEEF = CATEGORY_FOOD + 7;
-    public static final int COOKED_BEEF = CATEGORY_FOOD + 8;
-    public static final int PORKCHOP = CATEGORY_FOOD + 9;
-    public static final int COOKED_PORKCHOP = CATEGORY_FOOD + 10;
-    public static final int MUTTON = CATEGORY_FOOD + 11;
-    public static final int COOKED_MUTTON = CATEGORY_FOOD + 12;
-    public static final int SALMON = CATEGORY_FOOD + 13;
-    public static final int COOKED_SALMON = CATEGORY_FOOD + 14;
-    public static final int RABBIT_STEW = CATEGORY_FOOD + 15;
-    public static final int BEETROOT_SOUP = CATEGORY_FOOD + 16;
-    public static final int CHICKEN = CATEGORY_FOOD + 17;
-    public static final int COOKED_CHICKEN = CATEGORY_FOOD + 18;
-    public static final int MUSHROOM_STEW = CATEGORY_FOOD + 19;
-    public static final int SUSPICIOUS_STEW = CATEGORY_FOOD + 20;
-    public static final int POTATO = CATEGORY_FOOD + 21;
-    public static final int BAKED_POTATO = CATEGORY_FOOD + 22;
-    public static final int BREAD = CATEGORY_FOOD + 23;
-    public static final int COD = CATEGORY_FOOD + 24;
-    public static final int COOKED_COD = CATEGORY_FOOD + 25;
-    public static final int RABBIT = CATEGORY_FOOD + 26;
-    public static final int COOKED_RABBIT = CATEGORY_FOOD + 27;
-    public static final int BEETROOT = CATEGORY_FOOD + 28;
-    public static final int PUMPKIN_PIE = CATEGORY_FOOD + 29;
-    public static final int CHORUS_FRUIT = CATEGORY_FOOD + 30;
-    public static final int DRIED_KELP = CATEGORY_FOOD + 31;
-    public static final int HONEY_BOTTLE = CATEGORY_FOOD + 32;
-    public static final int COOKIE = CATEGORY_FOOD + 33;
-    public static final int SWEET_BERRIES = CATEGORY_FOOD + 34;
-    public static final int GLOW_BERRIES = CATEGORY_FOOD + 35;
-    public static final int MILK_BUKET = CATEGORY_FOOD + 36;
-    public static final int MUNDANE_POTION = CATEGORY_DEFENSES_AND_BUFFS;
-    public static final int POTION_OF_HASTE = CATEGORY_DEFENSES_AND_BUFFS + 1;
-    public static final int POTION_OF_LEAPING = CATEGORY_DEFENSES_AND_BUFFS + 2;
-    public static final int POTION_OF_SWIFTNESS = CATEGORY_DEFENSES_AND_BUFFS + 3;
-    public static final int POTION_OF_HEALING = CATEGORY_DEFENSES_AND_BUFFS + 4;
-    public static final int POTION_OF_REGENERATION = CATEGORY_DEFENSES_AND_BUFFS + 5;
-    public static final int POTION_OF_STRENGTH = CATEGORY_DEFENSES_AND_BUFFS + 6;
-    public static final int AWKWARD_POTION = CATEGORY_DEFENSES_AND_BUFFS + 7;
-    public static final int POTION_OF_LEVITATION = CATEGORY_DEFENSES_AND_BUFFS + 8;
-    public static final int POTION_OF_SLOW_FALLING = CATEGORY_DEFENSES_AND_BUFFS + 9;
-    public static final int SHIELD = CATEGORY_DEFENSES_AND_BUFFS + 10;
-    public static final int TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 11;
+    public static final short SNOWBALL = CATEGORY_PROJECTILES;
+    public static final short EGG = CATEGORY_PROJECTILES + 1;
+    public static final short ENDER_PEARL = CATEGORY_PROJECTILES + 2;
+    public static final short EYE_OF_ENDER = CATEGORY_PROJECTILES + 3;
+    public static final short FIRE_CHARGE = CATEGORY_PROJECTILES + 4;
+    public static final short LIGHTNING_CHARGE = CATEGORY_PROJECTILES + 5;
+    public static final short EXPLOSION_CHARGE = CATEGORY_PROJECTILES + 6;
+    public static final short ICE_CHARGE = CATEGORY_PROJECTILES + 7;
+    public static final short WIND_CHARGE = CATEGORY_PROJECTILES + 8;
+    public static final short DRAGON_CHARGE = CATEGORY_PROJECTILES + 9;
+    public static final short WITHER_CHARGE = CATEGORY_PROJECTILES + 10;
+    public static final short SHULKER_BULLET = CATEGORY_PROJECTILES + 12;
+    public static final short MUNDANE_SPLASH_POTION = CATEGORY_PROJECTILES + 13;
+    public static final short SPLASH_POTION_OF_HASTE = CATEGORY_PROJECTILES + 14;
+    public static final short SPLASH_POTION_OF_LEAPING = CATEGORY_PROJECTILES + 15;
+    public static final short SPLASH_POTION_OF_SWIFTNESS = CATEGORY_PROJECTILES + 16;
+    public static final short SPLASH_POTION_OF_HEALING = CATEGORY_PROJECTILES + 17;
+    public static final short SPLASH_POTION_OF_REGENERATION = CATEGORY_PROJECTILES + 18;
+    public static final short SPLASH_POTION_OF_STRENGTH = CATEGORY_PROJECTILES + 19;
+    public static final short AWKWARD_SPLASH_POTION = CATEGORY_PROJECTILES + 20;
+    public static final short SPLASH_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 21;
+    public static final short SPLASH_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 22;
+    public static final short THICK_SPLASH_POTION = CATEGORY_PROJECTILES + 23;
+    public static final short SPLASH_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 24;
+    public static final short SPLASH_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 25;
+    public static final short SPLASH_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 26;
+    public static final short SPLASH_POTION_OF_HARMING = CATEGORY_PROJECTILES + 27;
+    public static final short SPLASH_POTION_OF_POISON = CATEGORY_PROJECTILES + 28;
+    public static final short SPLASH_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 29;
+    public static final short AWKWARD_LINGERING_POTION = CATEGORY_PROJECTILES + 30;
+    public static final short LINGERING_POTION_OF_LEVITATION = CATEGORY_PROJECTILES + 31;
+    public static final short LINGERING_POTION_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 32;
+    public static final short THICK_LINGERING_POTION = CATEGORY_PROJECTILES + 33;
+    public static final short LINGERING_POTION_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 34;
+    public static final short LINGERING_POTION_OF_BLINDNESS = CATEGORY_PROJECTILES + 35;
+    public static final short LINGERING_POTION_OF_SLOWNESS = CATEGORY_PROJECTILES + 36;
+    public static final short LINGERING_POTION_OF_HARMING = CATEGORY_PROJECTILES + 37;
+    public static final short LINGERING_POTION_OF_POISON = CATEGORY_PROJECTILES + 38;
+    public static final short LINGERING_POTION_OF_WEAKNESS = CATEGORY_PROJECTILES + 39;
+    public static final short SPECTRAL_ARROW = CATEGORY_PROJECTILES + 40;
+    public static final short SEEKER_ARROW = CATEGORY_PROJECTILES + 41;
+    public static final short AWKWARD_TIPPED_ARROW = CATEGORY_PROJECTILES + 42;
+    public static final short TIPPED_ARROW_OF_LEVITATION = CATEGORY_PROJECTILES + 43;
+    public static final short TIPPED_ARROW_OF_SLOW_FALLING = CATEGORY_PROJECTILES + 44;
+    public static final short THICK_TIPPED_ARROW = CATEGORY_PROJECTILES + 45;
+    public static final short TIPPED_ARROW_OF_ATTACK_FATIGUE = CATEGORY_PROJECTILES + 46;
+    public static final short TIPPED_ARROW_OF_BLINDNESS = CATEGORY_PROJECTILES + 47;
+    public static final short TIPPED_ARROW_OF_SLOWNESS = CATEGORY_PROJECTILES + 48;
+    public static final short TIPPED_ARROW_OF_HARMING = CATEGORY_PROJECTILES + 49;
+    public static final short TIPPED_ARROW_OF_POISON = CATEGORY_PROJECTILES + 50;
+    public static final short TIPPED_ARROW_OF_WEAKNESS = CATEGORY_PROJECTILES + 51;
+    public static final short FIREWORK_ROCKET = CATEGORY_PROJECTILES + 52;
+    public static final short TNT = CATEGORY_EXPLOSIVES_AND_TRAPS;
+    public static final short END_CRYSTAL = CATEGORY_EXPLOSIVES_AND_TRAPS + 2;
+    public static final short FISHING_ROD = CATEGORY_EXPLOSIVES_AND_TRAPS + 3;
+    public static final short WATER_BUCKET = CATEGORY_EXPLOSIVES_AND_TRAPS + 4;
+    public static final short BUCKET_OF_PUFFERFISH = CATEGORY_EXPLOSIVES_AND_TRAPS + 5;
+    public static final short BUCKET_OF_AXOLTOL = CATEGORY_EXPLOSIVES_AND_TRAPS + 6;
+    public static final short LAVA_BUCKET = CATEGORY_EXPLOSIVES_AND_TRAPS + 7;
+    public static final short POWER_SNOW_BUCKET = CATEGORY_EXPLOSIVES_AND_TRAPS + 8;
+    public static final short COBWEB = CATEGORY_EXPLOSIVES_AND_TRAPS + 9;
+    public static final short CARROT = CATEGORY_FOOD;
+    public static final short GOLDEN_CARROT = CATEGORY_FOOD + 1;
+    public static final short APPLE = CATEGORY_FOOD + 2;
+    public static final short GOLDEN_APPLE = CATEGORY_FOOD + 3;
+    public static final short ENCHANTED_GOLDEN_APPLE = CATEGORY_FOOD + 4;
+    public static final short MELON_SLICE = CATEGORY_FOOD + 5;
+    public static final short BEEF = CATEGORY_FOOD + 7;
+    public static final short COOKED_BEEF = CATEGORY_FOOD + 8;
+    public static final short PORKCHOP = CATEGORY_FOOD + 9;
+    public static final short COOKED_PORKCHOP = CATEGORY_FOOD + 10;
+    public static final short MUTTON = CATEGORY_FOOD + 11;
+    public static final short COOKED_MUTTON = CATEGORY_FOOD + 12;
+    public static final short SALMON = CATEGORY_FOOD + 13;
+    public static final short COOKED_SALMON = CATEGORY_FOOD + 14;
+    public static final short RABBIT_STEW = CATEGORY_FOOD + 15;
+    public static final short BEETROOT_SOUP = CATEGORY_FOOD + 16;
+    public static final short CHICKEN = CATEGORY_FOOD + 17;
+    public static final short COOKED_CHICKEN = CATEGORY_FOOD + 18;
+    public static final short MUSHROOM_STEW = CATEGORY_FOOD + 19;
+    public static final short SUSPICIOUS_STEW = CATEGORY_FOOD + 20;
+    public static final short POTATO = CATEGORY_FOOD + 21;
+    public static final short BAKED_POTATO = CATEGORY_FOOD + 22;
+    public static final short BREAD = CATEGORY_FOOD + 23;
+    public static final short COD = CATEGORY_FOOD + 24;
+    public static final short COOKED_COD = CATEGORY_FOOD + 25;
+    public static final short RABBIT = CATEGORY_FOOD + 26;
+    public static final short COOKED_RABBIT = CATEGORY_FOOD + 27;
+    public static final short BEETROOT = CATEGORY_FOOD + 28;
+    public static final short PUMPKIN_PIE = CATEGORY_FOOD + 29;
+    public static final short CHORUS_FRUIT = CATEGORY_FOOD + 30;
+    public static final short DRIED_KELP = CATEGORY_FOOD + 31;
+    public static final short HONEY_BOTTLE = CATEGORY_FOOD + 32;
+    public static final short COOKIE = CATEGORY_FOOD + 33;
+    public static final short SWEET_BERRIES = CATEGORY_FOOD + 34;
+    public static final short GLOW_BERRIES = CATEGORY_FOOD + 35;
+    public static final short MILK_BUKET = CATEGORY_FOOD + 36;
+    public static final short MUNDANE_POTION = CATEGORY_DEFENSES_AND_BUFFS;
+    public static final short POTION_OF_HASTE = CATEGORY_DEFENSES_AND_BUFFS + 1;
+    public static final short POTION_OF_LEAPING = CATEGORY_DEFENSES_AND_BUFFS + 2;
+    public static final short POTION_OF_SWIFTNESS = CATEGORY_DEFENSES_AND_BUFFS + 3;
+    public static final short POTION_OF_HEALING = CATEGORY_DEFENSES_AND_BUFFS + 4;
+    public static final short POTION_OF_REGENERATION = CATEGORY_DEFENSES_AND_BUFFS + 5;
+    public static final short POTION_OF_STRENGTH = CATEGORY_DEFENSES_AND_BUFFS + 6;
+    public static final short AWKWARD_POTION = CATEGORY_DEFENSES_AND_BUFFS + 7;
+    public static final short POTION_OF_LEVITATION = CATEGORY_DEFENSES_AND_BUFFS + 8;
+    public static final short POTION_OF_SLOW_FALLING = CATEGORY_DEFENSES_AND_BUFFS + 9;
+    public static final short SHIELD = CATEGORY_DEFENSES_AND_BUFFS + 10;
+    public static final short TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 11;
     public static final ItemStack[][] artifacts = new ItemStack[256][2];
     public static final int[] useCooldowns = new int[] {
-        4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        4, 4, -1, -1, 4, 4, 4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    public static final int CUSTOM = 1;
-    public static final int INTERACT = 2;
-    public static final int CONSUME = 4;
-    public static final int LAUNCH_PROJECTILE = 8;
-    public static final int READY_ARROW = 16;
-    public static final int PLACE_BLOCK = 32;
-    public static final int PLACE_ENTITY = 64;
-    public static final int[] useEvents = new int[] {
-        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, 0, LAUNCH_PROJECTILE, 0, 0, 0, 0, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        PLACE_BLOCK, 0, PLACE_ENTITY, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    public static final short CUSTOM = 1;
+    public static final short INTERACT = 2;
+    public static final short CONSUME = 4;
+    public static final short LAUNCH_PROJECTILE = 8;
+    public static final short READY_ARROW = 16;
+    public static final short PLACE_BLOCK = 32;
+    public static final short PLACE_ENTITY = 64;
+    public static final short[] useEvents = new short[] {
+        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PLACE_BLOCK, 0, PLACE_ENTITY, 0, 0, 0, 0, 0, 0, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     public static final int[] gainCooldowns = new int[] {
-        20, 40, 300, -1, 60, 60, -1, -1, 100, -1, -1, -1, -1, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        120, -1, 200, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        20, 40, 300, -1, 80, 80, 80, 80, 100, 720, 320, -1, 240, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 180, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        120, -1, 240, -1, -1, -1, -1, -1, -1, 240, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         90, 180, 120, 360, 1080, 60, -1, 90, 240, 90, 240, 60, 180, 60, 180, 300, 180, 60, 180, 180, 180, 30, 150, 150, 60, 150, 90, 150, 30, 240, 240, 30, 180, 60, 60, 60, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         480, 480, 480, 480, 480, 480, 480, 480, 480, 480, -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    public static final int[][] selections = new int[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, WIND_CHARGE, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW}, {TNT, END_CRYSTAL, FISHING_ROD}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {MUNDANE_POTION, AWKWARD_POTION, SHIELD}};
-    public static final int[][] upgrades = new int[][] {
-        {}, {}, {}, {}, {EXPLOSIVE_FIRE_CHARGE}, {}, {}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_HASTE, SPLASH_POTION_OF_LEAPING, SPLASH_POTION_OF_SWIFTNESS, SPLASH_POTION_OF_HEALING, SPLASH_POTION_OF_REGENERATION, SPLASH_POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_LEVITATION, SPLASH_POTION_OF_SLOW_FALLING}, {}, {}, {SPLASH_POTION_OF_ATTACK_FATIGUE, SPLASH_POTION_OF_BLINDNESS, SPLASH_POTION_OF_SLOWNESS, SPLASH_POTION_OF_HARMING, SPLASH_POTION_OF_POISON, SPLASH_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {LINGERING_POTION_OF_LEVITATION, LINGERING_POTION_OF_SLOW_FALLING}, {}, {}, {LINGERING_POTION_OF_ATTACK_FATIGUE, LINGERING_POTION_OF_BLINDNESS, LINGERING_POTION_OF_SLOWNESS, LINGERING_POTION_OF_HARMING, LINGERING_POTION_OF_POISON, LINGERING_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {TIPPED_ARROW_OF_LEVITATION, TIPPED_ARROW_OF_SLOW_FALLING}, {}, {}, {TIPPED_ARROW_OF_ATTACK_FATIGUE, TIPPED_ARROW_OF_BLINDNESS, TIPPED_ARROW_OF_SLOWNESS, TIPPED_ARROW_OF_HARMING, TIPPED_ARROW_OF_POISON, TIPPED_ARROW_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    public static final short[][] selections = new short[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, EXPLOSION_CHARGE, WIND_CHARGE, DRAGON_CHARGE, WITHER_CHARGE, SHULKER_BULLET, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW, FIREWORK_ROCKET}, {TNT, END_CRYSTAL, FISHING_ROD, COBWEB}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {MUNDANE_POTION, AWKWARD_POTION, SHIELD}};
+    public static final short[][] upgrades = new short[][] {
+        {}, {}, {}, {}, {LIGHTNING_CHARGE}, {}, {ICE_CHARGE}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_HASTE, SPLASH_POTION_OF_LEAPING, SPLASH_POTION_OF_SWIFTNESS, SPLASH_POTION_OF_HEALING, SPLASH_POTION_OF_REGENERATION, SPLASH_POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_LEVITATION, SPLASH_POTION_OF_SLOW_FALLING}, {}, {}, {SPLASH_POTION_OF_ATTACK_FATIGUE, SPLASH_POTION_OF_BLINDNESS, SPLASH_POTION_OF_SLOWNESS, SPLASH_POTION_OF_HARMING, SPLASH_POTION_OF_POISON, SPLASH_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {LINGERING_POTION_OF_LEVITATION, LINGERING_POTION_OF_SLOW_FALLING}, {}, {}, {LINGERING_POTION_OF_ATTACK_FATIGUE, LINGERING_POTION_OF_BLINDNESS, LINGERING_POTION_OF_SLOWNESS, LINGERING_POTION_OF_HARMING, LINGERING_POTION_OF_POISON, LINGERING_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {TIPPED_ARROW_OF_LEVITATION, TIPPED_ARROW_OF_SLOW_FALLING}, {}, {}, {TIPPED_ARROW_OF_ATTACK_FATIGUE, TIPPED_ARROW_OF_BLINDNESS, TIPPED_ARROW_OF_SLOWNESS, TIPPED_ARROW_OF_HARMING, TIPPED_ARROW_OF_POISON, TIPPED_ARROW_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {GOLDEN_CARROT}, {}, {GOLDEN_APPLE}, {}, {}, {}, {}, {COOKED_BEEF}, {}, {COOKED_PORKCHOP}, {}, {COOKED_MUTTON}, {}, {COOKED_SALMON}, {}, {}, {}, {COOKED_CHICKEN}, {}, {}, {}, {BAKED_POTATO}, {}, {}, {COOKED_COD}, {}, {COOKED_RABBIT}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {POTION_OF_HASTE, POTION_OF_LEAPING, POTION_OF_SWIFTNESS, POTION_OF_HEALING, POTION_OF_REGENERATION, POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {POTION_OF_LEVITATION, POTION_OF_SLOW_FALLING}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
@@ -184,12 +193,12 @@ public final class ArtifactManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
         final ItemStack[] artifacts0 = new ItemStack[] {
-            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), null, new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), null, null, null, null, null, null, null, null, null, null, null, null,
-            new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 1), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.FIREWORK_ROCKET, 3), null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), new ItemStack(Material.WATER_BUCKET), new ItemStack(Material.PUFFERFISH_BUCKET), new ItemStack(Material.AXOLOTL_BUCKET), new ItemStack(Material.LAVA_BUCKET), new ItemStack(Material.POWDER_SNOW_BUCKET), new ItemStack(Material.COBWEB, 2), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), null, new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
         };
-        //for(int i = 0; i < 256; i++) {
+        //for(short i = 0; i < 256; i++) {
         //    System.out.print(i + " ");
         //    System.out.println(artifacts0[i] == null ? "null" : artifacts0[i].getType());
         //}
@@ -201,15 +210,26 @@ public final class ArtifactManager {
             artifacts[SNOWBALL][i].editMeta(meta -> meta.itemName(Component.text("雪球", NamedTextColor.WHITE)));
             artifacts[EGG][i].editMeta(meta -> meta.itemName(Component.text("鸡蛋", NamedTextColor.WHITE)));
             artifacts[ENDER_PEARL][i].editMeta(meta -> meta.itemName(Component.text("末影珍珠", NamedTextColor.WHITE)));
-            artifacts[FIRE_CHARGE][i].editMeta(meta -> {
-                meta.itemName(Component.text("火焰弹", NamedTextColor.WHITE));
+            artifacts[FIRE_CHARGE][i].editMeta(meta -> meta.itemName(Component.text("火焰弹", NamedTextColor.WHITE)));
+            artifacts[LIGHTNING_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("闪电弹", NamedTextColor.AQUA));
+                meta.setCustomModelData(1);
             });
-            artifacts[EXPLOSIVE_FIRE_CHARGE][i].editMeta(meta -> {
-                meta.itemName(Component.text("烈焰弹", NamedTextColor.RED));
+            artifacts[EXPLOSION_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("爆破弹", NamedTextColor.GREEN));
+                meta.setCustomModelData(2);
             });
-            artifacts[WIND_CHARGE][i].editMeta(meta -> {
-                meta.itemName(Component.text("风弹", NamedTextColor.WHITE));
+            artifacts[ICE_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("冰弹", NamedTextColor.BLUE));
+                meta.setCustomModelData(3);
             });
+            artifacts[DRAGON_CHARGE][i].editMeta(meta -> {
+                meta.itemName(Component.text("龙息弹", NamedTextColor.DARK_PURPLE));
+                meta.setCustomModelData(4);
+            });
+            artifacts[WITHER_CHARGE][i].editMeta(meta -> meta.itemName(Component.text("凋零之首", NamedTextColor.DARK_GRAY)));
+            artifacts[SHULKER_BULLET][i].editMeta(meta -> meta.itemName(Component.text("潜影导弹", NamedTextColor.YELLOW)));
+            artifacts[WIND_CHARGE][i].editMeta(meta -> meta.itemName(Component.text("风弹", NamedTextColor.WHITE)));
             artifacts[MUNDANE_SPLASH_POTION][i].editMeta(meta -> {
                 meta.itemName(Component.text("喷溅型平凡的药水", NamedTextColor.WHITE));
                 if(meta instanceof PotionMeta potionMeta) {
@@ -462,6 +482,14 @@ public final class ArtifactManager {
                     potionMeta.setColor(Color.fromRGB(4738376));
                 }
             });
+            artifacts[FIREWORK_ROCKET][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.WHITE));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.WHITE).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.WHITE).build());
+                }
+            });
             artifacts[TNT][i].editMeta(meta -> {
                 meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
@@ -476,6 +504,11 @@ public final class ArtifactManager {
                 meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
             });
+            artifacts[COBWEB][i].editMeta(meta -> {
+                meta.itemName(Component.text("", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[COBWEB][i] = Utils.modifyItem(artifacts[COBWEB][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
             artifacts[CARROT][i].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
             artifacts[GOLDEN_CARROT][i].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
             artifacts[APPLE][i].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
@@ -585,7 +618,7 @@ public final class ArtifactManager {
             });
             artifacts[SHIELD][i].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
             artifacts[TOTEM_OF_UNDYING][i].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
-            for(final int[] j = new int[]{0}; j[0] < artifacts.length; j[0]++) {
+            for(final short[] j = new short[]{0}; j[0] < artifacts.length; j[0]++) {
                 if(artifacts[j[0]][i] != null) {
                     artifacts[j[0]][i].editMeta(meta -> {
                         meta.setUnbreakable(true);
@@ -603,7 +636,7 @@ public final class ArtifactManager {
                                 meta.lore(removeItalics(Arrays.asList(gainCooldownDescription)));
                             }
                         }
-                        meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.INTEGER, j[0]);
+                        meta.getPersistentDataContainer().set(Utils.artifactIDKey, PersistentDataType.SHORT, j[0]);
                     });
                 }
             }

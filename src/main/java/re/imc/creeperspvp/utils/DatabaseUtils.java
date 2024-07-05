@@ -20,10 +20,15 @@ public final class DatabaseUtils {
     private static PreparedStatement setPlayerWeaponStatus;
     private static PreparedStatement fetchPlayerArtifactStatus;
     private static PreparedStatement setPlayerArtifactStatus;
+    private static PreparedStatement fetchPlayerItemSettings;
+    private static PreparedStatement setPlayerItemSettings;
+    private static PreparedStatement fetchPlayerMiscSettings;
+    private static PreparedStatement setPlayerMiscSettings;
     private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
     private static Connection connection = null;
+    private static final String TABLE_NAME = "creeperspvp_player_data";
     private static final String databaseInit = """
-        CREATE TABLE IF NOT EXISTS `player_data`(
+        CREATE TABLE IF NOT EXISTS `creeperspvp_player_data` (
             `uuid` BINARY(16) NOT NULL,
             `emeralds` BIGINT NOT NULL DEFAULT 0,
             `xp` INT NOT NULL DEFAULT 0,
@@ -34,6 +39,8 @@ public final class DatabaseUtils {
             `armor_status` BINARY(6) NOT NULL DEFAULT b'000000000000000000000000100000000000000000000000',
             `weapon_status` BINARY(10) NOT NULL DEFAULT b'00000000010000000000000000000000000100000000000000000000000000000000000000000000',
             `artifact_status` BINARY(32) NOT NULL DEFAULT b'1000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000',
+            `item_settings` BINARY(11) NOT NULL DEFAULT b'0001100000001001001000110000000010010111110010100000000000000001000000100000001100101000',
+            `misc_settings` BIT(16) NOT NULL DEFAULT b'1000000000000000',
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
@@ -46,22 +53,26 @@ public final class DatabaseUtils {
         }
         connection = DriverManager.getConnection("jdbc:mysql://" + CreepersPVP.databaseAddress + ":" + CreepersPVP.databasePort + "/" + CreepersPVP.database + "?user=" + CreepersPVP.databaseUsername + "&password=" + CreepersPVP.databasePassword);
         connection.createStatement().execute(databaseInit);
-        checkPlayerExistence = connection.prepareStatement("SELECT `uuid` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        registerPlayer = connection.prepareStatement("INSERT INTO `player_data` (`uuid`) VALUES (UUID_TO_BIN(?))");
-        fetchPlayerEmeralds = connection.prepareStatement("SELECT `emeralds` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        addPlayerEmeralds = connection.prepareStatement("UPDATE `player_data` SET `emeralds` = `emeralds` + ? WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerXp = connection.prepareStatement("SELECT `xp` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        addPlayerXp = connection.prepareStatement("UPDATE `player_data` SET `xp` = `xp` + ? WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerKills = connection.prepareStatement("SELECT `kills` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        incrementPlayerKills = connection.prepareStatement("UPDATE `player_data` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerDeaths = connection.prepareStatement("SELECT `deaths` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        incrementPlayerDeaths = connection.prepareStatement("UPDATE `player_data` SET `deaths` = `deaths` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerArmorStatus = connection.prepareStatement("SELECT `armor_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        setPlayerArmorStatus = connection.prepareStatement("UPDATE `player_data` SET `armor_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerWeaponStatus = connection.prepareStatement("SELECT `weapon_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        setPlayerWeaponStatus = connection.prepareStatement("UPDATE `player_data` SET `weapon_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
-        fetchPlayerArtifactStatus = connection.prepareStatement("SELECT `artifact_status` FROM `player_data` WHERE `uuid` = UUID_TO_BIN(?);");
-        setPlayerArtifactStatus = connection.prepareStatement("UPDATE `player_data` SET `artifact_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        checkPlayerExistence = connection.prepareStatement("SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        registerPlayer = connection.prepareStatement("INSERT INTO `" + TABLE_NAME + "` (`uuid`) VALUES (UUID_TO_BIN(?))");
+        fetchPlayerEmeralds = connection.prepareStatement("SELECT `emeralds` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        addPlayerEmeralds = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `emeralds` = `emeralds` + ? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerXp = connection.prepareStatement("SELECT `xp` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        addPlayerXp = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `xp` = `xp` + ? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerKills = connection.prepareStatement("SELECT `kills` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        incrementPlayerKills = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerDeaths = connection.prepareStatement("SELECT `deaths` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        incrementPlayerDeaths = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `deaths` = `deaths` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerArmorStatus = connection.prepareStatement("SELECT `armor_status` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerArmorStatus = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `armor_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerWeaponStatus = connection.prepareStatement("SELECT `weapon_status` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerWeaponStatus = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `weapon_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerArtifactStatus = connection.prepareStatement("SELECT `artifact_status` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerArtifactStatus = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `artifact_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerItemSettings = connection.prepareStatement("SELECT `item_settings` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerItemSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `item_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerMiscSettings = connection.prepareStatement("SELECT `misc_settings` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerMiscSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `misc_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
     }
     public static void fina() throws SQLException {
         checkPlayerExistence.close();
@@ -80,6 +91,8 @@ public final class DatabaseUtils {
         setPlayerWeaponStatus.close();
         fetchPlayerArtifactStatus.close();
         setPlayerArtifactStatus.close();
+        fetchPlayerMiscSettings.close();
+        setPlayerMiscSettings.close();
         connection.close();
     }
     public static void playerJoin(UUID uuid) {
@@ -289,6 +302,58 @@ public final class DatabaseUtils {
             CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
         }
     }
+    public static ItemSettings fetchPlayerItemSettings(UUID uuid) {
+        try {
+            final ResultSet result;
+            synchronized(fetchPlayerItemSettings) {
+                fetchPlayerItemSettings.setString(1, uuid.toString());
+                result = fetchPlayerItemSettings.executeQuery();
+            }
+            if(result.next()) {
+                return new ItemSettings(result.getBytes("item_settings"));
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return null;
+    }
+    public static void setPlayerItemSettings(UUID uuid, ItemSettings settings) {
+        try {
+            synchronized(setPlayerItemSettings) {
+                setPlayerItemSettings.setString(1, booleansToString(bytesToBooleans(settings.asBytes())));
+                setPlayerItemSettings.setString(2, uuid.toString());
+                setPlayerItemSettings.executeUpdate();
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+        }
+    }
+    public static MiscSettings fetchPlayerMiscSettings(UUID uuid) {
+        try {
+            final ResultSet result;
+            synchronized(fetchPlayerMiscSettings) {
+                fetchPlayerMiscSettings.setString(1, uuid.toString());
+                result = fetchPlayerMiscSettings.executeQuery();
+            }
+            if(result.next()) {
+                return new MiscSettings(result.getBytes("misc_settings"));
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return null;
+    }
+    public static void setPlayerMiscSettings(UUID uuid, MiscSettings settings) {
+        try {
+            synchronized(setPlayerMiscSettings) {
+                setPlayerMiscSettings.setString(1, booleansToString(settings.asBooleans()));
+                setPlayerMiscSettings.setString(2, uuid.toString());
+                setPlayerMiscSettings.executeUpdate();
+            }
+        } catch(SQLException e) {
+            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+        }
+    }
     private static boolean[] bytesToBooleans(byte[] bytes) {
         final boolean[] booleans = new boolean[bytes.length * Byte.SIZE];
         for(int i = 0; i < bytes.length; i++) {
@@ -304,5 +369,128 @@ public final class DatabaseUtils {
             builder.append(b ? '1' : '0');
         }
         return builder.toString();
+    }
+    public enum TriState {
+        FALSE, TRUE, DEFAULT;
+        private static final int SIZE = 2;
+        private static TriState fromBooleans(boolean b1, boolean b2) {
+            return b1 ? b2 ? TRUE : FALSE : DEFAULT;
+        }
+        public boolean isDefault() {
+            return this == DEFAULT;
+        }
+        public boolean isTrue() {
+            return this == TRUE;
+        }
+        public TriState next() {
+            return isDefault() ? FALSE : isTrue() ? DEFAULT : TRUE;
+        }
+        private boolean firstBoolean() {
+            return this != DEFAULT;
+        }
+        private boolean secondBoolean() {
+            return this == TRUE;
+        }
+    }
+    public static final class MiscSettings {
+        private boolean showGuideBook;
+        private boolean deployCooldown;
+        private TriState rangedAttackIndicator;
+        private MiscSettings(final byte[] bytes) {
+            final boolean[] data = bytesToBooleans(bytes);
+            showGuideBook = data[0];
+            deployCooldown = data[1];
+            rangedAttackIndicator = TriState.fromBooleans(data[8], data[9]);
+        }
+        public boolean shouldShowGuideBook() {
+            return showGuideBook;
+        }
+        public boolean hasDeployCooldown() {
+            return deployCooldown;
+        }
+        public TriState getRangedAttackIndicator() {
+            return rangedAttackIndicator;
+        }
+        public MiscSettings withShowGuideBook(boolean showGuideBook) {
+            this.showGuideBook = showGuideBook;
+            return this;
+        }
+        public MiscSettings withDeployCooldown(boolean deployCooldown) {
+            this.deployCooldown = deployCooldown;
+            return this;
+        }
+        public MiscSettings withRangedAttackIndicator(TriState rangedAttackIndicator) {
+            this.rangedAttackIndicator = rangedAttackIndicator;
+            return this;
+        }
+        private boolean[] asBooleans() {
+            boolean[] booleans = new boolean[16];
+            booleans[0] = showGuideBook;
+            booleans[1] = deployCooldown;
+            booleans[8] = rangedAttackIndicator.firstBoolean();
+            booleans[9] = rangedAttackIndicator.secondBoolean();
+            return booleans;
+        }
+    }
+    public static final class ItemSettings {
+        private short armorSelection;
+        private final short[] weaponSelections = new short[2];
+        private final short[] artifactSelections = new short[3];
+        private final byte[] weaponSlots = new byte[2];
+        private final byte[] artifactSlots = new byte[3];
+        private ItemSettings(final byte[] data) {
+            if(data.length != 11) {
+                throw new IllegalArgumentException("Data has to be 11 bytes long!");
+            }
+            armorSelection = (short) Byte.toUnsignedInt(data[0]);
+            weaponSelections[0] = (short) Byte.toUnsignedInt(data[1]);
+            weaponSelections[1] = (short) Byte.toUnsignedInt(data[2]);
+            artifactSelections[0] = (short) Byte.toUnsignedInt(data[3]);
+            artifactSelections[1] = (short) Byte.toUnsignedInt(data[4]);
+            artifactSelections[2] = (short) Byte.toUnsignedInt(data[5]);
+            weaponSlots[0] = data[6];
+            weaponSlots[1] = data[7];
+            artifactSlots[0] = data[8];
+            artifactSlots[1] = data[9];
+            artifactSlots[2] = data[10];
+        }
+        public short getArmorSelection() {
+            return armorSelection;
+        }
+        public short getWeaponSelection(int weapon) {
+            return weaponSelections[weapon];
+        }
+        public short getArtifactSelection(int artifact) {
+            return artifactSelections[artifact];
+        }
+        public byte getWeaponSlot(int weapon) {
+            return weaponSlots[weapon];
+        }
+        public byte getArtifactSlot(int artifact) {
+            return artifactSlots[artifact];
+        }
+        public ItemSettings withArmorSelection(short armorSelection) {
+            this.armorSelection = armorSelection;
+            return this;
+        }
+        public ItemSettings withWeaponSelection(int weapon, short weaponSelection) {
+            this.weaponSelections[weapon] = weaponSelection;
+            return this;
+        }
+        public ItemSettings withArtifactSelection(int artifact, short artifactSelection) {
+            this.artifactSelections[artifact] = artifactSelection;
+            return this;
+        }
+        public ItemSettings withWeaponSlot(int weapon, byte slot) {
+            this.weaponSlots[weapon] = slot;
+            return this;
+        }
+        public ItemSettings withArtifactSlot(int artifact, byte slot) {
+            this.artifactSlots[artifact] = slot;
+            return this;
+        }
+        private byte[] asBytes() {
+            return new byte[] {(byte) armorSelection, (byte) weaponSelections[0], (byte) weaponSelections[1], (byte) artifactSelections[0], (byte) artifactSelections[1], (byte) artifactSelections[2], weaponSlots[0], weaponSlots[1], artifactSlots[0], artifactSlots[1], artifactSlots[2]};
+        }
     }
 }

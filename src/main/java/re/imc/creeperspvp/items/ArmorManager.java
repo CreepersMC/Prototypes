@@ -21,42 +21,42 @@ import java.util.List;
 import static re.imc.creeperspvp.items.ItemManager.*;
 //TODO find armor trims for creeper armor, mooshroom armor, ghast armor, snow armor, turtle armor
 public final class ArmorManager {
-    public static final int GHOSTLY_ARMOR = 0;
-    public static final int GHOST_KINDLER = 1;
-    public static final int PHANTOM_ARMOR = 2;
-    public static final int DRAGON_ARMOR = 3;
-    public static final int CLIMBING_GEAR = 4;
-    public static final int GOAT_GEAR = 5;
-    public static final int BATTLE_ROBE = 6;
-    public static final int SPLENDID_ROBE = 7;
-    public static final int THIEF_ARMOR = 8;
-    public static final int SPIDER_ARMOR = 9;
-    public static final int SWIFT_ARMOR = 10;
-    public static final int EMBER_ROBES = 11;
-    public static final int PRISMARINE_ARMOR = 12;
-    public static final int NAUTILUS_ARMOR = 13;
-    public static final int GRIM_ARMOR = 14;
-    public static final int WITHER_ARMOR = 15;
-    public static final int CREEPER_ARMOR = 16;
-    public static final int CREEPY_ARMOR = 17;
-    public static final int RED_MOOSHROOM_ARMOR = 18;
-    public static final int BROWN_MOOSHROOM_ARMOR = 19;
-    public static final int GHAST_ARMOR = 20;
-    public static final int HUNGRY_HORROR = 21;
-    public static final int SNOW_ARMOR = 22;
-    public static final int FROST_ARMOR = 23;
-    public static final int MERCENARY_ARMOR = 24;
-    public static final int RENEGADE_ARMOR = 25;
-    public static final int TURTLE_ARMOR = 26;
-    public static final int NIMBLE_TURTLE_ARMOR = 27;
-    public static final int GUARDS_ARMOR = 28;
-    public static final int CURIOUS_ARMOR = 29;
-    public static final int SCALE_ARMOR = 30;
-    public static final int HIGHLAND_ARMOR = 31;
-    public static final int DARK_ARMOR = 32;
-    public static final int TITANS_SHROUD = 33;
-    public static final int SHULKER_ARMOR = 34;
-    public static final int STURDY_SHULKER_ARMOR = 35;
+    public static final short GHOSTLY_ARMOR = 0;
+    public static final short GHOST_KINDLER = 1;
+    public static final short PHANTOM_ARMOR = 2;
+    public static final short DRAGON_ARMOR = 3;
+    public static final short CLIMBING_GEAR = 4;
+    public static final short GOAT_GEAR = 5;
+    public static final short BATTLE_ROBE = 6;
+    public static final short SPLENDID_ROBE = 7;
+    public static final short THIEF_ARMOR = 8;
+    public static final short SPIDER_ARMOR = 9;
+    public static final short SWIFT_ARMOR = 10;
+    public static final short EMBER_ROBES = 11;
+    public static final short PRISMARINE_ARMOR = 12;
+    public static final short NAUTILUS_ARMOR = 13;
+    public static final short GRIM_ARMOR = 14;
+    public static final short WITHER_ARMOR = 15;
+    public static final short CREEPER_ARMOR = 16;
+    public static final short CREEPY_ARMOR = 17;
+    public static final short RED_MOOSHROOM_ARMOR = 18;
+    public static final short BROWN_MOOSHROOM_ARMOR = 19;
+    public static final short GHAST_ARMOR = 20;
+    public static final short HUNGRY_HORROR = 21;
+    public static final short SNOW_ARMOR = 22;
+    public static final short FROST_ARMOR = 23;
+    public static final short MERCENARY_ARMOR = 24;
+    public static final short RENEGADE_ARMOR = 25;
+    public static final short TURTLE_ARMOR = 26;
+    public static final short NIMBLE_TURTLE_ARMOR = 27;
+    public static final short GUARDS_ARMOR = 28;
+    public static final short CURIOUS_ARMOR = 29;
+    public static final short SCALE_ARMOR = 30;
+    public static final short HIGHLAND_ARMOR = 31;
+    public static final short DARK_ARMOR = 32;
+    public static final short TITANS_SHROUD = 33;
+    public static final short SHULKER_ARMOR = 34;
+    public static final short STURDY_SHULKER_ARMOR = 35;
     public static final ItemStack[][] armor = new ItemStack[][] {
         {null, null, null, null},
         {null, null, null, null},
@@ -97,8 +97,8 @@ public final class ArmorManager {
     };
     public static final PotionEffect[][] effects = new PotionEffect[][] {{new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, true, true)}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.JUMP_BOOST, -1, 1, false, false, true)}, {}, {}, {}, {}, {}, {}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true), new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
     public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
-    public static final int[] selections = new int[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, GHAST_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
-    public static final int[][] upgrades = new int[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
+    public static final short[] selections = new short[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, GHAST_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
+    public static final short[][] upgrades = new short[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private ArmorManager() {}
     static void init() {
@@ -202,10 +202,10 @@ public final class ArmorManager {
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.25, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
             meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, 0.08, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
             List<Component> lore = meta.lore();
-            lore.add(0, Component.text("15% 吸血光环", NamedTextColor.BLUE));
+            lore.add(0, Component.text("25% 吸血光环", NamedTextColor.BLUE));
             meta.lore(removeItalics(lore));
             meta.getPersistentDataContainer().set(Utils.armorAuraIDKey, PersistentDataType.BYTE, Utils.ARMOR_AURA_LIFESTEAL);
-            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.15f);
+            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.25f);
         });
         addArmorAttributes(armor[SPIDER_ARMOR], new double[] {1, 3, 5, 2}, new double[] {0, 0.5, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[SWIFT_ARMOR]) {
@@ -269,10 +269,10 @@ public final class ArmorManager {
         }
         armor[GRIM_ARMOR][0].editMeta(meta -> {
             List<Component> lore = meta.lore();
-            lore.add(0, Component.text("15% 吸血光环", NamedTextColor.BLUE));
+            lore.add(0, Component.text("25% 吸血光环", NamedTextColor.BLUE));
             meta.lore(removeItalics(lore));
             meta.getPersistentDataContainer().set(Utils.armorAuraIDKey, PersistentDataType.BYTE, Utils.ARMOR_AURA_LIFESTEAL);
-            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.15f);
+            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.25f);
         });
         addArmorAttributes(armor[GRIM_ARMOR], new double[] {0, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[WITHER_ARMOR]) {
@@ -286,10 +286,10 @@ public final class ArmorManager {
         }
         armor[WITHER_ARMOR][0].editMeta(meta -> {
             List<Component> lore = meta.lore();
-            lore.add(0, Component.text("30% 吸血光环", NamedTextColor.BLUE));
+            lore.add(0, Component.text("40% 吸血光环", NamedTextColor.BLUE));
             meta.lore(removeItalics(lore));
             meta.getPersistentDataContainer().set(Utils.armorAuraIDKey, PersistentDataType.BYTE, Utils.ARMOR_AURA_LIFESTEAL);
-            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.3f);
+            meta.getPersistentDataContainer().set(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 0.4f);
         });
         addArmorAttributes(armor[WITHER_ARMOR], new double[] {0, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[CREEPER_ARMOR]) {
@@ -583,7 +583,7 @@ public final class ArmorManager {
             });
             selectors[SPIDER_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("蜘蛛盔甲", NamedTextColor.RED));
-                meta.lore(removeItalics(Arrays.asList(Component.text("15% 吸血光环", NamedTextColor.BLUE), Component.text("由顶级盗贼所作，灵感来源于敏捷的蜘蛛。", NamedTextColor.GRAY))));
+                meta.lore(removeItalics(Arrays.asList(Component.text("25% 吸血光环", NamedTextColor.BLUE), Component.text("由顶级盗贼所作，灵感来源于敏捷的蜘蛛。", NamedTextColor.GRAY))));
                 if(meta instanceof ArmorMeta armorMeta) {
                     ((LeatherArmorMeta) armorMeta).setColor(Color.BLACK);
                     armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.SENTRY));
@@ -634,12 +634,12 @@ public final class ArmorManager {
             });
             selectors[GRIM_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("冷酷战甲", NamedTextColor.WHITE));
-                meta.lore(removeItalics(Arrays.asList(Component.text("15% 吸血光环", NamedTextColor.BLUE), Component.text("冷酷战甲为装备它的人和在战斗中面对它的人带来一种恐惧感。", NamedTextColor.GRAY))));
+                meta.lore(removeItalics(Arrays.asList(Component.text("25% 吸血光环", NamedTextColor.BLUE), Component.text("冷酷战甲为装备它的人和在战斗中面对它的人带来一种恐惧感。", NamedTextColor.GRAY))));
                 addArmorAttributes(meta, 13, 2, 0);
             });
             selectors[WITHER_ARMOR][i].editMeta(meta -> {
                 meta.itemName(Component.text("凋零盔甲", NamedTextColor.DARK_RED));
-                meta.lore(removeItalics(Arrays.asList(Component.text("30% 吸血光环", NamedTextColor.BLUE), Component.text("用击杀敌人的肢体所制成的盔甲，可以有效震慑穿戴者的敌人。", NamedTextColor.GRAY))));
+                meta.lore(removeItalics(Arrays.asList(Component.text("40% 吸血光环", NamedTextColor.BLUE), Component.text("用击杀敌人的肢体所制成的盔甲，可以有效震慑穿戴者的敌人。", NamedTextColor.GRAY))));
                 addArmorAttributes(meta, 13, 2, 0);
             });
             selectors[CREEPER_ARMOR][i].editMeta(meta -> {

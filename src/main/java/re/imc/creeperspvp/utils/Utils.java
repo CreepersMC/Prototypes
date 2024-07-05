@@ -1,4 +1,5 @@
 package re.imc.creeperspvp.utils;
+import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
@@ -61,9 +62,6 @@ public final class Utils {
     public static NamespacedKey utilIDKey;
     public static NamespacedKey utilDataKey;
     public static NamespacedKey playerDataKey;
-    public static NamespacedKey armorKey;
-    public static final NamespacedKey[] weaponKeys = new NamespacedKey[2];
-    public static final NamespacedKey[] artifactKeys = new NamespacedKey[3];
     public static final byte UTIL_SPAWN = 0;
     public static final byte ARMOR_AURA_FREEZE = 0;
     public static final byte ARMOR_AURA_LIFESTEAL = 1;
@@ -113,13 +111,6 @@ public final class Utils {
         utilIDKey = new NamespacedKey(CreepersPVP.instance, "util");
         utilDataKey = new NamespacedKey(CreepersPVP.instance, "util-data");
         playerDataKey = new NamespacedKey(CreepersPVP.instance, "player-data");
-        armorKey = new NamespacedKey(CreepersPVP.instance, "armor");
-        for(int i = 0; i < weaponKeys.length; i++) {
-            weaponKeys[i] = new NamespacedKey(CreepersPVP.instance, "weapon" + i);
-        }
-        for(int i = 0; i < artifactKeys.length; i++) {
-            artifactKeys[i] = new NamespacedKey(CreepersPVP.instance, "artifact" + i);
-        }
         for(final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.BLOCK_EXPLOSION_DROP_DECAY, true);
@@ -184,6 +175,7 @@ public final class Utils {
         dummy.remove();
     }
     public static void playerJoin(Player player) {
+        // CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
         //player.sendResourcePacks(resourcePackRequest);
         UUID uuid = player.getUniqueId();
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -283,46 +275,39 @@ public final class Utils {
         player.teleport(hub);
     }
     public static void spawnPlayer(final Player player) {
-        final PersistentDataContainer data = player.getPersistentDataContainer().get(playerDataKey, PersistentDataType.TAG_CONTAINER);
+        final DatabaseUtils.ItemSettings itemSettings = DatabaseUtils.fetchPlayerItemSettings(player.getUniqueId());
         final PlayerInventory inv = player.getInventory();
         inv.clear();
-        final int armorID = data.getOrDefault(armorKey, PersistentDataType.INTEGER, ArmorManager.MERCENARY_ARMOR);
+        final short armorID = itemSettings == null ? ArmorManager.MERCENARY_ARMOR : itemSettings.getArmorSelection();
         inv.setItem(EquipmentSlot.HEAD, ArmorManager.armor[armorID][0]);
         inv.setItem(EquipmentSlot.CHEST, ArmorManager.armor[armorID][1]);
         inv.setItem(EquipmentSlot.LEGS, ArmorManager.armor[armorID][2]);
         inv.setItem(EquipmentSlot.FEET, ArmorManager.armor[armorID][3]);
-        final ItemStack weapon1 = WeaponManager.weapons[data.getOrDefault(weaponKeys[0], PersistentDataType.INTEGER, WeaponManager.SWORD)][1];
-        inv.setItem(0, weapon1);
+        final ItemStack weapon1 = ItemBuilder.copyOf(WeaponManager.weapons[itemSettings == null ? WeaponManager.SWORD : itemSettings.getWeaponSelection(0)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 0))).build();
+        inv.setItem(itemSettings == null ? 0 : itemSettings.getWeaponSlot(0), weapon1);
         if(weapon1.hasItemMeta()) {
             PersistentDataContainer weapon1Data = weapon1.getItemMeta().getPersistentDataContainer();
             if(weapon1Data.has(multiItemKey, PersistentDataType.INTEGER)) {
                 final int multiItems = weapon1Data.get(multiItemKey, PersistentDataType.INTEGER);
                 for(int i = 1; i < multiItems; i++) {
-                    inv.setItem(36 - i * 9, weapon1);
+                    inv.setItem((itemSettings == null ? 0 : itemSettings.getWeaponSlot(0)) + 36 - i * 9, weapon1);
                 }
             }
         }
-        final ItemStack weapon2 = WeaponManager.weapons[data.getOrDefault(weaponKeys[1], PersistentDataType.INTEGER, WeaponManager.BOW)][1];
-        inv.setItem(1, weapon2);
+        final ItemStack weapon2 = ItemBuilder.copyOf(WeaponManager.weapons[itemSettings == null ? WeaponManager.BOW : itemSettings.getWeaponSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 1))).build();
+        inv.setItem(itemSettings == null ? 1 : itemSettings.getWeaponSlot(1), weapon2);
         if(weapon2.hasItemMeta()) {
             PersistentDataContainer weapon2Data = weapon2.getItemMeta().getPersistentDataContainer();
             if(weapon2Data.has(multiItemKey, PersistentDataType.INTEGER)) {
                 final int multiItems = weapon2Data.get(multiItemKey, PersistentDataType.INTEGER);
                 for(int i = 1; i < multiItems; i++) {
-                    inv.setItem(37 - i * 9, weapon2);
+                    inv.setItem((itemSettings == null ? 1 : itemSettings.getWeaponSlot(1)) + 36 - i * 9, weapon2);
                 }
             }
         }
-        inv.setItem(2, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[0], PersistentDataType.INTEGER, ArtifactManager.SNOWBALL)][1]);
-        inv.setItem(3, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[1], PersistentDataType.INTEGER, ArtifactManager.BREAD)][1]);
-        inv.setItem(4, ArtifactManager.artifacts[data.getOrDefault(artifactKeys[2], PersistentDataType.INTEGER, ArtifactManager.SHIELD)][1]);
-        //TODO
-        for(int i = 0; i < 5; i++) {
-            int finalI = i;
-            inv.getItem(i).editMeta(meta -> {
-                meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, finalI);
-            });
-        }
+        inv.setItem(itemSettings == null ? 2 : itemSettings.getArtifactSlot(0), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SNOWBALL : itemSettings.getArtifactSelection(0)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 2))).build());
+        inv.setItem(itemSettings == null ? 3 : itemSettings.getArtifactSlot(1), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.BREAD : itemSettings.getArtifactSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 3))).build());
+        inv.setItem(itemSettings == null ? 40 : itemSettings.getArtifactSlot(2), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SHIELD : itemSettings.getArtifactSelection(2)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 4))).build());
         inv.setItem(9, new ItemStack(Material.ARROW, 64));
         player.getActivePotionEffects().clear();
         final AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);

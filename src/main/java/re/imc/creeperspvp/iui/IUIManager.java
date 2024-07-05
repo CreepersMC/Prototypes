@@ -2,13 +2,16 @@ package re.imc.creeperspvp.iui;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.FastInvManager;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -23,9 +26,13 @@ import re.imc.creeperspvp.items.ItemManager;
 import re.imc.creeperspvp.items.WeaponManager;
 import re.imc.creeperspvp.utils.DatabaseUtils;
 import re.imc.creeperspvp.utils.Utils;
+
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 public final class IUIManager {
     public static final byte ARMOR_SELECTOR = 1;
@@ -73,7 +80,7 @@ public final class IUIManager {
             super(inventoryFunction);
         }
         @Override
-        protected final void onClick(InventoryClickEvent event) {
+        protected void onClick(InventoryClickEvent event) {
             event.setCancelled(true);
         }
     }
@@ -90,7 +97,7 @@ public final class IUIManager {
             final boolean[] armorStatus = DatabaseUtils.fetchPlayerArmorStatus(uuid);
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             int slot = 10;
-            for(final int armorSelection : ArmorManager.selections) {
+            for(final short armorSelection : ArmorManager.selections) {
                 ItemStack item = ArmorManager.selectors[armorSelection][armorStatus[armorSelection] ? 1 : 0].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 if(armorStatus[armorSelection]) {
@@ -107,9 +114,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(armorStatus[armorSelection]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.armorKey, PersistentDataType.INTEGER, armorSelection);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArmorSelection(armorSelection));
+                                }
                             } else {
                                 ItemStack itemPreview = ArmorManager.selectors[armorSelection][1].clone();
                                 itemPreview.lore(lore);
@@ -147,10 +154,10 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArmorSelectorInv(uuid).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            setItem(49, ItemManager.ARMOR_SELECTOR);
+            setItem(22, ItemManager.ARMOR_SELECTOR);
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(int i = 0; i < ArmorManager.upgrades[armorID].length; i++) {
-                final int armorUpgrade = ArmorManager.upgrades[armorID][i];
+                final short armorUpgrade = ArmorManager.upgrades[armorID][i];
                 ItemStack item = ArmorManager.selectors[armorUpgrade][armorStatus[armorUpgrade] ? 1 : 0].clone();
                 List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
                 if(armorStatus[armorUpgrade]) {
@@ -167,9 +174,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(armorStatus[armorUpgrade]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.armorKey, PersistentDataType.INTEGER, armorUpgrade);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArmorSelection(armorUpgrade));
+                                }
                             } else {
                                 ItemStack itemPreview = ArmorManager.selectors[armorUpgrade][1].clone();
                                 itemPreview.lore(lore);
@@ -215,7 +222,7 @@ public final class IUIManager {
             final boolean[] weaponStatus = DatabaseUtils.fetchPlayerWeaponStatus(uuid);
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             int slot = 10;
-            for(final int weaponSelection : WeaponManager.selections) {
+            for(final short weaponSelection : WeaponManager.selections) {
                 ItemStack[] items = new ItemStack[] {WeaponManager.weapons[weaponSelection][0].clone(), WeaponManager.weapons[weaponSelection][1].clone()};
                 for(final ItemStack item : items) {
                     List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -234,9 +241,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(weaponStatus[weaponSelection]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponSelection);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withWeaponSelection(weapon, weaponSelection));
+                                }
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
@@ -272,19 +279,19 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            setItem(48, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 0))).build(), event -> {
+            setItem(21, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 0))).build(), event -> {
                 if(weapon != 0 && event.getWhoClicked() instanceof Player player) {
                     Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, 0, weaponID, weaponStatus).open(player));
                 }
             });
-            setItem(50, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 1))).build(), event -> {
+            setItem(23, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 1))).build(), event -> {
                 if(weapon != 1 && event.getWhoClicked() instanceof Player player) {
                     Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, 1, weaponID, weaponStatus).open(player));
                 }
             });
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(int i = 0; i < WeaponManager.upgrades[weaponID].length; i++) {
-                final int weaponUpgrade = WeaponManager.upgrades[weaponID][i];
+                final short weaponUpgrade = WeaponManager.upgrades[weaponID][i];
                 ItemStack[] items = new ItemStack[] {WeaponManager.weapons[weaponUpgrade][0].clone(), WeaponManager.weapons[weaponUpgrade][1].clone()};
                 for(final ItemStack item : items) {
                     List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -303,9 +310,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(weaponStatus[weaponUpgrade]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.weaponKeys[weapon], PersistentDataType.INTEGER, weaponUpgrade);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withWeaponSelection(weapon, weaponUpgrade));
+                                }
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
@@ -358,7 +365,7 @@ public final class IUIManager {
             int slot = 10;
             final boolean[] artifactStatus = DatabaseUtils.fetchPlayerArtifactStatus(uuid);
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
-            for(final int artifactSelection : ArtifactManager.selections[category]) {
+            for(final short artifactSelection : ArtifactManager.selections[category]) {
                 ItemStack[] items = {ArtifactManager.artifacts[artifactSelection][0].clone(), ArtifactManager.artifacts[artifactSelection][1].clone()};
                 for(final ItemStack item : items) {
                     List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -377,9 +384,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(artifactStatus[artifactSelection]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactSelection);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArtifactSelection(artifact, artifactSelection));
+                                }
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
@@ -415,24 +422,24 @@ public final class IUIManager {
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArtifactSelectorInv(uuid, artifact, category).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            setItem(48, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 0))).build(), event -> {
+            setItem(21, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 0))).build(), event -> {
                 if(artifact != 0 && event.getWhoClicked() instanceof Player player) {
                     Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 0, artifactID, category, artifactStatus).open(player));
                 }
             });
-            setItem(49, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 1))).build(), event -> {
+            setItem(22, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 1))).build(), event -> {
                 if(artifact != 1 && event.getWhoClicked() instanceof Player player) {
                     Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 1, artifactID, category, artifactStatus).open(player));
                 }
             });
-            setItem(50, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[2]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 2))).build(), event -> {
+            setItem(23, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[2]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 2))).build(), event -> {
                 if(artifact != 2 && event.getWhoClicked() instanceof Player player) {
                     Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 2, artifactID, category, artifactStatus).open(player));
                 }
             });
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
             for(int i = 0; i < ArtifactManager.upgrades[artifactID].length; i++) {
-                final int artifactUpgrade = ArtifactManager.upgrades[artifactID][i];
+                final short artifactUpgrade = ArtifactManager.upgrades[artifactID][i];
                 ItemStack[] items = {ArtifactManager.artifacts[artifactUpgrade][0].clone(), ArtifactManager.artifacts[artifactUpgrade][1].clone()};
                 for(final ItemStack item : items) {
                     List<Component> lore = item.getItemMeta().hasLore() ? new ArrayList<>(item.lore()) : new ArrayList<>();
@@ -451,9 +458,9 @@ public final class IUIManager {
                     if(event.getWhoClicked() instanceof Player player) {
                         if(event.isLeftClick()) {
                             if(artifactStatus[artifactUpgrade]) {
-                                PersistentDataContainer data = player.getPersistentDataContainer().get(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER);
-                                data.set(Utils.artifactKeys[artifact], PersistentDataType.INTEGER, artifactUpgrade);
-                                player.getPersistentDataContainer().set(Utils.playerDataKey, PersistentDataType.TAG_CONTAINER, data);
+                                synchronized(lock) {
+                                    DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArtifactSelection(artifact, artifactUpgrade));
+                                }
                             } else {
                                 Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
@@ -475,20 +482,122 @@ public final class IUIManager {
             }
         }
     }
-    private static final class ConfirmPurchaseDialogue extends CreeperInv {
-        private ConfirmPurchaseDialogue(ItemStack item, Runnable confirm, Runnable cancel) {
-            super(InventoryType.HOPPER, "确认购买？");
-            setItem(2, item);
-            setItem(0, ItemManager.CONFIRM, event -> confirm.run());
-            setItem(4, ItemManager.CANCEL, event -> cancel.run());
-        }
-    }
-    private static final class SettingsInv extends CreeperInv {
+    private static final class SettingsInv extends CreeperInv implements DynamicInv {
+        private final UUID uuid;
+        private final DatabaseUtils.MiscSettings miscSettings;
         private static final SettingsInv instance = new SettingsInv();
         private SettingsInv() {
+            super(InventoryType.PLAYER);
+            uuid = null;
+            miscSettings = null;
+        }
+        private SettingsInv(UUID uuid) {
             super(54, "设置");
+            this.uuid = uuid;
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            miscSettings = DatabaseUtils.fetchPlayerMiscSettings(uuid);
+            setItem(10, ItemManager.SHOW_GUIDEBOOK);
+            setItem(12, ItemManager.DEPLOY_COOLDOWN);
+            setItem(14, ItemManager.RANGED_ATTACK_INDICATOR);
+            setItem(19, miscSettings.shouldShowGuideBook() ? ItemManager.ENABLED : ItemManager.DISABLED);
+            setItem(21, miscSettings.hasDeployCooldown() ? ItemManager.ENABLED : ItemManager.DISABLED);
+            setItem(23, miscSettings.getRangedAttackIndicator().isDefault() ? ItemManager.DEFAULT : miscSettings.getRangedAttackIndicator().isTrue() ? ItemManager.ENABLED : ItemManager.DISABLED);
+            setItem(16, ItemManager.ITEM_SETTING);
+            setItem(25, ItemManager.SUB_SETTING, event -> {
+                if(event.getWhoClicked() instanceof final Player player) {
+                    new ItemSettingsInv(uuid).open(player);
+                }
+            });
+        }
+        @Override
+        protected void onClick(InventoryClickEvent event) {
+            super.onClick(event);
+            switch(event.getSlot()) {
+                case 10, 19 -> {
+                    DatabaseUtils.setPlayerMiscSettings(uuid, miscSettings.withShowGuideBook(!miscSettings.shouldShowGuideBook()));
+                    setItem(19, miscSettings.shouldShowGuideBook() ? ItemManager.ENABLED : ItemManager.DISABLED);
+                }
+                case 12, 21 -> {
+                    DatabaseUtils.setPlayerMiscSettings(uuid, miscSettings.withDeployCooldown(!miscSettings.hasDeployCooldown()));
+                    setItem(21, miscSettings.hasDeployCooldown() ? ItemManager.ENABLED : ItemManager.DISABLED);
+                }
+                case 14, 23 -> {
+                    DatabaseUtils.setPlayerMiscSettings(uuid, miscSettings.withRangedAttackIndicator(miscSettings.getRangedAttackIndicator().next()));
+                    setItem(23, miscSettings.getRangedAttackIndicator().isDefault() ? ItemManager.DEFAULT : miscSettings.getRangedAttackIndicator().isTrue() ? ItemManager.ENABLED : ItemManager.DISABLED);
+                }
+            }
+        }
+        @Override
+        public FastInv getInv(UUID uuid, PersistentDataContainer data) {
+            return new SettingsInv(uuid);
+        }
+    }
+    private static final class ItemSettingsInv extends CreeperInv {
+        private ItemSettingsInv(UUID uuid) {
+            super(54, "物品布局设置");
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(14, ItemManager.BORDER);
+            setItem(27, null);
+            setItem(35, null);
+            setItems(19, 25, ItemManager.BORDER);
+            setItem(0, ItemManager.BACK, event -> new SettingsInv(uuid).open(Bukkit.getPlayer(uuid)));
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            setItems(36, 44, ItemManager.HOTBAR_SLOT);
+            setItem(15, ItemManager.OFFHAND_SLOT);
+            setItem(10, ItemManager.SET_HELMET_SLOT);
+            setItem(11, ItemManager.SET_CHESTPLATE_SLOT);
+            setItem(12, ItemManager.SET_LEGGINGS_SLOT);
+            setItem(13, ItemManager.SET_BOOTS_SLOT);
+            final DatabaseUtils.ItemSettings itemSettings = DatabaseUtils.fetchPlayerItemSettings(uuid);
+            for(int i = 0; i < 2; i++) {
+                setItem(slot(itemSettings.getWeaponSlot(i)), ItemManager.SET_WEAPON_SLOTS[i]);
+            }
+            for(int i = 0; i < 3; i++) {
+                setItem(slot(itemSettings.getArtifactSlot(i)), ItemManager.SET_ARTIFACT_SLOTS[i]);
+            }
+            setItem(49, ItemManager.APPLY, event -> {
+                byte[] flags = new byte[] {0, -1, -1, -1, -1, -1};
+                for(int i = 0; i < 9; i++) {
+                    final ItemStack item = getInventory().getItem(i + 27);
+                    if(item != null) {
+                        flags[item.getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) + 1] = (byte) i;
+                    }
+                }
+                final ItemStack offhand = getInventory().getItem(16);
+                if(offhand != null) {
+                    flags[offhand.getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) + 1] = 40;
+                }
+                System.out.println(Arrays.toString(flags));
+                boolean isValid = true;
+                for(int i = 1; i <= 5; i++) {
+                    if(flags[i] == -1) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if(isValid) {
+                    DatabaseUtils.setPlayerItemSettings(uuid, itemSettings.withWeaponSlot(0, flags[1]).withWeaponSlot(1, flags[2]).withArtifactSlot(0, flags[3]).withArtifactSlot(1, flags[4]).withArtifactSlot(2, flags[5]));
+                } else {
+                    if(event.getWhoClicked() instanceof final Player player) {
+                        new InformationDialogue("错误：设置存在冲突，请重新设置", () -> open(player)).open(player);
+                    }
+                }
+            });
+        }
+        private static int slot(int slot) {
+            if(slot == 40) {
+                return 16;
+            }
+            return slot + 27;
+        }
+        @Override
+        public void onClick(InventoryClickEvent event) {
+            super.onClick(event);
+            if(event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof ItemSettingsInv) {
+                final int slot = event.getSlot();
+                event.setCancelled(!((slot >= 27 && slot < 36) || slot == 16));
+            }
         }
     }
     private static final class ServersInv extends CreeperInv {
@@ -501,11 +610,25 @@ public final class IUIManager {
             setItem(11, ItemManager.TDM);
             setItem(12, ItemManager.CTF);
             setItem(13, ItemManager.CQT);
-            setItem(16, new ItemStack(Material.BIRCH_DOOR), event -> {
+            setItem(16, ItemManager.LOBBY, event -> {
                 if(event.getWhoClicked() instanceof Player player) {
                     player.chat("/hub");
                 }
             });
+        }
+    }
+    private static final class ConfirmPurchaseDialogue extends CreeperInv {
+        private ConfirmPurchaseDialogue(ItemStack item, Runnable confirm, Runnable cancel) {
+            super(InventoryType.HOPPER, "确认购买？");
+            setItem(2, item);
+            setItem(0, ItemManager.CONFIRM, event -> confirm.run());
+            setItem(4, ItemManager.CANCEL, event -> cancel.run());
+        }
+    }
+    private static final class InformationDialogue extends CreeperInv {
+        private InformationDialogue(String message, Runnable okay) {
+            super(InventoryType.HOPPER, message);
+            setItem(2, ItemManager.OKAY, event -> okay.run());
         }
     }
 }

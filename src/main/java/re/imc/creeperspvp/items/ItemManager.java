@@ -35,11 +35,29 @@ public final class ItemManager {
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CLOSE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     public static final ItemStack BACK = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+    public static final ItemStack APPLY = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
     public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+    public static final ItemStack OKAY = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+    public static final ItemStack ENABLED = new ItemStack(Material.LIME_DYE);
+    public static final ItemStack DEFAULT = new ItemStack(Material.PURPLE_DYE);
+    public static final ItemStack DISABLED = new ItemStack(Material.GRAY_DYE);
+    public static final ItemStack SUB_SETTING = new ItemStack(Material.REPEATER);
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack[] WEAPON_SELECTORS = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD)};
     public static final ItemStack[] ARTIFACT_SELECTORS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
+    public static final ItemStack SHOW_GUIDEBOOK = new ItemStack(Material.BOOK);
+    public static final ItemStack DEPLOY_COOLDOWN = new ItemStack(Material.COMPASS);
+    public static final ItemStack RANGED_ATTACK_INDICATOR = new ItemStack(Material.BOW);
+    public static final ItemStack ITEM_SETTING = new ItemStack(Material.ARMOR_STAND);
+    public static final ItemStack HOTBAR_SLOT = new ItemStack(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
+    public static final ItemStack OFFHAND_SLOT = new ItemStack(Material.WHITE_BANNER);
+    public static final ItemStack SET_HELMET_SLOT = new ItemStack(Material.IRON_HELMET);
+    public static final ItemStack SET_CHESTPLATE_SLOT = new ItemStack(Material.IRON_CHESTPLATE);
+    public static final ItemStack SET_LEGGINGS_SLOT = new ItemStack(Material.IRON_LEGGINGS);
+    public static final ItemStack SET_BOOTS_SLOT = new ItemStack(Material.IRON_BOOTS);
+    public static final ItemStack[] SET_WEAPON_SLOTS = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD)};
+    public static final ItemStack[] SET_ARTIFACT_SLOTS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
     public static final ItemStack FFA = new ItemStack(Material.IRON_SWORD);
     public static final ItemStack TDM = new ItemStack(Material.PLAYER_HEAD);
     public static final ItemStack CTF = new ItemStack(Material.GREEN_BANNER);
@@ -113,14 +131,19 @@ public final class ItemManager {
             """), Component.text("""
             ALPHA 0.5.0
             ·新增-更多法器！
+            ·增强-冷酷战甲、凋零盔甲、蜘蛛盔甲的吸血率
+            ·削弱-末地水晶冷却10 -> 12
             ·功能-新UI！选择武器的两个UI和选择法器的三个UI被合并，新增设置和切换服务器
             ·功能-经验系统！等级沿用原版
+            ·功能-自定义物品栏布局
+            """), Component.text("""
             ·功能-玩家生命值现在会在玩家名下方显示
             ·功能-使用鞘翅滑翔时可以空手左键来推进
+            ·功能-方块类法器放置后会逐渐消失
             ·功能-火焰弹现在可以投掷为小火球，烈焰弹投掷为火球
-            """), Component.text("""
             ·功能-重新启用原版火焰所有机制，但是方块现在不会烧毁
             ·功能-火球可以像小火球那样直接点燃实体
+            """), Component.text("""
             ·功能-特殊箭矢不再能够被捡起
             ·修复-玩家不再能够捡起掉落物
             ·修复-弩在未购买时物品数据丢失
@@ -187,10 +210,30 @@ public final class ItemManager {
         BORDER.editMeta(meta -> meta.itemName(Component.empty()));
         CLOSE.editMeta(meta -> meta.itemName(Component.text("✖ 关闭", NamedTextColor.RED)));
         BACK.editMeta(meta -> meta.itemName(Component.text("◀ 返回", NamedTextColor.YELLOW)));
+        APPLY.editMeta(meta -> meta.itemName(Component.text("✔ 应用", NamedTextColor.BLUE)));
         CONFIRM.editMeta(meta -> meta.itemName(Component.text("✔ 确认", NamedTextColor.GREEN)));
         CANCEL.editMeta(meta -> meta.itemName(Component.text("✖ 取消", NamedTextColor.RED)));
+        OKAY.editMeta(meta -> meta.itemName(Component.text("✔ 确定", NamedTextColor.GREEN)));
+        ENABLED.editMeta(meta -> meta.itemName(Component.text("开启", NamedTextColor.GREEN)));
+        DEFAULT.editMeta(meta -> meta.itemName(Component.text("自动", NamedTextColor.DARK_PURPLE)));
+        DISABLED.editMeta(meta -> meta.itemName(Component.text("关闭", NamedTextColor.GRAY)));
+        SHOW_GUIDEBOOK.editMeta(meta -> {
+            meta.itemName(Component.text("自动显示指南", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("是否在加入游戏时自动弹出CreepersPVP指南", NamedTextColor.GRAY))));
+        });
+        DEPLOY_COOLDOWN.editMeta(meta -> {
+            meta.itemName(Component.text("进入战斗冷却", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("“进入战斗”是否在死亡后有一定冷却时间，防止误触", NamedTextColor.GRAY))));
+        });
+        RANGED_ATTACK_INDICATOR.editMeta(meta -> {
+            meta.itemName(Component.text("远程攻击指示器", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("是否在准星下方显示远程武器蓄力进度", NamedTextColor.GRAY), Component.text("不适用资源包时，你将无法实时看到远程武器蓄力进度", NamedTextColor.GRAY), Component.text("自动：未安装资源包时不显示", NamedTextColor.DARK_PURPLE))));
+        });
+        SUB_SETTING.editMeta(meta -> meta.itemName(Component.text("进入设置", NamedTextColor.RED)));
+        HOTBAR_SLOT.editMeta(meta -> meta.itemName(Component.text("快捷栏槽位 ▲", NamedTextColor.WHITE)));
+        OFFHAND_SLOT.editMeta(meta -> meta.itemName(Component.text("副手槽位 ▶", NamedTextColor.WHITE)));
         ARMOR_SELECTOR.editMeta(meta -> {
-            meta.itemName(Component.text("选择盔甲"));
+            meta.itemName(Component.text("选择盔甲", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             meta.addAttributeModifier(Attribute.GENERIC_LUCK, EMPTY_ATTRIBUTE_MODIFIER);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -198,7 +241,7 @@ public final class ItemManager {
         });
         for(final int[] i = new int[] {0}; i[0] < WEAPON_SELECTORS.length; i[0]++) {
             WEAPON_SELECTORS[i[0]].editMeta(meta -> {
-                meta.itemName(Component.text("选择武器#" + (i[0] + 1)));
+                meta.itemName(Component.text("选择武器#" + (i[0] + 1), NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
                 meta.addAttributeModifier(Attribute.GENERIC_LUCK, EMPTY_ATTRIBUTE_MODIFIER);
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -206,13 +249,33 @@ public final class ItemManager {
         }
         for(final int[] i = new int[] {0}; i[0] < ARTIFACT_SELECTORS.length; i[0]++) {
             ARTIFACT_SELECTORS[i[0]].editMeta(meta -> {
-                meta.itemName(Component.text("选择法器#" + (i[0] + 1)));
+                meta.itemName(Component.text("选择法器#" + (i[0] + 1), NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+        }
+        ITEM_SETTING.editMeta(meta -> {
+            meta.itemName(Component.text("物品布局设置", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("自定义你的装备在物品栏中的位置", NamedTextColor.GRAY))));
+        });
+        SET_HELMET_SLOT.editMeta(meta -> meta.itemName(Component.text("头盔", NamedTextColor.WHITE)));
+        SET_CHESTPLATE_SLOT.editMeta(meta -> meta.itemName(Component.text("胸甲", NamedTextColor.WHITE)));
+        SET_LEGGINGS_SLOT.editMeta(meta -> meta.itemName(Component.text("护腿", NamedTextColor.WHITE)));
+        SET_BOOTS_SLOT.editMeta(meta -> meta.itemName(Component.text("靴子", NamedTextColor.WHITE)));
+        for(final int[] i = new int[] {0}; i[0] < 2; i[0]++) {
+            SET_WEAPON_SLOTS[i[0]].editMeta(meta -> {
+                meta.itemName(Component.text("武器#" + (i[0] + 1), NamedTextColor.WHITE));
+                meta.getPersistentDataContainer().set(Utils.itemOrdinalKey, PersistentDataType.INTEGER, i[0]);
+            });
+        }
+        for(final int[] i = new int[] {0}; i[0] < 3; i[0]++) {
+            SET_ARTIFACT_SLOTS[i[0]].editMeta(meta -> {
+                meta.itemName(Component.text("法器#" + (i[0] + 1), NamedTextColor.WHITE));
+                meta.getPersistentDataContainer().set(Utils.itemOrdinalKey, PersistentDataType.INTEGER, i[0] + 2);
             });
         }
         FFA.editMeta(meta -> {
             meta.itemName(Component.text("进入FFA", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.lore(removeItalics(Arrays.asList(Component.text("你在这里", NamedTextColor.GRAY))));
             meta.setEnchantmentGlintOverride(CreepersPVP.mode == CreepersPVP.GameMode.FFA);
         });
         TDM.editMeta(meta -> {

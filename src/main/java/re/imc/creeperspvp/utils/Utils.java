@@ -11,7 +11,9 @@ import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.scoreboard.*;
+import org.jetbrains.annotations.NotNull;
 import re.imc.creeperspvp.*;
 import re.imc.creeperspvp.items.ArmorManager;
 import re.imc.creeperspvp.items.ArtifactManager;
@@ -27,6 +29,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
 import java.util.ListIterator;
@@ -51,6 +54,7 @@ public final class Utils {
     public static NamespacedKey meleeAttackEffectDataKey;
     public static NamespacedKey rangedAttackEffectIDKey;
     public static NamespacedKey rangedAttackEffectDataKey;
+    public static NamespacedKey sourceEntityKey;
     public static NamespacedKey itemOrdinalKey;
     public static NamespacedKey weaponIDKey;
     public static NamespacedKey artifactIDKey;
@@ -61,7 +65,7 @@ public final class Utils {
     public static NamespacedKey artifactSelectorIDKey;
     public static NamespacedKey utilIDKey;
     public static NamespacedKey utilDataKey;
-    public static NamespacedKey playerDataKey;
+    public static PersistentDataType<byte[], UUID> UUID = new UUIDDataType();
     public static final byte UTIL_SPAWN = 0;
     public static final byte ARMOR_AURA_FREEZE = 0;
     public static final byte ARMOR_AURA_LIFESTEAL = 1;
@@ -82,7 +86,7 @@ public final class Utils {
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
-    private static final UUID resourcePackUUID = UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447"); //使用五郎的UUID
+    private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447"); //使用五郎的UUID
     private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create(""), "")).prompt(Component.text("WIP")).required(false).replace(true).build();
     private Utils() {}
     public static void init() {
@@ -100,6 +104,7 @@ public final class Utils {
         meleeAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-data");
         rangedAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-id");
         rangedAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-data");
+        sourceEntityKey = new NamespacedKey(CreepersPVP.instance, "source-entity");
         itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
         weaponIDKey = new NamespacedKey(CreepersPVP.instance, "weapon-id");
         artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
@@ -110,7 +115,6 @@ public final class Utils {
         artifactSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "artifact");
         utilIDKey = new NamespacedKey(CreepersPVP.instance, "util");
         utilDataKey = new NamespacedKey(CreepersPVP.instance, "util-data");
-        playerDataKey = new NamespacedKey(CreepersPVP.instance, "player-data");
         for(final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.BLOCK_EXPLOSION_DROP_DECAY, true);
@@ -175,12 +179,18 @@ public final class Utils {
         dummy.remove();
     }
     public static void playerJoin(Player player) {
-        // CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
+        //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
         //player.sendResourcePacks(resourcePackRequest);
-        UUID uuid = player.getUniqueId();
+        final UUID uuid = player.getUniqueId();
+        final DatabaseUtils.MiscSettings miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
+        if(miscSettings.shouldShowGuideBook()) {
+            player.openBook(ItemManager.GUIDEBOOK);
+        }
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         final Objective health = scoreboard.registerNewObjective("health", Criteria.HEALTH, Component.text("HP", NamedTextColor.RED), RenderType.HEARTS);
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
+        final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
+        level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.getScore(".emeralds").setScore(2);
@@ -208,10 +218,10 @@ public final class Utils {
                             final int startTime = data.get(customItemStartUsingTimeKey, PersistentDataType.INTEGER);
                             final int customMaxUseTime = getCustomMaxUseDuration(item, player);
                             int usedTime = data.get(customItemUsedTimeKey, PersistentDataType.INTEGER);
-                            final Duration duration = Duration.ofMillis(Math.max(1, customMaxUseTime / ItemManager.PROGRESS_BARS.length) * 50L);
-                            player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, duration, duration));
-                            player.sendTitlePart(TitlePart.SUBTITLE, ItemManager.PROGRESS_BARS[Math.min(usedTime * ItemManager.PROGRESS_BARS.length / customMaxUseTime, ItemManager.PROGRESS_BARS.length - 1)]);
-                            player.sendTitlePart(TitlePart.TITLE, Component.empty());
+                            if(miscSettings.getRangedAttackIndicator().isTrue() || (miscSettings.getRangedAttackIndicator().isDefault() && !player.hasResourcePack())) {
+                                final Duration duration = Duration.ofMillis(Math.max(1, customMaxUseTime / ItemManager.PROGRESS_BARS.length) * 50L);
+                                player.showTitle(Title.title(Component.empty(), ItemManager.PROGRESS_BARS[Math.min(usedTime * ItemManager.PROGRESS_BARS.length / customMaxUseTime, ItemManager.PROGRESS_BARS.length - 1)], Title.Times.times(Duration.ZERO, duration, duration)));
+                            }
                             if(startTime + usedTime + 1 == currentTime && usedTime < customMaxUseTime) {
                                 data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, ++usedTime);
                                 player.setActiveItemRemainingTime(item.getMaxItemUseDuration(player) - usedTime * vanillaMaxUseDuration / customMaxUseTime);
@@ -245,11 +255,6 @@ public final class Utils {
     }
     public static void playerInit(Player player) {
         removeGainArtifactSchedulers(player.getUniqueId());
-        final PersistentDataContainer pdc = player.getPersistentDataContainer();
-        PersistentDataContainer data = pdc.get(playerDataKey, PersistentDataType.TAG_CONTAINER);
-        if(data == null) {
-            pdc.set(playerDataKey, PersistentDataType.TAG_CONTAINER, pdc.getAdapterContext().newPersistentDataContainer());
-        }
         final PlayerInventory inv = player.getInventory();
         inv.clear();
         inv.setItem(0, ItemManager.SELECT_ARMOR);
@@ -265,7 +270,9 @@ public final class Utils {
         player.setRemainingAir(300);
         player.setFireTicks(-20);
         player.setFreezeTicks(0);
-        player.setCooldown(Material.COMPASS, 50);
+        if(DatabaseUtils.getPlayerMiscSettings(player.getUniqueId()).hasDeployCooldown()) {
+            player.setCooldown(Material.COMPASS, 50);
+        }
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setSaturation(20);
@@ -462,5 +469,28 @@ public final class Utils {
     }
     private static int getCustomModelData(ItemStack item, LivingEntity entity, int usedDuration) {
         return usedDuration * 3 / getCustomMaxUseDuration(item, entity);
+    }
+    public static final class UUIDDataType implements PersistentDataType<byte[], UUID> {
+        private UUIDDataType() {}
+        @Override
+        public @NotNull Class<byte[]> getPrimitiveType() {
+            return byte[].class;
+        }
+        @Override
+        public @NotNull Class<UUID> getComplexType() {
+            return UUID.class;
+        }
+        @Override
+        public byte @NotNull [] toPrimitive(UUID complex, @NotNull PersistentDataAdapterContext context) {
+            final ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+            buffer.putLong(complex.getMostSignificantBits());
+            buffer.putLong(complex.getLeastSignificantBits());
+            return buffer.array();
+        }
+        @Override
+        public @NotNull UUID fromPrimitive(byte[] primitive, @NotNull PersistentDataAdapterContext context) {
+            final ByteBuffer buffer = ByteBuffer.wrap(primitive);
+            return new UUID(buffer.getLong(), buffer.getLong());
+        }
     }
 }

@@ -496,7 +496,7 @@ public final class IUIManager {
             this.uuid = uuid;
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
-            miscSettings = DatabaseUtils.fetchPlayerMiscSettings(uuid);
+            miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
             setItem(10, ItemManager.SHOW_GUIDEBOOK);
             setItem(12, ItemManager.DEPLOY_COOLDOWN);
             setItem(14, ItemManager.RANGED_ATTACK_INDICATOR);
@@ -568,7 +568,6 @@ public final class IUIManager {
                 if(offhand != null) {
                     flags[offhand.getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) + 1] = 40;
                 }
-                System.out.println(Arrays.toString(flags));
                 boolean isValid = true;
                 for(int i = 1; i <= 5; i++) {
                     if(flags[i] == -1) {

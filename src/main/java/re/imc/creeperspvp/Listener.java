@@ -1,15 +1,21 @@
 package re.imc.creeperspvp;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.KeybindComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.BlockState;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockSupport;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fire;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.*;
@@ -17,11 +23,11 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import re.imc.creeperspvp.items.ArtifactManager;
-import re.imc.creeperspvp.items.ItemManager;
 import re.imc.creeperspvp.iui.IUIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,9 +49,11 @@ import java.time.Duration;
 import java.util.*;
 public final class Listener implements org.bukkit.event.Listener {
     public static final Listener instance = new Listener();
+    private static final Component elytraBoostWithExplosionWarning = Component.textOfChildren(Component.text("你正在使用带有烟火之星的烟花火箭加速滑翔！", NamedTextColor.YELLOW), Component.newline(), Component.text("请空手按 ", NamedTextColor.YELLOW), Component.keybind("key.attack", NamedTextColor.YELLOW), Component.text(" 进行加速！", NamedTextColor.YELLOW));
     private static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
     private static final Component leaveDeathSpectate = Component.textOfChildren(Component.text("按 "), Component.keybind("key.sneak"), Component.text(" 退出旁观"));
     public static final Title freeSpectateTitle = Title.title(Component.text("正在自由旁观"), Component.text("输入 /spawn 退出观战"), spectateTitleTimes);
+    private static final BlockFace[] NEIGHBORS = new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
     private Listener() {}
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
@@ -85,7 +93,6 @@ public final class Listener implements org.bukkit.event.Listener {
         DatabaseUtils.playerJoin(event.getPlayer().getUniqueId());
         Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
-        event.getPlayer().openBook(ItemManager.GUIDEBOOK);
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
@@ -117,6 +124,32 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onEntityExplode(EntityExplodeEvent event) {
         event.blockList().clear();
+        final PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
+        if(data.has(Utils.sourceEntityKey, Utils.UUID) && data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
+            final Player player = Bukkit.getPlayer(data.get(Utils.sourceEntityKey, Utils.UUID));
+            if(player != null) {
+                final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                final PlayerInventory inv = player.getInventory();
+                final int slot = Utils.findItem(inv, itemOrdinal);
+                final ItemStack item = inv.getItem(slot);
+                if(item != null && item.hasItemMeta()) {
+                    final PersistentDataContainer itemData = item.getItemMeta().getPersistentDataContainer();
+                    if(itemData.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
+                        final int artifactID = itemData.get(Utils.artifactIDKey, PersistentDataType.SHORT);
+                        if((ArtifactManager.useEvents[artifactID] & ArtifactManager.ENTITY_EXPLODE) > 0) {
+                            if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                                final ItemStack clone = item.clone();
+                                if(item.getAmount() == 1) {
+                                    final ItemStack unavailable = clone.withType(Material.BARRIER);
+                                    player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                                }
+                                Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.withType(ArtifactManager.artifacts[artifactID][1].getType()).asOne());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onInventoryOpen(InventoryOpenEvent event) {
@@ -126,7 +159,7 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockBreak(BlockBreakEvent event) {
-        if(event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if(event.getPlayer().getGameMode() != GameMode.CREATIVE && event.getBlock().getType() != Material.FIRE && event.getBlock().getType() != Material.SOUL_FIRE) {
             event.setCancelled(true);
         }
     }
@@ -146,9 +179,29 @@ public final class Listener implements org.bukkit.event.Listener {
             arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         }
     }
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockBurn(BlockBurnEvent event) {
         event.setCancelled(true);
+        final Block ignitingBlock = event.getIgnitingBlock();
+        if(ignitingBlock != null && ignitingBlock.getBlockData() instanceof Fire fire) {
+            final BlockFace ignore = ignitingBlock.getFace(event.getBlock());
+            boolean flag = true;
+            for(BlockFace face : NEIGHBORS) {
+                if(face != ignore && ignitingBlock.getRelative(face).getType().isFlammable()) {
+                    flag = false;
+                    break;
+                }
+            }
+            if(flag && ((ignore != BlockFace.DOWN && ignitingBlock.getRelative(BlockFace.DOWN).getBlockData().isFaceSturdy(BlockFace.UP, BlockSupport.FULL)) || fire.getAge() > 3)) {
+                ignitingBlock.setType(Material.AIR);
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockSpread(BlockSpreadEvent event) {
+        if(event.getSource().getType() == Material.FIRE && Utils.random.nextDouble() >= 1) {
+            event.setCancelled(true);
+        }
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockFromTo(BlockFromToEvent event) {
@@ -173,24 +226,56 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerReadyArrow(PlayerReadyArrowEvent event) {
-        final ItemStack arrow = event.getArrow();
         final Player player = event.getPlayer();
-        if(arrow.hasItemMeta()) {
-            final PersistentDataContainer data = arrow.getItemMeta().getPersistentDataContainer();
+        if(player.getActiveItemUsedTime() > 0) {
+            final ItemStack arrow = event.getArrow();
+            if(arrow.hasItemMeta()) {
+                final PersistentDataContainer data = arrow.getItemMeta().getPersistentDataContainer();
+                if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
+                    final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
+                    if((ArtifactManager.useEvents[artifactID] & ArtifactManager.READY_ARROW) > 0) {
+                        if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                            player.setCooldown(arrow.getType(), ArtifactManager.useCooldowns[artifactID]);
+                        }
+                        if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                            final PlayerInventory inv = player.getInventory();
+                            final ItemStack clone = arrow.clone();
+                            final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                            if(arrow.getAmount() == 1) {
+                                final ItemStack unavailable = clone.withType(Material.BARRIER);
+                                final int slot = Utils.findItem(inv, itemOrdinal);
+                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, unavailable));
+                            }
+                            Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerElytraBoost(PlayerElytraBoostEvent event) {
+        final ItemStack item = event.getItemStack();
+        final Player player = event.getPlayer();
+        if(item.hasItemMeta()) {
+            if(((FireworkMeta) item.getItemMeta()).hasEffects()) {
+                player.sendActionBar(elytraBoostWithExplosionWarning);
+            }
+            final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
-                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.READY_ARROW) > 0) {
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.ELYTRA_BOOST) > 0) {
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
-                        player.setCooldown(arrow.getType(), ArtifactManager.useCooldowns[artifactID]);
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
                     if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                         final PlayerInventory inv = player.getInventory();
-                        final ItemStack clone = arrow.clone();
+                        final ItemStack clone = item.clone();
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
-                        if(arrow.getAmount() == 1) {
+                        if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, unavailable));
+                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
@@ -267,8 +352,12 @@ public final class Listener implements org.bukkit.event.Listener {
         final Player player = event.getPlayer();
         final PlayerInventory inv = player.getInventory();
         final ItemStack item = inv.getItem(event.getHand());
+        final PersistentDataContainer entityData = event.getEntity().getPersistentDataContainer();
+        entityData.set(Utils.sourceEntityKey, Utils.UUID, player.getUniqueId());
         if(item.hasItemMeta()) {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+            final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+            data.copyTo(entityData, false);
             if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
                 if((ArtifactManager.useEvents[artifactID] & ArtifactManager.PLACE_ENTITY) > 0) {
@@ -277,13 +366,24 @@ public final class Listener implements org.bukkit.event.Listener {
                     }
                     if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                         final ItemStack clone = item.clone();
-                        final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                         if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
                             player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
+                    }
+                } else if((ArtifactManager.useEvents[artifactID] & ArtifactManager.AFTER_PLACE_ENTITY) > 0) {
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
+                    }
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        final ItemStack clone = item.clone();
+                        if(item.getAmount() == 1) {
+                            final ItemStack inUse = clone.withType(Material.BARRIER);
+                            final int slot = Utils.findItem(inv, itemOrdinal);
+                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, inUse));
+                        }
                     }
                 }
             } else {

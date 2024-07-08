@@ -372,6 +372,7 @@ public final class WeaponManager {
             weapons[LIGHTNING_HARP_CROSSBOW][i].editMeta(meta -> {
                 meta.addEnchant(Enchantment.MULTISHOT, 1, true);
                 meta.addEnchant(Enchantment.CHANNELING, 1, true);
+                meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("雷电琴弩", NamedTextColor.AQUA));
                 meta.lore(removeItalics(Arrays.asList(Component.text("闪电的力量极大地改变了这张弩发射时的声音。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1, 0.7f);
@@ -418,9 +419,10 @@ public final class WeaponManager {
             });
             for(final short[] j = new short[]{0}; j[0] < weapons.length; j[0]++) {
                 if(weapons[j[0]][i] != null) {
+                    weapons[j[0]][i] = Utils.modifyItem(weapons[j[0]][i], "[{function:\"set_components\", components:{can_break:{predicates:[{blocks:\"#minecraft:fire\"}]}}}]");
                     weapons[j[0]][i].editMeta(meta -> {
                         meta.setUnbreakable(true);
-                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                        meta.addItemFlags(ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE);
                         if(!meta.hasRarity()) {
                             meta.setRarity(ItemRarity.COMMON);
                         }

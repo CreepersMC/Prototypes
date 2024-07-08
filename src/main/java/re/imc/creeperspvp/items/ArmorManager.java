@@ -97,7 +97,7 @@ public final class ArmorManager {
     };
     public static final PotionEffect[][] effects = new PotionEffect[][] {{new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, true, true)}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.JUMP_BOOST, -1, 1, false, false, true)}, {}, {}, {}, {}, {}, {}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.CONDUIT_POWER, -1, 0, false, false, true), new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, true)}, {}, {}, {}, {new PotionEffect(PotionEffectType.INVISIBILITY, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {new PotionEffect(PotionEffectType.SLOW_FALLING, -1, 0, false, false, true)}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
     public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, null, null, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
-    public static final short[] selections = new short[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, GHAST_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
+    public static final short[] selections = new short[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
     public static final short[][] upgrades = new short[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
     public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private ArmorManager() {}
@@ -323,6 +323,7 @@ public final class ArmorManager {
         }
         armor[GHAST_ARMOR][1].editMeta(meta -> {
             meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(Utils.armorBonusKey, -0.67, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.CHEST));
+            meta.addAttributeModifier(Attribute.GENERIC_SCALE, new AttributeModifier(Utils.armorBonusKey, 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlotGroup.CHEST));
         });
         addArmorAttributes(armor[GHAST_ARMOR], new double[] {2, 5, 5, 2}, new double[] {0, 0.7, 1, 0}, new double[] {0, 0, 0, 0});
         for(ItemStack armor : armor[SNOW_ARMOR]) {
@@ -535,7 +536,7 @@ public final class ArmorManager {
                 meta.itemName(Component.text("登山装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件结实的护装非常适合对抗冰山上凛冽的寒风。", NamedTextColor.GRAY))));
                 if(meta instanceof ArmorMeta armorMeta) {
-                    //armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
                 }
                 addArmorAttributes(meta, 9, 1, 1);
             });
@@ -545,7 +546,7 @@ public final class ArmorManager {
                 meta.itemName(Component.text("山羊装", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("用山羊的毛皮制作而成，穿戴后会感觉到跳跃感犹如可以从一个山峰蹦到另一个山峰一样轻浮。", NamedTextColor.GRAY))));
                 if(meta instanceof ArmorMeta armorMeta) {
-                    //armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
+                    armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.FLOW));
                 }
                 addArmorAttributes(meta, 9, 1, 1);
             });

@@ -25,6 +25,7 @@ public final class DatabaseUtils {
     private static PreparedStatement fetchPlayerMiscSettings;
     private static PreparedStatement setPlayerMiscSettings;
     private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, MiscSettings> playerMiscSettingsCache = new ConcurrentHashMap<>();
     private static Connection connection = null;
     private static final String TABLE_NAME = "creeperspvp_player_data";
     private static final String databaseInit = """
@@ -40,7 +41,7 @@ public final class DatabaseUtils {
             `weapon_status` BINARY(10) NOT NULL DEFAULT b'00000000010000000000000000000000000100000000000000000000000000000000000000000000',
             `artifact_status` BINARY(32) NOT NULL DEFAULT b'1000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000',
             `item_settings` BINARY(11) NOT NULL DEFAULT b'0001100000001001001000110000000010010111110010100000000000000001000000100000001100101000',
-            `misc_settings` BIT(16) NOT NULL DEFAULT b'1000000000000000',
+            `misc_settings` BIT(16) NOT NULL DEFAULT b'1100000000000000',
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
@@ -97,9 +98,11 @@ public final class DatabaseUtils {
     }
     public static void playerJoin(UUID uuid) {
         playerLocks.put(uuid, new Object());
-        DatabaseUtils.registerPlayerIfNotExists(uuid);
+        registerPlayerIfNotExists(uuid);
+        playerMiscSettingsCache.put(uuid, fetchPlayerMiscSettings(uuid));
     }
     public static void playerQuit(UUID uuid) {
+        playerMiscSettingsCache.remove(uuid);
         playerLocks.remove(uuid);
     }
     public static Object getPlayerLock(UUID uuid) {
@@ -328,7 +331,13 @@ public final class DatabaseUtils {
             CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
         }
     }
-    public static MiscSettings fetchPlayerMiscSettings(UUID uuid) {
+    public static MiscSettings getPlayerMiscSettings(UUID uuid) {
+        if(playerMiscSettingsCache.containsKey(uuid)) {
+            return playerMiscSettingsCache.get(uuid);
+        }
+        return fetchPlayerMiscSettings(uuid);
+    }
+    private static MiscSettings fetchPlayerMiscSettings(UUID uuid) {
         try {
             final ResultSet result;
             synchronized(fetchPlayerMiscSettings) {
@@ -336,7 +345,9 @@ public final class DatabaseUtils {
                 result = fetchPlayerMiscSettings.executeQuery();
             }
             if(result.next()) {
-                return new MiscSettings(result.getBytes("misc_settings"));
+                final MiscSettings settings = new MiscSettings(result.getBytes("misc_settings"));
+                playerMiscSettingsCache.put(uuid, settings);
+                return settings;
             }
         } catch(SQLException e) {
             CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
@@ -345,6 +356,7 @@ public final class DatabaseUtils {
     }
     public static void setPlayerMiscSettings(UUID uuid, MiscSettings settings) {
         try {
+            playerMiscSettingsCache.put(uuid, settings);
             synchronized(setPlayerMiscSettings) {
                 setPlayerMiscSettings.setString(1, booleansToString(settings.asBooleans()));
                 setPlayerMiscSettings.setString(2, uuid.toString());

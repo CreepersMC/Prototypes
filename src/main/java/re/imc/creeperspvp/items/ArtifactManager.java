@@ -77,6 +77,11 @@ public final class ArtifactManager {
     public static final short TIPPED_ARROW_OF_POISON = CATEGORY_PROJECTILES + 50;
     public static final short TIPPED_ARROW_OF_WEAKNESS = CATEGORY_PROJECTILES + 51;
     public static final short FIREWORK_ROCKET = CATEGORY_PROJECTILES + 52;
+    public static final short FIREWORK_ROCKET_SHADOW = CATEGORY_PROJECTILES + 53;
+    public static final short FIREWORK_ROCKET_TWINKLE = CATEGORY_PROJECTILES + 54;
+    public static final short FIREWORK_ROCKET_CREEPER = CATEGORY_PROJECTILES + 55;
+    public static final short FIREWORK_ROCKET_HELLFIRE = CATEGORY_PROJECTILES + 56;
+    public static final short FIREWORK_ROCKET_HEAVY = CATEGORY_PROJECTILES + 57;
     public static final short TNT = CATEGORY_EXPLOSIVES_AND_TRAPS;
     public static final short END_CRYSTAL = CATEGORY_EXPLOSIVES_AND_TRAPS + 2;
     public static final short FISHING_ROD = CATEGORY_EXPLOSIVES_AND_TRAPS + 3;
@@ -146,16 +151,20 @@ public final class ArtifactManager {
     public static final short CONSUME = 4;
     public static final short LAUNCH_PROJECTILE = 8;
     public static final short READY_ARROW = 16;
-    public static final short PLACE_BLOCK = 32;
-    public static final short PLACE_ENTITY = 64;
+    public static final short ELYTRA_BOOST = 32;
+    public static final short PLACE_BLOCK = 64;
+    public static final short PLACE_ENTITY = 128;
+    public static final short ENTITY_EXPLODE = 256;
+    public static final short ENTITY_DEATH = 512;
+    public static final short AFTER_PLACE_ENTITY = ENTITY_EXPLODE | ENTITY_DEATH;
     public static final short[] useEvents = new short[] {
-        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        PLACE_BLOCK, 0, PLACE_ENTITY, 0, 0, 0, 0, 0, 0, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
+        LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW | ELYTRA_BOOST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PLACE_BLOCK, 0, ENTITY_EXPLODE, 0, 0, 0, 0, 0, 0, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME | PLACE_BLOCK, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     public static final int[] gainCooldowns = new int[] {
-        20, 40, 300, -1, 80, 80, 80, 80, 100, 720, 320, -1, 240, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 180, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        20, 40, 300, -1, 80, 80, 60, 60, 100, 720, 360, -1, 420, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 180, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         120, -1, 240, -1, -1, -1, -1, -1, -1, 240, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         90, 180, 120, 360, 1080, 60, -1, 90, 240, 90, 240, 60, 180, 60, 180, 300, 180, 60, 180, 180, 180, 30, 150, 150, 60, 150, 90, 150, 30, 240, 240, 30, 180, 60, 60, 60, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         480, 480, 480, 480, 480, 480, 480, 480, 480, 480, -1, 480, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
@@ -193,7 +202,7 @@ public final class ArtifactManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("可以用于防御或提供增益效果的物品", NamedTextColor.DARK_AQUA), enterOnClick)));
         });
         final ItemStack[] artifacts0 = new ItemStack[] {
-            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 1), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.FIREWORK_ROCKET, 3), null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 2), new ItemStack(Material.FIRE_CHARGE, 2), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 1), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.FIREWORK_ROCKET, 3), null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), new ItemStack(Material.WATER_BUCKET), new ItemStack(Material.PUFFERFISH_BUCKET), new ItemStack(Material.AXOLOTL_BUCKET), new ItemStack(Material.LAVA_BUCKET), new ItemStack(Material.POWDER_SNOW_BUCKET), new ItemStack(Material.COBWEB, 2), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), null, new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
@@ -201,6 +210,7 @@ public final class ArtifactManager {
         //for(short i = 0; i < 256; i++) {
         //    System.out.print(i + " ");
         //    System.out.println(artifacts0[i] == null ? "null" : artifacts0[i].getType());
+        //    System.out.println(useEvents[i]);
         //}
         for(int i = 0; i < artifacts0.length; i++) {
             artifacts[i][0] = new ItemStack(Material.GRAY_DYE);
@@ -216,8 +226,8 @@ public final class ArtifactManager {
                 meta.setCustomModelData(1);
             });
             artifacts[EXPLOSION_CHARGE][i].editMeta(meta -> {
-                meta.itemName(Component.text("爆破弹", NamedTextColor.GREEN));
-                meta.setCustomModelData(2);
+                meta.itemName(Component.text("爆破弹", NamedTextColor.WHITE));
+                //meta.setCustomModelData(2);
             });
             artifacts[ICE_CHARGE][i].editMeta(meta -> {
                 meta.itemName(Component.text("冰弹", NamedTextColor.BLUE));
@@ -490,16 +500,63 @@ public final class ArtifactManager {
                     fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.WHITE).build());
                 }
             });
+            /*
+            artifacts[FIREWORK_ROCKET_SHADOW][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.DARK_PURPLE));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.BLUE).build());
+                }
+            });
+            artifacts[FIREWORK_ROCKET_TWINKLE][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.YELLOW));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.BLUE).build());
+                }
+            });
+            artifacts[FIREWORK_ROCKET_SHADOW][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.DARK_PURPLE));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.BLUE).build());
+                }
+            });
+            artifacts[FIREWORK_ROCKET_SHADOW][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.DARK_PURPLE));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.PURPLE).withFade(Color.BLUE).build());
+                }
+            });
+            artifacts[FIREWORK_ROCKET_HEAVY][i].editMeta(meta -> {
+                meta.itemName(Component.text("烟花火箭", NamedTextColor.BLUE));
+                if(meta instanceof FireworkMeta fireworkMeta) {
+                    fireworkMeta.setPower(0);
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.PURPLE).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.RED).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.PURPLE).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.BLUE).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.BLUE).build());
+                    fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.BLUE).withFade(Color.BLUE).build());
+                }
+            });
+             */
             artifacts[TNT][i].editMeta(meta -> {
                 meta.itemName(Component.text("TNT", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("来啊，把它点着！还能出什么事不成？", NamedTextColor.GRAY))));
             });
-            artifacts[TNT][i] = Utils.modifyItem(artifacts[TNT][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
+            artifacts[TNT][i] = Utils.modifyItem(artifacts[TNT][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             artifacts[END_CRYSTAL][i].editMeta(meta -> {
                 meta.itemName(Component.text("末地水晶", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("末地水晶的力量将令敌人终生难忘。", NamedTextColor.GRAY))));
             });
-            artifacts[END_CRYSTAL][i] = Utils.modifyItem(artifacts[END_CRYSTAL][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
+            artifacts[END_CRYSTAL][i] = Utils.modifyItem(artifacts[END_CRYSTAL][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             artifacts[FISHING_ROD][i].editMeta(meta -> {
                 meta.itemName(Component.text("钓鱼竿", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("真正的冒险家都知道钓鱼竿是个好东西，它的作用可不仅仅是钓鱼。", NamedTextColor.GRAY))));
@@ -508,7 +565,7 @@ public final class ArtifactManager {
                 meta.itemName(Component.text("", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             });
-            artifacts[COBWEB][i] = Utils.modifyItem(artifacts[COBWEB][i], "[{function:\"set_components\", components:{can_place_on:{show_in_tooltip:false}}}]");
+            artifacts[COBWEB][i] = Utils.modifyItem(artifacts[COBWEB][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             artifacts[CARROT][i].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
             artifacts[GOLDEN_CARROT][i].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
             artifacts[APPLE][i].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
@@ -546,6 +603,7 @@ public final class ArtifactManager {
             artifacts[HONEY_BOTTLE][i].editMeta(meta -> meta.itemName(Component.text("蜂蜜瓶", NamedTextColor.WHITE)));
             artifacts[COOKIE][i].editMeta(meta -> meta.itemName(Component.text("曲奇", NamedTextColor.WHITE)));
             artifacts[SWEET_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("甜浆果", NamedTextColor.WHITE)));
+            artifacts[SWEET_BERRIES][i] = Utils.modifyItem(artifacts[SWEET_BERRIES][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             artifacts[GLOW_BERRIES][i].editMeta(meta -> meta.itemName(Component.text("发光浆果", NamedTextColor.WHITE)));
             artifacts[MILK_BUKET][i].editMeta(meta -> meta.itemName(Component.text("奶桶", NamedTextColor.WHITE)));
             artifacts[MUNDANE_POTION][i].editMeta(meta -> {
@@ -622,7 +680,7 @@ public final class ArtifactManager {
                 if(artifacts[j[0]][i] != null) {
                     artifacts[j[0]][i].editMeta(meta -> {
                         meta.setUnbreakable(true);
-                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                        meta.addItemFlags(ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE);
                         if(!meta.hasRarity()) {
                             meta.setRarity(ItemRarity.COMMON);
                         }

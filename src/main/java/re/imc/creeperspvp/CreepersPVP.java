@@ -15,7 +15,7 @@ public final class CreepersPVP extends JavaPlugin {
     public static String databasePort = "3306";
     public static String database = "creepersmc";
     public static String databaseUsername = "root";
-    public static String databasePassword = "1145141919810";
+    public static String databasePassword = "password";
     private static Logger logger;
     @Override
     public void onEnable() {

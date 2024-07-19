@@ -6,7 +6,6 @@ import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.KeybindComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
@@ -14,8 +13,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockSupport;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Fire;
+import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.*;
@@ -27,6 +29,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import re.imc.creeperspvp.items.ArmorManager;
 import re.imc.creeperspvp.items.ArtifactManager;
 import re.imc.creeperspvp.iui.IUIManager;
 import org.bukkit.Bukkit;
@@ -108,6 +111,10 @@ public final class Listener implements org.bukkit.event.Listener {
         event.setCancelled(true);
     }
     @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerPickUpArrow(PlayerPickupArrowEvent event) {
+        event.setCancelled(true);
+    }
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryClick(InventoryClickEvent event) {
         if((event.isRightClick() && ((event.getCurrentItem() != null && event.getCurrentItem().getAmount() > 1) || event.getCursor().getAmount() > 1)) || event.getSlotType() == InventoryType.SlotType.ARMOR) {
             event.setCancelled(true);
@@ -115,6 +122,10 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryDrag(InventoryDragEvent event) {
+        event.setCancelled(true);
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onLeavesDecay(LeavesDecayEvent event) {
         event.setCancelled(true);
     }
     @EventHandler(priority = EventPriority.LOW)
@@ -163,7 +174,19 @@ public final class Listener implements org.bukkit.event.Listener {
             event.setCancelled(true);
         }
     }
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        final Player player = event.getPlayer();
+        final short armor = Utils.getArmor(player);
+        if(armor == ArmorManager.GHOSTLY_ARMOR) {
+            if(event.isSneaking()) {
+                player.addPotionEffects(List.of(ArmorManager.effects[ArmorManager.GHOST_KINDLER]));
+            } else {
+                player.removePotionEffect(PotionEffectType.INVISIBILITY);
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityShootBow(EntityShootBowEvent event) {
         ItemStack bow = event.getBow();
         if(bow != null) {
@@ -180,20 +203,37 @@ public final class Listener implements org.bukkit.event.Listener {
         }
     }
     @EventHandler(priority = EventPriority.LOW)
+    public void onBlockFade(BlockFadeEvent event) {
+        if(event.getBlock().getType() != Material.FIRE) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockForm(BlockFormEvent event) {
+        final Material material = event.getNewState().getType();
+        if(material == Material.COBBLESTONE || material == Material.STONE || material == Material.OBSIDIAN) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockBurn(BlockBurnEvent event) {
         event.setCancelled(true);
         final Block ignitingBlock = event.getIgnitingBlock();
         if(ignitingBlock != null && ignitingBlock.getBlockData() instanceof Fire fire) {
             final BlockFace ignore = ignitingBlock.getFace(event.getBlock());
-            boolean flag = true;
-            for(BlockFace face : NEIGHBORS) {
-                if(face != ignore && ignitingBlock.getRelative(face).getType().isFlammable()) {
-                    flag = false;
-                    break;
-                }
-            }
-            if(flag && ((ignore != BlockFace.DOWN && ignitingBlock.getRelative(BlockFace.DOWN).getBlockData().isFaceSturdy(BlockFace.UP, BlockSupport.FULL)) || fire.getAge() > 3)) {
+            if(ignore == BlockFace.DOWN && fire.getAge() == 15 && Utils.random.nextInt(4) == 0) {
                 ignitingBlock.setType(Material.AIR);
+            } else {
+                boolean flag = true;
+                for(final BlockFace face : NEIGHBORS) {
+                    if(face != ignore && ignitingBlock.getRelative(face).getType().isFlammable()) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if(flag && ((ignore != BlockFace.DOWN && ignitingBlock.getRelative(BlockFace.DOWN).getBlockData().isFaceSturdy(BlockFace.UP, BlockSupport.FULL)) || fire.getAge() > 3)) {
+                    ignitingBlock.setType(Material.AIR);
+                }
             }
         }
     }
@@ -205,9 +245,7 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockFromTo(BlockFromToEvent event) {
-        if(!event.getToBlock().isReplaceable()) {
-            event.setCancelled(true);
-        }
+        transientBlockForm(event.getToBlock().getLocation().clone(), event.getBlock().getType(), event.getToBlock().getBlockData(), false, true);
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onProjectileHit(ProjectileHitEvent event) {
@@ -283,6 +321,42 @@ public final class Listener implements org.bukkit.event.Listener {
             }
         }
     }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerBucketFill(PlayerBucketFillEvent event) {
+        if(event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+        final Player player = event.getPlayer();
+        final ItemStack item = player.getInventory().getItem(event.getHand());
+        event.setItemStack(item.withType(Material.BUCKET));
+        if(item.hasItemMeta()) {
+            final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+            if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
+                final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
+                if((ArtifactManager.useEvents[artifactID] & ArtifactManager.EMPTY_BUCKET) > 0) {
+                    final Block block = event.getBlock();
+                    transientBlockForm(block.getLocation().clone(), item.getType(), block.getBlockData(), false, true);
+                    if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                        player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
+                    }
+                    if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                        Utils.scheduleGainArtifact(player, data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1), artifactID, item.clone());
+                    }
+                }
+            } else {
+                if(player.getGameMode() != GameMode.CREATIVE) {
+                    event.setCancelled(true);
+                }
+            }
+        } else {
+            if(player.getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+        }
+    }
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         final ItemStack item = event.getItemInHand();
@@ -296,30 +370,22 @@ public final class Listener implements org.bukkit.event.Listener {
             if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
                 if((ArtifactManager.useEvents[artifactID] & ArtifactManager.PLACE_BLOCK) > 0) {
+                    final Block placedBlock = event.getBlockPlaced();
+                    final Location location = placedBlock.getLocation().clone();
                     switch(artifactID) {
-                        case ArtifactManager.TNT -> {
+                        case ArtifactManager.TNT:
                             event.setCancelled(true);
                             Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> item.subtract());
-                            Location loc = event.getBlockPlaced().getLocation().toCenterLocation();
-                            loc.getWorld().spawn(loc, TNTPrimed.class, tnt -> {
+                            Location tntLocation = location.toCenterLocation();
+                            tntLocation.getWorld().spawn(tntLocation, TNTPrimed.class, tnt -> {
                                 tnt.setFuseTicks(80);
                                 tnt.setSource(event.getPlayer());
                             });
-                        }
-                        default -> {
-                            final BlockData blockData = event.getBlockReplacedState().getBlockData();
-                            final Location location = event.getBlockPlaced().getLocation();
-                            final int[] timer = {0};
-                            Bukkit.getRegionScheduler().runAtFixedRate(CreepersPVP.instance,location, task -> {
-                                if(timer[0] < 10) {
-                                    player.sendBlockDamage(location, timer[0] * 0.1f);
-                                    timer[0]++;
-                                } else {
-                                    player.sendBlockDamage(location, 0);
-                                    location.getBlock().setBlockData(blockData);
-                                }
-                            }, 1, ArtifactManager.gainCooldowns[artifactID] / 10);
-                        }
+                            break;
+                        case ArtifactManager.SWEET_BERRIES:
+                            placedBlock.applyBoneMeal(BlockFace.UP);
+                        default:
+                            transientBlockForm(location, placedBlock.getType(), event.getBlockReplacedState().getBlockData(), true, true);
                     }
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
@@ -395,6 +461,12 @@ public final class Listener implements org.bukkit.event.Listener {
             if(player.getGameMode() != GameMode.CREATIVE) {
                 event.setCancelled(true);
             }
+        }
+    }
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if(event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+            event.setDamage(event.getDamage() * 0.7);
         }
     }
     @EventHandler(priority = EventPriority.HIGH)
@@ -498,6 +570,40 @@ public final class Listener implements org.bukkit.event.Listener {
         }
     }
     @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityResurrect(EntityResurrectEvent event) {
+        if(!event.isCancelled() && event.getEntity() instanceof final Player player) {
+            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+                final short armor = Utils.getArmor(player);
+                if(armor != -1) {
+                    player.addPotionEffects(List.of(ArmorManager.effects[armor]));
+                }
+            });
+            final PlayerInventory inv = player.getInventory();
+            final ItemStack item = inv.getItem(event.getHand());
+            if(item.hasItemMeta()) {
+                final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+                if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
+                    final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
+                    if((ArtifactManager.useEvents[artifactID] & ArtifactManager.RESURRECT) > 0) {
+                        if(ArtifactManager.useCooldowns[artifactID] != -1) {
+                            player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
+                        }
+                        if(ArtifactManager.gainCooldowns[artifactID] != -1) {
+                            final ItemStack clone = item.clone();
+                            final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
+                            if(item.getAmount() == 1) {
+                                final ItemStack unavailable = clone.withType(Material.BARRIER);
+                                final int slot = Utils.findItem(inv, itemOrdinal);
+                                player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                            }
+                            Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
         final ItemStack item = event.getItem();
         final Player player = event.getPlayer();
@@ -582,19 +688,44 @@ public final class Listener implements org.bukkit.event.Listener {
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         final ItemStack item = event.getItem();
         final Player player = event.getPlayer();
+        switch(item.getType()) {
+            case POPPED_CHORUS_FRUIT -> {
+                Location location = player.getLocation().clone();
+                event.setReplacement(item.clone().subtract());
+                event.setItem(ArtifactManager.artifacts[ArtifactManager.CHORUS_FRUIT][1]);
+                location.createExplosion(player, 1.5f, false, false);
+            }
+            case MILK_BUCKET -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+                final short armor = Utils.getArmor(player);
+                if(armor != -1) {
+                    player.addPotionEffects(List.of(ArmorManager.effects[armor]));
+                }
+            });
+        }
         if(item.hasItemMeta()) {
             final PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
             if(data.has(Utils.artifactIDKey, PersistentDataType.SHORT)) {
                 final int artifactID = data.get(Utils.artifactIDKey, PersistentDataType.SHORT);
                 if((ArtifactManager.useEvents[artifactID] & ArtifactManager.CONSUME) > 0) {
-                    event.setReplacement(null);
+                    final Material replacementMaterial;
+                    switch(item.getType()) {
+                        case BEETROOT_SOUP, MUSHROOM_STEW, RABBIT_STEW, SUSPICIOUS_STEW -> replacementMaterial = Material.BOWL;
+                        case MILK_BUCKET -> replacementMaterial = Material.BUCKET;
+                        case HONEY_BOTTLE, OMINOUS_BOTTLE, POTION -> replacementMaterial = Material.GLASS_BOTTLE;
+                        default -> replacementMaterial = Material.BARRIER;
+                    }
+                    if(replacementMaterial != Material.BARRIER) {
+                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> player.getInventory().remove(new ItemStack(replacementMaterial)));
+                    }
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
                     }
                     if(ArtifactManager.gainCooldowns[artifactID] != -1) {
                         final int itemOrdinal = data.getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1);
                         if(item.getAmount() == 1) {
-                            event.setReplacement(item.withType(Material.BARRIER).asOne());
+                            final ItemStack replacement = item.withType(replacementMaterial);
+                            replacement.editMeta(meta -> meta.setFood(null));
+                            event.setReplacement(replacement);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, item.asOne());
                     }
@@ -634,6 +765,44 @@ public final class Listener implements org.bukkit.event.Listener {
                     item.subtract();
                 }
             }
+        }
+    }
+    private static void transientBlockForm(Location location, Material material, BlockData data, boolean fakeDamage, boolean flag) {
+        final int sourceEID = Utils.fakeBlockDamageSourceEID(location);
+        final int persistenceTime = ArtifactManager.getPersistenceTime(material);
+        final Utils.TransientBlockData transientBlockData = new Utils.TransientBlockData(data, Bukkit.getCurrentTick() + persistenceTime);
+        if(Utils.isTransient(location)) {
+            Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, 0, sourceEID));
+        }
+        Utils.putTransientBlockData(location, transientBlockData);
+        if(fakeDamage) {
+            final int[] timer = {0};
+            Bukkit.getRegionScheduler().runAtFixedRate(CreepersPVP.instance, location, task -> {
+                if(timer[0] < 10) {
+                    if(Utils.getTransientBlockData(location) == transientBlockData) {
+                        Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, timer[0] * 0.1f, sourceEID));
+                    }
+                    timer[0]++;
+                } else {
+                    if(Utils.getTransientBlockData(location) == transientBlockData) {
+                        location.getBlock().setBlockData(data);
+                        Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, 0, sourceEID));
+                        Utils.removeTransientBlockData(location);
+                    }
+                    task.cancel();
+                }
+            }, 1, persistenceTime / 10);
+        } else {
+            Bukkit.getRegionScheduler().runDelayed(CreepersPVP.instance, location, task -> {
+                if(Utils.getTransientBlockData(location) == transientBlockData) {
+                    location.getBlock().setBlockData(data);
+                    Utils.removeTransientBlockData(location);
+                }
+            }, persistenceTime);
+        }
+        if(flag && data instanceof Bisected bisected && !(data instanceof Stairs || data instanceof TrapDoor)) {
+            final Block block = location.getBlock().getRelative(bisected.getHalf() == Bisected.Half.TOP ? BlockFace.DOWN : BlockFace.UP);
+            transientBlockForm(block.getLocation(), material, block.getBlockData(), false, false);
         }
     }
 }

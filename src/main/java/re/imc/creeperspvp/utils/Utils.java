@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
@@ -31,11 +32,9 @@ import org.bukkit.persistence.PersistentDataType;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.time.Duration;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
@@ -80,9 +79,14 @@ public final class Utils {
     private static final int DEATH_SPECTATE_TIME = 60;
     private static final Block skyLightGetter = new Location(Bukkit.getWorld("world"), 0, 256, 0).getBlock();
     private static ArmorStand dummy;
+    private static Player dummyPlayer;
+    private static final ConcurrentHashMap<Location, Deque<TransientBlockData>> transientBlockData = new ConcurrentHashMap<>(256);
+    private static final ConcurrentHashMap<Location, BlockData> transientBlockOriginals = new ConcurrentHashMap<>(256);
     private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Short> armors = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, ScheduledTask> armorTasks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
-    private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>(), new ConcurrentHashMap<UUID, ScheduledTask>()};
+    private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
@@ -116,6 +120,7 @@ public final class Utils {
         utilIDKey = new NamespacedKey(CreepersPVP.instance, "util");
         utilDataKey = new NamespacedKey(CreepersPVP.instance, "util-data");
         for(final World world : Bukkit.getWorlds()) {
+            world.setDifficulty(Difficulty.NORMAL);
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.BLOCK_EXPLOSION_DROP_DECAY, true);
             world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
@@ -176,9 +181,13 @@ public final class Utils {
         });
     }
     public static void fina() {
+        transientBlockOriginals.forEach((location, data) -> location.getBlock().setBlockData(data));
         dummy.remove();
     }
     public static void playerJoin(Player player) {
+        if(dummyPlayer == null) {
+            dummyPlayer = player;
+        }
         //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
         //player.sendResourcePacks(resourcePackRequest);
         final UUID uuid = player.getUniqueId();
@@ -250,10 +259,16 @@ public final class Utils {
         }, null, 61, 61);
     }
     public static void playerQuit(Player player) {
+        armors.remove(player.getUniqueId());
         deathSpectatingPlayers.remove(player.getUniqueId());
         player.removeResourcePack(resourcePackUUID);
+        if(player.getUniqueId().equals(dummyPlayer.getUniqueId())) {
+            Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+            dummyPlayer = onlinePlayers.isEmpty() ? null : onlinePlayers.iterator().next();
+        }
     }
     public static void playerInit(Player player) {
+        armors.remove(player.getUniqueId());
         removeGainArtifactSchedulers(player.getUniqueId());
         final PlayerInventory inv = player.getInventory();
         inv.clear();
@@ -316,7 +331,7 @@ public final class Utils {
         inv.setItem(itemSettings == null ? 3 : itemSettings.getArtifactSlot(1), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.BREAD : itemSettings.getArtifactSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 3))).build());
         inv.setItem(itemSettings == null ? 40 : itemSettings.getArtifactSlot(2), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SHIELD : itemSettings.getArtifactSelection(2)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 4))).build());
         inv.setItem(9, new ItemStack(Material.ARROW, 64));
-        player.getActivePotionEffects().clear();
+        player.clearActivePotionEffects();
         final AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         player.setHealth(maxHealthAttribute == null ? 20 : maxHealthAttribute.getValue());
         player.setFoodLevel(20);
@@ -328,10 +343,23 @@ public final class Utils {
         player.setAllowFlight(armorID == ArmorManager.GHAST_ARMOR);
         player.setSilent(armorID == ArmorManager.GHOST_KINDLER || armorID == ArmorManager.CREEPY_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
+        if(ArmorManager.tasks[armorID] != null) {
+            player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> ArmorManager.tasks[armorID].accept(player), null, 1, 200);
+        }
+        armors.put(player.getUniqueId(), armorID);
         player.teleport(spawn);
+    }
+    public static short getArmor(Player player) {
+        return armors.containsKey(player.getUniqueId()) ? armors.get(player.getUniqueId()) : -1;
     }
     public static void playerDeath(Player player) {
         deathSpectatingPlayers.put(player.getUniqueId(), Bukkit.getCurrentTick());
+    }
+    public static int fakeBlockDamageSourceEID(Location location) {
+        return (int) -((((long) location.getBlockX() << 38) + ((long) location.getBlockY() << 26) + location.getBlockZ()) % 2147483648L) - 1;
+    }
+    public static void runOnRandomPlayer(Consumer<Player> operation) {
+        operation.accept(dummyPlayer);
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();
@@ -364,6 +392,32 @@ public final class Utils {
             }
         }
         return 0;
+    }
+    public static boolean isTransient(Location location) {
+        return transientBlockData.containsKey(location);
+    }
+    public static TransientBlockData getTransientBlockData(Location location) {
+        return transientBlockData.containsKey(location) ? transientBlockData.get(location).peek() : null;
+    }
+    public static void removeTransientBlockData(Location location) {
+        if(transientBlockOriginals.containsKey(location) && transientBlockData.containsKey(location)) {
+            transientBlockData.get(location).remove();
+            if(transientBlockData.get(location).isEmpty()) {
+                transientBlockData.remove(location);
+                location.getBlock().setBlockData(transientBlockOriginals.remove(location));
+            }
+        }
+    }
+    public static void putTransientBlockData(Location location, TransientBlockData data) {
+        if(!transientBlockData.containsKey(location)) {
+            transientBlockData.put(location, new ArrayDeque<>());
+            transientBlockOriginals.put(location, data.data());
+        }
+        final Deque<TransientBlockData> stack = transientBlockData.get(location);
+        while(!stack.isEmpty() && stack.peek().expires() <= data.expires()) {
+            stack.remove();
+        }
+        stack.push(data);
     }
     /**
      * Paper API is stupid
@@ -403,7 +457,7 @@ public final class Utils {
                 final ItemStack currentItem = slot == -1 ? player.getItemOnCursor() : inv.getItem(slot);
                 if(currentItem != null) {
                     if(timer[0] == 0) {
-                        if(currentItem.getType() == Material.BARRIER) {
+                        if(currentItem.getType() == Material.BARRIER || currentItem.getType() == Material.BUCKET || currentItem.getType() == Material.GLASS_BOTTLE || currentItem.getType() == Material.BOWL) {
                             if(slot == -1) {
                                 player.setItemOnCursor(item);
                             } else {
@@ -422,7 +476,7 @@ public final class Utils {
                         }
                     } else {
                         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-                        if(currentItem.getType() == Material.BARRIER && (itemInHand.hasItemMeta() && itemInHand.getItemMeta().getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) == itemOrdinal)) {
+                        if((currentItem.getType() == Material.BARRIER || currentItem.getType() == Material.BUCKET || currentItem.getType() == Material.GLASS_BOTTLE || currentItem.getType() == Material.BOWL) && (itemInHand.hasItemMeta() && itemInHand.getItemMeta().getPersistentDataContainer().getOrDefault(Utils.itemOrdinalKey, PersistentDataType.INTEGER, -1) == itemOrdinal)) {
                             player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, Duration.ofMillis(ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length * 50L), Duration.ofMillis(ArtifactManager.gainCooldowns[artifactID] / ItemManager.PROGRESS_BARS.length * 50L)));
                             player.sendTitlePart(TitlePart.SUBTITLE, ItemManager.PROGRESS_BARS[timer[0]]);
                             player.sendTitlePart(TitlePart.TITLE, Component.empty());
@@ -469,6 +523,24 @@ public final class Utils {
     }
     private static int getCustomModelData(ItemStack item, LivingEntity entity, int usedDuration) {
         return usedDuration * 3 / getCustomMaxUseDuration(item, entity);
+    }
+    public static final class TransientBlockData {
+        private final BlockData data;
+        private int expires;
+        public TransientBlockData(BlockData data, int expires) {
+            this.data = data;
+            this.expires = expires;
+        }
+        public BlockData data() {
+            return data;
+        }
+        public int expires() {
+            return expires;
+        }
+        @Override
+        public String toString() {
+            return "TransientBlockData{data=" + data.getAsString() + ",expires=" + expires + "}";
+        }
     }
     public static final class UUIDDataType implements PersistentDataType<byte[], UUID> {
         private UUIDDataType() {}

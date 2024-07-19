@@ -253,7 +253,7 @@ public final class WeaponManager {
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("机械短弓", NamedTextColor.GRAY));
                 meta.lore(removeItalics(Arrays.asList(Component.text("快速射击技术的全新发展，给这把弓带来了极快的射速。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 0.7f, 1.9f);
+                editRangedAttributes(meta, 0.7f, 2f);
             });
             weapons[BOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("弓", NamedTextColor.WHITE));
@@ -335,13 +335,13 @@ public final class WeaponManager {
             weapons[RAPID_CROSSBOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("快弩", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("新的装填技术比以前更有效地帮助了弩的射击。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 0.5f, 2f);
+                editRangedAttributes(meta, 0.6f, 2f);
             });
             weapons[AUTO_CROSSBOW][i].editMeta(meta -> {
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("自动弩", NamedTextColor.GRAY));
                 meta.lore(removeItalics(Arrays.asList(Component.text("奇厄教主说，这把强大的弩的设计是他在幻象中见到的。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 0.5f, 2f);
+                editRangedAttributes(meta, 0.6f, 3.5f);
             });
             weapons[CROSSBOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("弩", NamedTextColor.WHITE));
@@ -406,7 +406,7 @@ public final class WeaponManager {
             weapons[COG_CROSSBOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("齿轮弩", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这把古老的齿轮弩至今仍能平滑转动，依然是把可靠的武器。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 1f, 0.8f);
+                editRangedAttributes(meta, 1f, 0.75f);
                 addMultiItemAttribute(meta, 3);
             });
             weapons[PIGLINS_PRIDE][i].editMeta(meta -> {
@@ -414,7 +414,7 @@ public final class WeaponManager {
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("猪灵之傲", NamedTextColor.GOLD));
                 meta.lore(removeItalics(Arrays.asList(Component.text("一把既有年头又凶残的武器，发现于下界的最远端。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 1f, 0.8f);
+                editRangedAttributes(meta, 1f, 0.75f);
                 addMultiItemAttribute(meta, 3);
             });
             for(final short[] j = new short[]{0}; j[0] < weapons.length; j[0]++) {

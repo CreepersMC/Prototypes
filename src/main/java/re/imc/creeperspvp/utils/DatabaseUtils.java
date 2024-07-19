@@ -1,4 +1,5 @@
 package re.imc.creeperspvp.utils;
+import org.bukkit.Bukkit;
 import re.imc.creeperspvp.CreepersPVP;
 import java.sql.*;
 import java.util.UUID;
@@ -45,6 +46,7 @@ public final class DatabaseUtils {
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
+    private static final String refreshConnection = "SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE `uuid` = NULL";
     private DatabaseUtils() {}
     public static void init() throws SQLException {
         try {
@@ -74,6 +76,11 @@ public final class DatabaseUtils {
         setPlayerItemSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `item_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerMiscSettings = connection.prepareStatement("SELECT `misc_settings` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         setPlayerMiscSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `misc_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CreepersPVP.instance, () -> {
+            try {
+                connection.createStatement().execute(refreshConnection);
+            } catch(SQLException ignored) {}
+        }, 1, 288007);
     }
     public static void fina() throws SQLException {
         checkPlayerExistence.close();

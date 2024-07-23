@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import re.imc.creeperspvp.utils.DatabaseUtils;
 import re.imc.creeperspvp.utils.Utils;
 import java.util.*;
 public final class ItemManager {
@@ -30,6 +31,8 @@ public final class ItemManager {
     public static final ItemStack SELECT_ARTIFACTS = new ItemStack(Material.GLASS_BOTTLE);
     public static final ItemStack DEPLOY = new ItemStack(Material.COMPASS);
     public static final ItemStack GUIDEBOOK = new ItemStack(Material.WRITTEN_BOOK);
+    public static final ItemStack PROFILE = new ItemStack(Material.PLAYER_HEAD);
+    public static final ItemStack ATTRIBUTE_UPGRADES = new ItemStack(Material.BEACON);
     public static final ItemStack SETTINGS = new ItemStack(Material.COMPARATOR);
     public static final ItemStack SERVERS = new ItemStack(Material.ENDER_EYE);
     public static final ItemStack BORDER = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
@@ -39,13 +42,14 @@ public final class ItemManager {
     public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     public static final ItemStack OKAY = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+    public static final ItemStack[] ATTRIBUTE_UPGRADE_ITEMS = new ItemStack[]{new ItemStack(Material.NETHER_STAR), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null};
     public static final ItemStack ENABLED = new ItemStack(Material.LIME_DYE);
     public static final ItemStack DEFAULT = new ItemStack(Material.PURPLE_DYE);
     public static final ItemStack DISABLED = new ItemStack(Material.GRAY_DYE);
     public static final ItemStack SUB_SETTING = new ItemStack(Material.REPEATER);
     public static final ItemStack ARMOR_SELECTOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack[] WEAPON_SELECTORS = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD)};
-    public static final ItemStack[] ARTIFACT_SELECTORS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
+    public static final ItemStack[] ARTIFACT_SELECTORS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
     public static final ItemStack SHOW_GUIDEBOOK = new ItemStack(Material.BOOK);
     public static final ItemStack DEPLOY_COOLDOWN = new ItemStack(Material.COMPASS);
     public static final ItemStack RANGED_ATTACK_INDICATOR = new ItemStack(Material.BOW);
@@ -57,7 +61,7 @@ public final class ItemManager {
     public static final ItemStack SET_LEGGINGS_SLOT = new ItemStack(Material.IRON_LEGGINGS);
     public static final ItemStack SET_BOOTS_SLOT = new ItemStack(Material.IRON_BOOTS);
     public static final ItemStack[] SET_WEAPON_SLOTS = new ItemStack[] {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD)};
-    public static final ItemStack[] SET_ARTIFACT_SLOTS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
+    public static final ItemStack[] SET_ARTIFACT_SLOTS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
     public static final ItemStack FFA = new ItemStack(Material.IRON_SWORD);
     public static final ItemStack TDM = new ItemStack(Material.PLAYER_HEAD);
     public static final ItemStack CTF = new ItemStack(Material.GREEN_BANNER);
@@ -105,13 +109,21 @@ public final class ItemManager {
             meta.getPersistentDataContainer().set(Utils.utilIDKey, PersistentDataType.BYTE, Utils.UTIL_SPAWN);
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
         });
+        PROFILE.editMeta(meta -> {
+            meta.itemName(Component.text("个人主页", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.PROFILE);
+        });
+        ATTRIBUTE_UPGRADES.editMeta(meta -> {
+            meta.itemName(Component.text("天赋", NamedTextColor.YELLOW));
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+        });
         SETTINGS.editMeta(meta -> {
             meta.itemName(Component.text("设置", NamedTextColor.RED));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
-            meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.SETTINGS);
         });
         SERVERS.editMeta(meta -> {
-            meta.itemName(Component.text("切换服务器", NamedTextColor.DARK_PURPLE));
+            meta.itemName(Component.text("切换服务器", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.SERVERS);
         });
@@ -130,21 +142,28 @@ public final class ItemManager {
             """), Component.text("""
             BETA 0.6.0
             ·新增-更多法器！
-            ·新增-哞菇盔甲
+            ·新增-盔甲 哞菇盔甲
+            ·新增-远程武器 刀翅蜂鸟
             ·增强-甜浆果从放置后会自动成长至age=1
             ·功能-流体现在也支持放置后一段时间消失了
+            ·功能-属性升级 玩家可以升级自己的属性
+            """), Component.text("""
+            ·功能-玩家现在拥有四个法器槽
             ·功能-食物类法器使用后产生的剩余物品(若有)会被用于代表其冷却而非屏障
             ·功能-爆裂紫颂果可以食用并传送+爆炸；闪烁的西瓜片食用提供伤害吸收
-            """), Component.text("""
+            ·功能-实装了狂风之弓的击飞效果
             ·削弱-幽灵盔甲现在在潜行时才具有隐身效果
             ·削弱-凋零之首现在发射时有冷却
-            ·调整-重新平衡部分远程武器的射速
             ·调整-爆炸现在只造成原先70%的伤害
+            """), Component.text("""
+            ·调整-优化了计分板格式
+            ·调整-重新平衡部分远程武器的射速
             ·修复-方块破坏动画现在正确地显示
             ·修复-方块类法器放置后的位置能放置新方块了
+            ·修复-1.20.2-客户端上现在可以正确显示计分板
             ·修复-服务器重启时被放置的方块类法器现在会消失
-            """), Component.text("""
             ·修复-使用盾牌反弹的箭矢不再能够被捡起
+            """), Component.text("""
             ·修复-喝牛奶不再清除盔甲绑定的状态效果
             ·修复-不死图腾发动时不再清除盔甲绑定的状态效果
             ·修复-喝蜂蜜瓶不再产生玻璃瓶
@@ -251,6 +270,10 @@ public final class ItemManager {
         ENABLED.editMeta(meta -> meta.itemName(Component.text("开启", NamedTextColor.GREEN)));
         DEFAULT.editMeta(meta -> meta.itemName(Component.text("自动", NamedTextColor.DARK_PURPLE)));
         DISABLED.editMeta(meta -> meta.itemName(Component.text("关闭", NamedTextColor.GRAY)));
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.HEALTH_BONUS].editMeta(meta -> {
+            meta.itemName(Component.text("生命提升", NamedTextColor.RED));
+            meta.lore(removeItalics(Arrays.asList(Component.text("提升1点生命值上限", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
+        });
         SHOW_GUIDEBOOK.editMeta(meta -> {
             meta.itemName(Component.text("自动显示指南", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("是否在加入游戏时自动弹出CreepersPVP指南", NamedTextColor.GRAY))));
@@ -301,7 +324,7 @@ public final class ItemManager {
                 meta.getPersistentDataContainer().set(Utils.itemOrdinalKey, PersistentDataType.INTEGER, i[0]);
             });
         }
-        for(final int[] i = new int[] {0}; i[0] < 3; i[0]++) {
+        for(final int[] i = new int[] {0}; i[0] < SET_ARTIFACT_SLOTS.length; i[0]++) {
             SET_ARTIFACT_SLOTS[i[0]].editMeta(meta -> {
                 meta.itemName(Component.text("法器#" + (i[0] + 1), NamedTextColor.WHITE));
                 meta.getPersistentDataContainer().set(Utils.itemOrdinalKey, PersistentDataType.INTEGER, i[0] + 2);

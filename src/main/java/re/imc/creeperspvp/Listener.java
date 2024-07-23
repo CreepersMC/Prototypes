@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
-import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -518,15 +517,10 @@ public final class Listener implements org.bukkit.event.Listener {
                                 event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
                             }
                         }
-                        case Utils.RANGED_EFFECT_WIND -> {
-                            EntityKnockbackEvent knockback = new EntityKnockbackEvent(event.getEntity(), EntityKnockbackEvent.Cause.PUSH, new Vector(0, data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d), 0));
-                            //if(knockback.callEvent()) {
-                                event.getEntity().getVelocity().add(new Vector(0, data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d), 0));
-                            //}
-                            //if(event.getEntity() instanceof LivingEntity livingEntity) {
-                            //    livingEntity.knockback(data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d), livingEntity.getX(), livingEntity.getZ());
-                            // }
-                        }
+                        case Utils.RANGED_EFFECT_WIND -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+                            final Entity entity = event.getEntity();
+                            entity.setVelocity(entity.getVelocity().add(new Vector(0, arrow.getVelocity().length() * data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d) * (entity instanceof LivingEntity livingEntity ? livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE) != null ? 1 - livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() : 1 : 1), 0)));
+                        });
                     }
                 }
             }
@@ -772,7 +766,7 @@ public final class Listener implements org.bukkit.event.Listener {
         final int persistenceTime = ArtifactManager.getPersistenceTime(material);
         final Utils.TransientBlockData transientBlockData = new Utils.TransientBlockData(data, Bukkit.getCurrentTick() + persistenceTime);
         if(Utils.isTransient(location)) {
-            Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, 0, sourceEID));
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockDamage(location, 0, sourceEID));
         }
         Utils.putTransientBlockData(location, transientBlockData);
         if(fakeDamage) {
@@ -780,13 +774,13 @@ public final class Listener implements org.bukkit.event.Listener {
             Bukkit.getRegionScheduler().runAtFixedRate(CreepersPVP.instance, location, task -> {
                 if(timer[0] < 10) {
                     if(Utils.getTransientBlockData(location) == transientBlockData) {
-                        Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, timer[0] * 0.1f, sourceEID));
+                        Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockDamage(location, timer[0] * 0.1f, sourceEID));
                     }
                     timer[0]++;
                 } else {
                     if(Utils.getTransientBlockData(location) == transientBlockData) {
                         location.getBlock().setBlockData(data);
-                        Utils.runOnRandomPlayer(player -> player.sendBlockDamage(location, 0, sourceEID));
+                        Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockDamage(location, 0, sourceEID));
                         Utils.removeTransientBlockData(location);
                     }
                     task.cancel();

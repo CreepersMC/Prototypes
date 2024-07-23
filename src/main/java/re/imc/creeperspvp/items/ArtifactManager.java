@@ -92,6 +92,10 @@ public final class ArtifactManager {
     public static final short LAVA_BUCKET = CATEGORY_EXPLOSIVES_AND_TRAPS + 7;
     public static final short POWDER_SNOW_BUCKET = CATEGORY_EXPLOSIVES_AND_TRAPS + 8;
     public static final short COBWEB = CATEGORY_EXPLOSIVES_AND_TRAPS + 9;
+    public static final short SOUL_SAND = CATEGORY_EXPLOSIVES_AND_TRAPS + 10;
+    public static final short SLIME_BLOCK = CATEGORY_EXPLOSIVES_AND_TRAPS + 11;
+    public static final short HONEY_BLOCK = CATEGORY_EXPLOSIVES_AND_TRAPS + 12;
+    public static final short MAGMA_BLOCK = CATEGORY_EXPLOSIVES_AND_TRAPS + 13;
     public static final short CARROT = CATEGORY_FOOD;
     public static final short GOLDEN_CARROT = CATEGORY_FOOD + 1;
     public static final short APPLE = CATEGORY_FOOD + 2;
@@ -142,6 +146,25 @@ public final class ArtifactManager {
     public static final short POTION_OF_SLOW_FALLING = CATEGORY_DEFENSES_AND_BUFFS + 9;
     public static final short SHIELD = CATEGORY_DEFENSES_AND_BUFFS + 10;
     public static final short TOTEM_OF_UNDYING = CATEGORY_DEFENSES_AND_BUFFS + 11;
+    /*
+    public static final short LEAVES = ;
+    public static final short WOOL = ;
+    public static final short DIRT = ;
+    public static final short CLAY = ;
+    public static final short WOOD = ;
+    public static final short HYPHAE = ;
+    public static final short PLANKS = ;
+    public static final short NETHER_PLANKS = ;
+    public static final short NETHERRACK = ;
+    public static final short CALCITE = ;
+    public static final short STONE = ; //Diorite, Andesite, Granite, Tuff, Prismarine, Blackstone
+    public static final short DEEPSLATE = ;
+    public static final short COBBLESTONE = ;
+    public static final short COBBLED_DEEPSLATE = ;
+    public static final short OBSIDIAN = ;
+    public static final short REINFORCED_DEEPSLATE = ;
+     */
+    public static final short COBBLESTONE = CATEGORY_DEFENSES_AND_BUFFS + 12;
     public static final ItemStack[][] artifacts = new ItemStack[256][2];
     public static final short CUSTOM = 1;
     public static final short INTERACT = 2;
@@ -158,9 +181,9 @@ public final class ArtifactManager {
     public static final short AFTER_PLACE_ENTITY = ENTITY_EXPLODE | ENTITY_DEATH;
     public static final short[] useEvents = new short[] {
         LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE | CUSTOM, 0, LAUNCH_PROJECTILE | CUSTOM, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, LAUNCH_PROJECTILE, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW, READY_ARROW | ELYTRA_BOOST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        PLACE_BLOCK, 0, ENTITY_EXPLODE, 0, EMPTY_BUCKET, 0, 0, EMPTY_BUCKET, PLACE_BLOCK, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PLACE_BLOCK, 0, ENTITY_EXPLODE, 0, EMPTY_BUCKET, 0, 0, EMPTY_BUCKET, PLACE_BLOCK, PLACE_BLOCK, PLACE_BLOCK, PLACE_BLOCK, PLACE_BLOCK, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME | PLACE_BLOCK, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME,
-        CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, 0, RESURRECT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, CONSUME, 0, RESURRECT, PLACE_BLOCK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     public static final int[] useCooldowns = new int[] {
         4, 4, -1, -1, 4, 4, 4, 4, -1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -170,11 +193,11 @@ public final class ArtifactManager {
     };
     public static final int[] gainCooldowns = new int[] {
         20, 40, 300, -1, 80, 80, 60, 60, 100, 720, 360, -1, 420, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 720, 720, 720, 720, 720, 720, 720, 720, 720, 720, 80, 80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 180, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        120, -1, 240, -1, 200, 200, 200, 200, 200, 240, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        120, -1, 240, -1, 200, 200, 200, 200, 200, 240, 160, 160, 160, 160, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         90, 180, 120, 360, 1440, 60, 180, 90, 240, 90, 240, 60, 180, 60, 180, 300, 180, 60, 180, 180, 180, 30, 150, 150, 60, 150, 90, 150, 30, 240, 240, 240, 30, 180, 60, 60, 60, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        480, 480, 480, 480, 480, 480, 480, 480, 480, 480, -1, 600, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        480, 480, 480, 480, 480, 480, 480, 480, 480, 480, -1, 840, 60, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    public static final short[][] selections = new short[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, EXPLOSION_CHARGE, WIND_CHARGE, DRAGON_CHARGE, WITHER_CHARGE, SHULKER_BULLET, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW, FIREWORK_ROCKET}, {TNT, END_CRYSTAL, FISHING_ROD, WATER_BUCKET, LAVA_BUCKET, POWDER_SNOW_BUCKET, COBWEB}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {MUNDANE_POTION, AWKWARD_POTION, SHIELD, TOTEM_OF_UNDYING}};
+    public static final short[][] selections = new short[][] {{SNOWBALL, EGG, ENDER_PEARL, FIRE_CHARGE, EXPLOSION_CHARGE, WIND_CHARGE, DRAGON_CHARGE, WITHER_CHARGE, SHULKER_BULLET, MUNDANE_SPLASH_POTION, AWKWARD_SPLASH_POTION, THICK_SPLASH_POTION, AWKWARD_LINGERING_POTION, THICK_LINGERING_POTION, SPECTRAL_ARROW, AWKWARD_TIPPED_ARROW, THICK_TIPPED_ARROW, FIREWORK_ROCKET}, {TNT, END_CRYSTAL, FISHING_ROD, WATER_BUCKET, LAVA_BUCKET, POWDER_SNOW_BUCKET, COBWEB, SOUL_SAND, SLIME_BLOCK, HONEY_BLOCK, MAGMA_BLOCK}, {CARROT, APPLE, MELON_SLICE, BEEF, PORKCHOP, MUTTON, SALMON, RABBIT_STEW, BEETROOT_SOUP, CHICKEN, MUSHROOM_STEW, POTATO, BREAD, COD, RABBIT, BEETROOT, PUMPKIN_PIE, CHORUS_FRUIT, DRIED_KELP, HONEY_BOTTLE, COOKIE, SWEET_BERRIES, GLOW_BERRIES, MILK_BUKET}, {MUNDANE_POTION, AWKWARD_POTION, SHIELD, TOTEM_OF_UNDYING, COBBLESTONE}};
     public static final short[][] upgrades = new short[][] {
         {}, {}, {}, {}, {LIGHTNING_CHARGE}, {}, {ICE_CHARGE}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_HASTE, SPLASH_POTION_OF_LEAPING, SPLASH_POTION_OF_SWIFTNESS, SPLASH_POTION_OF_HEALING, SPLASH_POTION_OF_REGENERATION, SPLASH_POTION_OF_STRENGTH}, {}, {}, {}, {}, {}, {}, {SPLASH_POTION_OF_LEVITATION, SPLASH_POTION_OF_SLOW_FALLING}, {}, {}, {SPLASH_POTION_OF_ATTACK_FATIGUE, SPLASH_POTION_OF_BLINDNESS, SPLASH_POTION_OF_SLOWNESS, SPLASH_POTION_OF_HARMING, SPLASH_POTION_OF_POISON, SPLASH_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {LINGERING_POTION_OF_LEVITATION, LINGERING_POTION_OF_SLOW_FALLING}, {}, {}, {LINGERING_POTION_OF_ATTACK_FATIGUE, LINGERING_POTION_OF_BLINDNESS, LINGERING_POTION_OF_SLOWNESS, LINGERING_POTION_OF_HARMING, LINGERING_POTION_OF_POISON, LINGERING_POTION_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {TIPPED_ARROW_OF_LEVITATION, TIPPED_ARROW_OF_SLOW_FALLING}, {}, {}, {TIPPED_ARROW_OF_ATTACK_FATIGUE, TIPPED_ARROW_OF_BLINDNESS, TIPPED_ARROW_OF_SLOWNESS, TIPPED_ARROW_OF_HARMING, TIPPED_ARROW_OF_POISON, TIPPED_ARROW_OF_WEAKNESS}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -208,9 +231,9 @@ public final class ArtifactManager {
         });
         final ItemStack[] artifacts0 = new ItemStack[] {
             new ItemStack(Material.SNOWBALL, 16), new ItemStack(Material.EGG, 16), new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.ENDER_EYE, 4), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 3), new ItemStack(Material.FIRE_CHARGE, 2), new ItemStack(Material.FIRE_CHARGE, 2), new ItemStack(Material.WIND_CHARGE, 4), new ItemStack(Material.FIRE_CHARGE, 1), new ItemStack(Material.WITHER_SKELETON_SKULL, 3), null, new ItemStack(Material.SHULKER_SHELL, 1), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.SPLASH_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.LINGERING_POTION), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.SPECTRAL_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.TIPPED_ARROW, 8), new ItemStack(Material.FIREWORK_ROCKET, 3), null, null, null, null, null, null, null, null, null, null, null,
-            new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), new ItemStack(Material.WATER_BUCKET), new ItemStack(Material.PUFFERFISH_BUCKET), new ItemStack(Material.AXOLOTL_BUCKET), new ItemStack(Material.LAVA_BUCKET), new ItemStack(Material.POWDER_SNOW_BUCKET), new ItemStack(Material.COBWEB, 2), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.TNT, 4), null, new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.FISHING_ROD), new ItemStack(Material.WATER_BUCKET), new ItemStack(Material.PUFFERFISH_BUCKET), new ItemStack(Material.AXOLOTL_BUCKET), new ItemStack(Material.LAVA_BUCKET), new ItemStack(Material.POWDER_SNOW_BUCKET), new ItemStack(Material.COBWEB, 2), new ItemStack(Material.SOUL_SAND, 6), new ItemStack(Material.SLIME_BLOCK, 4), new ItemStack(Material.HONEY_BLOCK, 4), new ItemStack(Material.MAGMA_BLOCK, 6), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             new ItemStack(Material.CARROT, 4), new ItemStack(Material.GOLDEN_CARROT, 1), new ItemStack(Material.APPLE, 8), new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1), new ItemStack(Material.MELON_SLICE, 8), new ItemStack(Material.GLISTERING_MELON_SLICE, 1), new ItemStack(Material.BEEF, 8), new ItemStack(Material.COOKED_BEEF, 2), new ItemStack(Material.PORKCHOP, 8), new ItemStack(Material.COOKED_PORKCHOP, 2), new ItemStack(Material.MUTTON, 8), new ItemStack(Material.COOKED_MUTTON, 2), new ItemStack(Material.SALMON, 16), new ItemStack(Material.COOKED_SALMON, 2), new ItemStack(Material.RABBIT_STEW, 1), new ItemStack(Material.BEETROOT_SOUP, 1), new ItemStack(Material.CHICKEN, 8), new ItemStack(Material.COOKED_CHICKEN, 4), new ItemStack(Material.MUSHROOM_STEW, 1), new ItemStack(Material.SUSPICIOUS_STEW, 1), new ItemStack(Material.POTATO, 8), new ItemStack(Material.BAKED_POTATO, 4), new ItemStack(Material.BREAD, 4), new ItemStack(Material.COD, 16), new ItemStack(Material.COOKED_COD, 4), new ItemStack(Material.RABBIT, 8), new ItemStack(Material.COOKED_RABBIT, 4), new ItemStack(Material.BEETROOT, 4), new ItemStack(Material.PUMPKIN_PIE, 8), new ItemStack(Material.CHORUS_FRUIT, 8), new ItemStack(Material.POPPED_CHORUS_FRUIT, 8), new ItemStack(Material.DRIED_KELP, 8), new ItemStack(Material.HONEY_BOTTLE, 16), new ItemStack(Material.COOKIE, 16), new ItemStack(Material.SWEET_BERRIES, 8), new ItemStack(Material.GLOW_BERRIES, 16), new ItemStack(Material.MILK_BUCKET, 1), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.POTION), new ItemStack(Material.SHIELD), new ItemStack(Material.TOTEM_OF_UNDYING), new ItemStack(Material.COBBLESTONE, 16), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
         };
         //for(short i = 0; i < 256; i++) {
         //    System.out.print(i + " ");
@@ -594,6 +617,26 @@ public final class ArtifactManager {
                 meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             });
             artifacts[COBWEB][i] = Utils.modifyItem(artifacts[COBWEB][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
+            artifacts[SOUL_SAND][i].editMeta(meta -> {
+                meta.itemName(Component.text("灵魂沙", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[SOUL_SAND][i] = Utils.modifyItem(artifacts[SOUL_SAND][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
+            artifacts[SLIME_BLOCK][i].editMeta(meta -> {
+                meta.itemName(Component.text("粘液块", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[SLIME_BLOCK][i] = Utils.modifyItem(artifacts[SLIME_BLOCK][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
+            artifacts[HONEY_BLOCK][i].editMeta(meta -> {
+                meta.itemName(Component.text("蜂蜜块", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[HONEY_BLOCK][i] = Utils.modifyItem(artifacts[HONEY_BLOCK][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
+            artifacts[MAGMA_BLOCK][i].editMeta(meta -> {
+                meta.itemName(Component.text("岩浆块", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[MAGMA_BLOCK][i] = Utils.modifyItem(artifacts[MAGMA_BLOCK][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             artifacts[CARROT][i].editMeta(meta -> meta.itemName(Component.text("胡萝卜", NamedTextColor.WHITE)));
             artifacts[GOLDEN_CARROT][i].editMeta(meta -> meta.itemName(Component.text("金胡萝卜", NamedTextColor.WHITE)));
             artifacts[APPLE][i].editMeta(meta -> meta.itemName(Component.text("苹果", NamedTextColor.WHITE)));
@@ -627,24 +670,32 @@ public final class ArtifactManager {
                 meta.setMaxStackSize(4);
                 meta.itemName(Component.text("兔肉煲", NamedTextColor.WHITE));
             });
-            artifacts[RABBIT_STEW][i].setAmount(4);
+            if(i == 1) {
+                artifacts[RABBIT_STEW][i].setAmount(4);
+            }
             artifacts[BEETROOT_SOUP][i].editMeta(meta -> {
                 meta.setMaxStackSize(4);
                 meta.itemName(Component.text("甜菜汤", NamedTextColor.WHITE));
             });
-            artifacts[BEETROOT_SOUP][i].setAmount(4);
+            if(i == 1) {
+                artifacts[BEETROOT_SOUP][i].setAmount(4);
+            }
             artifacts[CHICKEN][i].editMeta(meta -> meta.itemName(Component.text("生鸡肉", NamedTextColor.WHITE)));
             artifacts[COOKED_CHICKEN][i].editMeta(meta -> meta.itemName(Component.text("熟鸡肉", NamedTextColor.WHITE)));
             artifacts[MUSHROOM_STEW][i].editMeta(meta -> {
                 meta.setMaxStackSize(4);
                 meta.itemName(Component.text("蘑菇煲", NamedTextColor.WHITE));
             });
-            artifacts[MUSHROOM_STEW][i].setAmount(4);
+            if(i == 1) {
+                artifacts[MUSHROOM_STEW][i].setAmount(4);
+            }
             artifacts[SUSPICIOUS_STEW][i].editMeta(meta -> {
                 meta.setMaxStackSize(4);
                 meta.itemName(Component.text("迷之炖菜", NamedTextColor.WHITE));
             });
-            artifacts[SUSPICIOUS_STEW][i].setAmount(4);
+            if(i == 1) {
+                artifacts[SUSPICIOUS_STEW][i].setAmount(4);
+            }
             artifacts[POTATO][i].editMeta(meta -> meta.itemName(Component.text("马铃薯", NamedTextColor.WHITE)));
             artifacts[BAKED_POTATO][i].editMeta(meta -> meta.itemName(Component.text("烤马铃薯", NamedTextColor.WHITE)));
             artifacts[BREAD][i].editMeta(meta -> meta.itemName(Component.text("面包", NamedTextColor.WHITE)));
@@ -743,6 +794,11 @@ public final class ArtifactManager {
             });
             artifacts[SHIELD][i].editMeta(meta -> meta.itemName(Component.text("盾牌", NamedTextColor.WHITE)));
             artifacts[TOTEM_OF_UNDYING][i].editMeta(meta -> meta.itemName(Component.text("不死图腾", NamedTextColor.YELLOW)));
+            artifacts[COBBLESTONE][i].editMeta(meta -> {
+                meta.itemName(Component.text("圆石", NamedTextColor.WHITE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+            });
+            artifacts[COBBLESTONE][i] = Utils.modifyItem(artifacts[COBBLESTONE][i], "[{function:\"set_components\", components:{can_place_on:{}}}]");
             for(final short[] j = new short[]{0}; j[0] < artifacts.length; j[0]++) {
                 if(artifacts[j[0]][i] != null) {
                     artifacts[j[0]][i].editMeta(meta -> {
@@ -780,6 +836,15 @@ public final class ArtifactManager {
             }
             case COBWEB -> {
                 return 250;
+            }
+            case SOUL_SAND, SLIME_BLOCK, HONEY_BLOCK -> {
+                return 120;
+            }
+            case MAGMA_BLOCK -> {
+                return 160;
+            }
+            case COBBLESTONE -> {
+                return 200;
             }
             case SWEET_BERRY_BUSH, SWEET_BERRIES -> {
                 return 100;

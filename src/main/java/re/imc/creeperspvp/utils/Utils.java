@@ -1,17 +1,22 @@
 package re.imc.creeperspvp.utils;
 import fr.mrmicky.fastinv.ItemBuilder;
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +39,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
@@ -79,14 +83,13 @@ public final class Utils {
     private static final int DEATH_SPECTATE_TIME = 60;
     private static final Block skyLightGetter = new Location(Bukkit.getWorld("world"), 0, 256, 0).getBlock();
     private static ArmorStand dummy;
-    private static Player dummyPlayer;
     private static final ConcurrentHashMap<Location, Deque<TransientBlockData>> transientBlockData = new ConcurrentHashMap<>(256);
     private static final ConcurrentHashMap<Location, BlockData> transientBlockOriginals = new ConcurrentHashMap<>(256);
     private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Short> armors = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, ScheduledTask> armorTasks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
-    private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
+    private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
@@ -185,9 +188,6 @@ public final class Utils {
         dummy.remove();
     }
     public static void playerJoin(Player player) {
-        if(dummyPlayer == null) {
-            dummyPlayer = player;
-        }
         //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
         //player.sendResourcePacks(resourcePackRequest);
         final UUID uuid = player.getUniqueId();
@@ -202,16 +202,21 @@ public final class Utils {
         level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
-        infoBoard.getScore(".emeralds").setScore(2);
-        infoBoard.getScore(".kills").setScore(1);
-        infoBoard.getScore(".kdr").setScore(0);
+        infoBoard.numberFormat(NumberFormat.blank());
+        final String[] info = new String[]{"", "", ""};
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
-            infoBoard.getScore(".emeralds").customName(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
+            for(final String string : info) {
+                infoBoard.getScore(string).resetScore();
+            }
+            info[2] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
             final int kills = DatabaseUtils.fetchPlayerKills(uuid);
-            infoBoard.getScore(".kills").customName(Utils.kills.append(Component.text(kills)));
+            info[1] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
-            infoBoard.getScore(".kdr").customName(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            info[0] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            for(int i = 0; i < info.length; i++) {
+                infoBoard.getScore(info[i]).setScore(i);
+            }
             player.setExperienceLevelAndProgress(DatabaseUtils.fetchPlayerXp(uuid));
         }, null, 1, 19);
         final Inventory inv = player.getInventory();
@@ -262,10 +267,6 @@ public final class Utils {
         armors.remove(player.getUniqueId());
         deathSpectatingPlayers.remove(player.getUniqueId());
         player.removeResourcePack(resourcePackUUID);
-        if(player.getUniqueId().equals(dummyPlayer.getUniqueId())) {
-            Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-            dummyPlayer = onlinePlayers.isEmpty() ? null : onlinePlayers.iterator().next();
-        }
     }
     public static void playerInit(Player player) {
         armors.remove(player.getUniqueId());
@@ -277,7 +278,9 @@ public final class Utils {
         inv.setItem(2, ItemManager.SELECT_ARTIFACTS);
         inv.setItem(4, ItemManager.DEPLOY);
         inv.setItem(6, ItemManager.GUIDEBOOK);
-        inv.setItem(7, ItemManager.SETTINGS);
+        inv.setItem(7, ItemBuilder.copyOf(ItemManager.PROFILE).meta(SkullMeta.class, meta -> {
+            meta.setOwningPlayer(player);
+        }).build());
         inv.setItem(8, ItemManager.SERVERS);
         inv.setHeldItemSlot(4);
         player.clearActivePotionEffects();
@@ -329,8 +332,16 @@ public final class Utils {
         }
         inv.setItem(itemSettings == null ? 2 : itemSettings.getArtifactSlot(0), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SNOWBALL : itemSettings.getArtifactSelection(0)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 2))).build());
         inv.setItem(itemSettings == null ? 3 : itemSettings.getArtifactSlot(1), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.BREAD : itemSettings.getArtifactSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 3))).build());
-        inv.setItem(itemSettings == null ? 40 : itemSettings.getArtifactSlot(2), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SHIELD : itemSettings.getArtifactSelection(2)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 4))).build());
-        inv.setItem(9, new ItemStack(Material.ARROW, 64));
+        inv.setItem(itemSettings == null ? 4 : itemSettings.getArtifactSlot(2), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.WATER_BUCKET : itemSettings.getArtifactSelection(2)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 4))).build());
+        inv.setItem(itemSettings == null ? 40 : itemSettings.getArtifactSlot(3), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SHIELD : itemSettings.getArtifactSelection(3)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 5))).build());
+        inv.setItem(17, new ItemStack(Material.ARROW, 64));
+        inv.setHeldItemSlot(0);
+        final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(player.getUniqueId());
+        player.registerAttribute(Attribute.GENERIC_MAX_HEALTH);
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS), AttributeModifier.Operation.ADD_NUMBER));
+        inv.getItem(EquipmentSlot.CHEST).editMeta(meta -> meta.addEnchant(Enchantment.PROTECTION, upgrades.getData(DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL), true));
+        player.registerAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).addModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE) * 0.05, AttributeModifier.Operation.ADD_NUMBER));
         player.clearActivePotionEffects();
         final AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         player.setHealth(maxHealthAttribute == null ? 20 : maxHealthAttribute.getValue());
@@ -357,9 +368,6 @@ public final class Utils {
     }
     public static int fakeBlockDamageSourceEID(Location location) {
         return (int) -((((long) location.getBlockX() << 38) + ((long) location.getBlockY() << 26) + location.getBlockZ()) % 2147483648L) - 1;
-    }
-    public static void runOnRandomPlayer(Consumer<Player> operation) {
-        operation.accept(dummyPlayer);
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();

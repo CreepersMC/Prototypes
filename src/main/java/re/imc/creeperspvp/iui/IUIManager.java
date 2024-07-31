@@ -5,7 +5,7 @@ import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,17 +24,19 @@ import re.imc.creeperspvp.items.WeaponManager;
 import re.imc.creeperspvp.utils.DatabaseUtils;
 import re.imc.creeperspvp.utils.Utils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 public final class IUIManager {
-    public static final byte ARMOR_SELECTOR = 1;
-    public static final byte WEAPON_SELECTOR = 2;
-    public static final byte ARTIFACT_SELECTOR = 3;
-    public static final byte PROFILE = 4;
-    public static final byte SERVERS = 5;
+    public static final byte TEAM_SELECTION = 0;
+    public static final byte DEPLOY = 1;
+    public static final byte ARMOR_SELECTOR = 2;
+    public static final byte WEAPON_SELECTOR = 3;
+    public static final byte ARTIFACT_SELECTOR = 4;
+    public static final byte PROFILE = 5;
+    public static final byte SERVERS = 6;
     private static final FastInv[] iuis = new FastInv[] {
+        TeamSelectionInv.instance,
         null,
         ArmorSelectorInv.instance,
         WeaponSelectorInv.instance,
@@ -44,9 +46,14 @@ public final class IUIManager {
     };
     private static final Component onInteraction = Component.text(">>> ", NamedTextColor.WHITE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     private static final Component priceTag = Component.text("价格：", NamedTextColor.WHITE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private static final Component joinOnClick = onInteraction.append(Component.text("点击加入", NamedTextColor.GREEN));
+    private static final Component teamFull = Component.text("队伍已满", NamedTextColor.RED);
     private static final Component buyOnLeftClick = onInteraction.append(Component.text("左键购买", NamedTextColor.YELLOW));
     private static final Component equipOnLeftClick = onInteraction.append(Component.text("左键装备", NamedTextColor.GREEN));
     private static final Component upgradeOnRightClick = onInteraction.append(Component.text("右键升级", NamedTextColor.AQUA));
+    private static final Component unlockOnClick = onInteraction.append(Component.text("点击解锁", NamedTextColor.YELLOW));
+    private static final Component upgradeOnClick = onInteraction.append(Component.text("点击升级", NamedTextColor.GOLD));
+    private static final Component maxLevelReached = Component.text("已到达最高等级", NamedTextColor.RED);
     private static final int[][] upgradeSlots = {{}, {13}, {12, 14}, {11, 13, 15}, {10, 12, 14, 16}, {11, 12, 13, 14, 15}, {10, 11, 12, 14, 15, 16}, {10, 11, 12, 13, 14, 15, 16}};
     public static void init() {
         FastInvManager.register(CreepersPVP.instance);
@@ -78,7 +85,54 @@ public final class IUIManager {
             event.setCancelled(true);
         }
     }
-    public static class ArmorSelectorInv extends CreeperInv implements DynamicInv {
+    public static final class TeamSelectionInv extends CreeperInv {
+        private static final TeamSelectionInv instance = new TeamSelectionInv();
+        private TeamSelectionInv() {
+            super(27, "选择队伍");
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            refreshItems();
+        }
+        private void refreshItems() {
+            setItem(12, getItemStack(0));
+            setItem(14, getItemStack(1));
+        }
+        private static ItemStack getItemStack(int team) {
+            return ItemBuilder.copyOf(Utils.teamFlags[team]).meta(meta -> {
+                final List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+                for(final String entry : Utils.teams[team].getEntries()) {
+                    lore.add(Component.text(entry));
+                }
+                //lore.add(joinOnClick);
+                meta.lore(lore);
+            }).build();
+        }
+        @Override
+        protected void onClick(InventoryClickEvent event) {
+            super.onClick(event);
+            switch(event.getSlot()) {
+                case 12 -> {
+                    if(Utils.teams[0].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
+                        Utils.teams[0].addEntity(event.getWhoClicked());
+                        if(event.getWhoClicked() instanceof final Player player) {
+                            Utils.updateNames(player);
+                        }
+                        refreshItems();
+                    }
+                }
+                case 14 -> {
+                    if(Utils.teams[1].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
+                        Utils.teams[1].addEntity(event.getWhoClicked());
+                        if(event.getWhoClicked() instanceof final Player player) {
+                            Utils.updateNames(player);
+                        }
+                        refreshItems();
+                    }
+                }
+            }
+        }
+    }
+    public static final class ArmorSelectorInv extends CreeperInv implements DynamicInv {
         private static final ArmorSelectorInv instance = new ArmorSelectorInv();
         private ArmorSelectorInv() {
             super(InventoryType.PLAYER);
@@ -144,7 +198,7 @@ public final class IUIManager {
     }
     private static final class ArmorUpgradeInv extends CreeperInv {
         private ArmorUpgradeInv(final UUID uuid, final int armorID, final boolean[] armorStatus) {
-            super(27, "盔甲升级：" + PlainTextComponentSerializer.plainText().serialize(ArmorManager.selectors[armorID][1].displayName()));
+            super(27, "盔甲升级：" + LegacyComponentSerializer.legacySection().serialize(ArmorManager.selectors[armorID][1].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArmorSelectorInv(uuid).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
@@ -269,7 +323,7 @@ public final class IUIManager {
     }
     private static final class WeaponUpgradeInv extends CreeperInv {
         private WeaponUpgradeInv(final UUID uuid, final int weapon, final int weaponID, final boolean[] weaponStatus) {
-            super(27, "武器升级：" + PlainTextComponentSerializer.plainText().serialize(WeaponManager.weapons[weaponID][0].displayName()));
+            super(27, "武器升级：" + LegacyComponentSerializer.legacySection().serialize(WeaponManager.weapons[weaponID][0].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new WeaponSelectorInv(uuid, weapon).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
@@ -417,7 +471,7 @@ public final class IUIManager {
     }
     private static final class ArtifactUpgradeInv extends CreeperInv {
         private ArtifactUpgradeInv(final UUID uuid, final int artifact, final int artifactID, final int category, final boolean[] artifactStatus) {
-            super(27, "法器升级：" + PlainTextComponentSerializer.plainText().serialize(ArtifactManager.artifacts[artifactID][0].displayName()));
+            super(27, "法器升级：" + LegacyComponentSerializer.legacySection().serialize(ArtifactManager.artifacts[artifactID][0].displayName()));
             setItems(getBorders(), ItemManager.BORDER);
             setItem(0, ItemManager.BACK, event -> new ArtifactSelectorInv(uuid, artifact, category).open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
@@ -528,7 +582,6 @@ public final class IUIManager {
             return new AttributeUpgradesInv(uuid);
         }
         private void onClick(int slot, byte upgrade) {
-            System.out.println(Arrays.toString(upgrades.asBytes()));
             if(upgrades.getData(upgrade) < DatabaseUtils.AttributeUpgrades.prices[upgrade].length && DatabaseUtils.fetchPlayerEmeralds(uuid) >= DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)]) {
                 DatabaseUtils.addPlayerEmeralds(uuid, -DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)]);
                 DatabaseUtils.setPlayerAttributeUpgrades(uuid, upgrades.withIncrementedData(upgrade));
@@ -536,7 +589,19 @@ public final class IUIManager {
             }
         }
         private ItemStack getItemStack(byte upgrade) {
-            return upgrades.getData(upgrade) == 0 ? ItemManager.ATTRIBUTE_UPGRADE_ITEMS[upgrade].withType(Material.GRAY_DYE) : ItemManager.ATTRIBUTE_UPGRADE_ITEMS[upgrade].asQuantity(upgrades.getData(upgrade));
+            return ItemBuilder.copyOf(upgrades.getData(upgrade) == 0 ? ItemManager.ATTRIBUTE_UPGRADE_ITEMS[upgrade].withType(Material.GRAY_DYE) : ItemManager.ATTRIBUTE_UPGRADE_ITEMS[upgrade].asQuantity(upgrades.getData(upgrade))).meta(meta -> {
+                final List<Component> lore = meta.lore();
+                if(upgrades.getData(upgrade) == 0) {
+                    lore.add(priceTag.append(Component.text(DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)])));
+                    lore.add(unlockOnClick);
+                } else if(upgrades.getData(upgrade) == DatabaseUtils.AttributeUpgrades.prices[upgrade].length) {
+                    lore.add(maxLevelReached);
+                } else {
+                    lore.add(priceTag.append(Component.text(DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)])));
+                    lore.add(upgradeOnClick);
+                }
+                meta.lore(lore);
+            }).build();
         }
     }
     private static final class SettingsInv extends CreeperInv {

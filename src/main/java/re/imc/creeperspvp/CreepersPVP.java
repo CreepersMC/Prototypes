@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 public final class CreepersPVP extends JavaPlugin {
     public static CreepersPVP instance;
     public static GameMode mode;
+    public static GameStage stage;
     public static String databaseAddress = "127.0.0.1";
     public static String databasePort = "3306";
     public static String database = "creepersmc";
@@ -28,6 +29,7 @@ public final class CreepersPVP extends JavaPlugin {
         } catch(IllegalArgumentException e) {
             mode = GameMode.FFA;
         }
+        stage = mode == GameMode.FFA ? GameStage.MAIN : GameStage.WAITING;
         databaseAddress = config.getString("database.address");
         databasePort = config.getString("database.port");
         database = config.getString("database.database");
@@ -47,11 +49,7 @@ public final class CreepersPVP extends JavaPlugin {
     }
     @Override
     public void onDisable() {
-        try {
-            DatabaseUtils.fina();
-        } catch(SQLException e) {
-            CreepersPVP.logWarning("Error finalizing database: " + e.getMessage());
-        }
+        DatabaseUtils.fina();
         Utils.fina();
         logInfo("CreepersPVP finalized.");
         logger = null;
@@ -68,5 +66,8 @@ public final class CreepersPVP extends JavaPlugin {
     }
     public enum GameMode {
         FFA, TDM, CTF, CQT
+    }
+    public enum GameStage {
+        WAITING, PREPARATION, MAIN, ENDED
     }
 }

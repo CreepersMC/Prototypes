@@ -1,6 +1,7 @@
 package re.imc.creeperspvp.utils;
 import fr.mrmicky.fastinv.ItemBuilder;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
@@ -15,6 +16,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -46,6 +48,7 @@ public final class Utils {
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
     public static NamespacedKey armorBonusKey;
     public static NamespacedKey attributeBonusKey;
+    public static NamespacedKey gameProgressBarKey;
     public static NamespacedKey customItemUsageKey;
     public static NamespacedKey customItemUsedTimeKey;
     public static NamespacedKey customItemStartUsingTimeKey;
@@ -93,13 +96,24 @@ public final class Utils {
     private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
-    private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447"); //使用五郎的UUID
-    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create(""), "")).prompt(Component.text("WIP")).required(false).replace(true).build();
+    private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447");//使用五郎的UUID
+    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "5ec10abe11d0c5383798a4500b6c6a13a91b3153")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
+    private static BossBar gameProgressBar;
+    private static final String[] teamNames = new String[]{"red", "blue"};
+    public static final ItemStack[] teamFlags = new ItemStack[]{new ItemStack(Material.RED_BANNER), new ItemStack(Material.BLUE_BANNER)};
+    private static final Component[][] teamLore = new Component[][]{{Component.text("", NamedTextColor.GRAY)},{Component.text("", NamedTextColor.GRAY)}};
+    private static final Component[] teamDisplayNames = new Component[]{Component.text("红", NamedTextColor.RED), Component.text("蓝", NamedTextColor.BLUE)};
+    private static final Component[] teamPrefixes = new Component[]{Component.text("[红]", NamedTextColor.RED), Component.text("[蓝]", NamedTextColor.BLUE)};
+    private static final Component[] teamSuffixes = new Component[]{Component.empty(), Component.empty()};
+    private static final NamedTextColor[] teamColors = new NamedTextColor[]{NamedTextColor.RED, NamedTextColor.BLUE};
+    public static final int[] teamScores = new int[]{0, 0};
+    public static final Team[] teams = new Team[2];
     private Utils() {}
     public static void init() {
         fireworkBooster.editMeta(FireworkMeta.class, meta -> meta.setPower(1));
         armorBonusKey = new NamespacedKey(CreepersPVP.instance, "armor_bonus");
         attributeBonusKey = new NamespacedKey(CreepersPVP.instance, "attribute_bonus");
+        gameProgressBarKey = new NamespacedKey(CreepersPVP.instance, "game-progress");
         customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
         customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
         customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
@@ -176,31 +190,122 @@ public final class Utils {
             world.setGameRule(GameRule.UNIVERSAL_ANGER, false);
             world.setGameRule(GameRule.WATER_SOURCE_CONVERSION, false);
         }
+        gameProgressBar = BossBar.bossBar(Component.empty(), 0f, BossBar.Color.GREEN, BossBar.Overlay.PROGRESS);
+        final Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        for(final int[] i = new int[]{0}; i[0] < teams.length; i[0]++) {
+            teams[i[0]] = scoreboard.registerNewTeam(teamNames[i[0]]);
+            teamFlags[i[0]].editMeta(meta -> {
+                meta.itemName(teamDisplayNames[i[0]]);
+                meta.lore(ItemManager.removeItalics(Arrays.asList(teamLore[i[0]])));
+            });
+            teams[i[0]].color(teamColors[i[0]]);
+            teams[i[0]].displayName(teamDisplayNames[i[0]]);
+            teams[i[0]].prefix(teamPrefixes[i[0]]);
+            teams[i[0]].suffix(teamSuffixes[i[0]]);
+            teams[i[0]].setAllowFriendlyFire(false);
+            teams[i[0]].setCanSeeFriendlyInvisibles(false);
+            teams[i[0]].setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
+            teams[i[0]].setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, Team.OptionStatus.ALWAYS);
+            teams[i[0]].setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+        }
         Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
             armorStand.setInvisible(true);
             armorStand.setInvulnerable(true);
             armorStand.setNoPhysics(true);
             dummy = (ArmorStand) armorStand;
         });
+        gameProgressBar.progress(Float.NaN);
+        if(CreepersPVP.stage == CreepersPVP.GameStage.WAITING) {
+            final float[] progress = new float[]{0f};
+            gameProgressBar.progress(0f);
+            gameProgressBar.name(Component.text("等待玩家加入", NamedTextColor.YELLOW));
+            gameProgressBar.addViewer(Bukkit.getServer());
+            Bukkit.getScheduler().runTaskTimer(CreepersPVP.instance, task -> {
+                switch(CreepersPVP.stage) {
+                    case WAITING -> {
+                        if(progress[0] > 1f) {
+                            gameProgressBar.progress(progress[0] = 1f);
+                            gameProgressBar.name(Component.text("游戏准备开始", NamedTextColor.GREEN));
+                            CreepersPVP.stage = CreepersPVP.GameStage.PREPARATION;
+                            for(final Player player : Bukkit.getOnlinePlayers()) {
+                                final PlayerInventory inv = player.getInventory();
+                                if(inv.getItem(4) == null || inv.getItem(4).isEmpty()) {
+                                    inv.setItem(4, ItemManager.SELECT_TEAM);
+                                } else {
+                                    inv.addItem(ItemManager.SELECT_TEAM);
+                                }
+                            }
+                        } else {
+                            gameProgressBar.progress(progress[0] += (Bukkit.getOnlinePlayers().size() * 0.251f - progress[0]) * 0.84f);
+                        }
+                    }
+                    case PREPARATION -> {
+                        if(progress[0] > 1f) {
+                            gameProgressBar.progress(progress[0] = 1f);
+                            gameProgressBar.name(Component.text("等待玩家加入", NamedTextColor.YELLOW));
+                            CreepersPVP.stage = CreepersPVP.GameStage.WAITING;
+                            for(final Player player : Bukkit.getOnlinePlayers()) {
+                                player.closeInventory();
+                                player.getInventory().removeItem(ItemManager.SELECT_TEAM);
+                                for(final Team team : teams) {
+                                    team.removeEntries(team.getEntries());
+                                }
+                            }
+                        } else if(progress[0] < 0f) {
+                            gameProgressBar.progress(progress[0] = Float.NaN);
+                            gameProgressBar.name(Component.empty());
+                            gameProgressBar.removeViewer(Bukkit.getServer());
+                            CreepersPVP.stage = CreepersPVP.GameStage.MAIN;
+                            for(final Player player : Bukkit.getOnlinePlayers()) {
+                                if(!teams[0].hasEntity(player) && !teams[1].hasEntity(player)) {
+                                    if(teams[0].getSize() > teams[1].getSize()) {
+                                        teams[1].addPlayer(player);
+                                    } else {
+                                        teams[0].addPlayer(player);
+                                    }
+                                }
+                                updateNames(player);
+                            }
+                            for(final Player player : Bukkit.getOnlinePlayers()) {
+                                player.closeInventory();
+                                final PlayerInventory inv = player.getInventory();
+                                player.getInventory().removeItem(ItemManager.SELECT_TEAM);
+                                if(inv.getItem(4) == null || inv.getItem(4).isEmpty()) {
+                                    inv.setItem(4, ItemManager.DEPLOY);
+                                } else {
+                                    inv.addItem(ItemManager.DEPLOY);
+                                }
+                            }
+                        } else {
+                            final int players = Bukkit.getOnlinePlayers().size();
+                            gameProgressBar.progress(progress[0] -= (players != 3 ? players >= 3 ? 0.001f : 0f : -0.001f));
+                        }
+                    }
+                }
+            }, 1, 1);
+        }
     }
     public static void fina() {
         transientBlockOriginals.forEach((location, data) -> location.getBlock().setBlockData(data));
         dummy.remove();
+        for(final Team team : teams) {
+            team.unregister();
+        }
     }
     public static void playerJoin(Player player) {
         //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
-        //player.sendResourcePacks(resourcePackRequest);
         final UUID uuid = player.getUniqueId();
         final DatabaseUtils.MiscSettings miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
         if(miscSettings.shouldShowGuideBook()) {
             player.openBook(ItemManager.GUIDEBOOK);
         }
+        player.sendResourcePacks(resourcePackRequest);
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         final Objective health = scoreboard.registerNewObjective("health", Criteria.HEALTH, Component.text("HP", NamedTextColor.RED), RenderType.HEARTS);
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
         level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：FFA", NamedTextColor.GREEN), RenderType.INTEGER);
+        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：" + CreepersPVP.mode, NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
         final String[] info = new String[]{"", "", ""};
@@ -219,6 +324,9 @@ public final class Utils {
             }
             player.setExperienceLevelAndProgress(DatabaseUtils.fetchPlayerXp(uuid));
         }, null, 1, 19);
+        if(!Float.isNaN(gameProgressBar.progress())) {
+            gameProgressBar.addViewer(player);
+        }
         final Inventory inv = player.getInventory();
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
             if(player.hasActiveItem()) {
@@ -239,9 +347,9 @@ public final class Utils {
                             if(startTime + usedTime + 1 == currentTime && usedTime < customMaxUseTime) {
                                 data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, ++usedTime);
                                 player.setActiveItemRemainingTime(item.getMaxItemUseDuration(player) - usedTime * vanillaMaxUseDuration / customMaxUseTime);
-                                if(player.hasResourcePack()) {
-                                    item.getItemMeta().setCustomModelData(getCustomModelData(item, player, usedTime));
-                                }
+                                //if(player.hasResourcePack()) {
+                                    meta.setCustomModelData(getCustomModelData(item, player, usedTime));
+                                //}
                             } else if(usedTime != customMaxUseTime) {
                                 data.remove(customItemStartUsingTimeKey);
                                 data.remove(customItemUsedTimeKey);
@@ -271,12 +379,18 @@ public final class Utils {
     public static void playerInit(Player player) {
         armors.remove(player.getUniqueId());
         removeGainArtifactSchedulers(player.getUniqueId());
+        for(final Attribute attribute : Attribute.values()) {
+            final AttributeInstance attributeInstance = player.getAttribute(attribute);
+            if(attributeInstance != null) {
+                attributeInstance.removeModifier(attributeBonusKey);
+            }
+        }
         final PlayerInventory inv = player.getInventory();
         inv.clear();
         inv.setItem(0, ItemManager.SELECT_ARMOR);
         inv.setItem(1, ItemManager.SELECT_WEAPONS);
         inv.setItem(2, ItemManager.SELECT_ARTIFACTS);
-        inv.setItem(4, ItemManager.DEPLOY);
+        inv.setItem(4, CreepersPVP.stage == CreepersPVP.GameStage.PREPARATION ? ItemManager.SELECT_TEAM : CreepersPVP.stage == CreepersPVP.GameStage.MAIN ? ItemManager.DEPLOY : null);
         inv.setItem(6, ItemManager.GUIDEBOOK);
         inv.setItem(7, ItemBuilder.copyOf(ItemManager.PROFILE).meta(SkullMeta.class, meta -> {
             meta.setOwningPlayer(player);
@@ -310,31 +424,31 @@ public final class Utils {
         inv.setItem(EquipmentSlot.FEET, ArmorManager.armor[armorID][3]);
         final ItemStack weapon1 = ItemBuilder.copyOf(WeaponManager.weapons[itemSettings == null ? WeaponManager.SWORD : itemSettings.getWeaponSelection(0)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 0))).build();
         inv.setItem(itemSettings == null ? 0 : itemSettings.getWeaponSlot(0), weapon1);
-        if(weapon1.hasItemMeta()) {
-            PersistentDataContainer weapon1Data = weapon1.getItemMeta().getPersistentDataContainer();
-            if(weapon1Data.has(multiItemKey, PersistentDataType.INTEGER)) {
-                final int multiItems = weapon1Data.get(multiItemKey, PersistentDataType.INTEGER);
-                for(int i = 1; i < multiItems; i++) {
-                    inv.setItem((itemSettings == null ? 0 : itemSettings.getWeaponSlot(0)) + 36 - i * 9, weapon1);
-                }
-            }
-        }
         final ItemStack weapon2 = ItemBuilder.copyOf(WeaponManager.weapons[itemSettings == null ? WeaponManager.BOW : itemSettings.getWeaponSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 1))).build();
         inv.setItem(itemSettings == null ? 1 : itemSettings.getWeaponSlot(1), weapon2);
-        if(weapon2.hasItemMeta()) {
-            PersistentDataContainer weapon2Data = weapon2.getItemMeta().getPersistentDataContainer();
-            if(weapon2Data.has(multiItemKey, PersistentDataType.INTEGER)) {
-                final int multiItems = weapon2Data.get(multiItemKey, PersistentDataType.INTEGER);
-                for(int i = 1; i < multiItems; i++) {
-                    inv.setItem((itemSettings == null ? 1 : itemSettings.getWeaponSlot(1)) + 36 - i * 9, weapon2);
-                }
-            }
-        }
         inv.setItem(itemSettings == null ? 2 : itemSettings.getArtifactSlot(0), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SNOWBALL : itemSettings.getArtifactSelection(0)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 2))).build());
         inv.setItem(itemSettings == null ? 3 : itemSettings.getArtifactSlot(1), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.BREAD : itemSettings.getArtifactSelection(1)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 3))).build());
         inv.setItem(itemSettings == null ? 4 : itemSettings.getArtifactSlot(2), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.WATER_BUCKET : itemSettings.getArtifactSelection(2)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 4))).build());
         inv.setItem(itemSettings == null ? 40 : itemSettings.getArtifactSlot(3), ItemBuilder.copyOf(ArtifactManager.artifacts[itemSettings == null ? ArtifactManager.SHIELD : itemSettings.getArtifactSelection(3)][1]).edit(item -> item.editMeta(meta -> meta.getPersistentDataContainer().set(itemOrdinalKey, PersistentDataType.INTEGER, 5))).build());
         inv.setItem(17, new ItemStack(Material.ARROW, 64));
+        if(weapon1.hasItemMeta()) {
+            PersistentDataContainer weapon1Data = weapon1.getItemMeta().getPersistentDataContainer();
+            if(weapon1Data.has(multiItemKey, PersistentDataType.INTEGER)) {
+                final int extraItems = weapon1Data.get(multiItemKey, PersistentDataType.INTEGER) - 1;
+                for(int i = 0; i < extraItems; i++) {
+                    inv.addItem(weapon1);
+                }
+            }
+        }
+        if(weapon2.hasItemMeta()) {
+            PersistentDataContainer weapon2Data = weapon2.getItemMeta().getPersistentDataContainer();
+            if(weapon2Data.has(multiItemKey, PersistentDataType.INTEGER)) {
+                final int extraItems = weapon2Data.get(multiItemKey, PersistentDataType.INTEGER) - 1;
+                for(int i = 0; i < extraItems; i++) {
+                    inv.addItem(weapon2);
+                }
+            }
+        }
         inv.setHeldItemSlot(0);
         final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(player.getUniqueId());
         player.registerAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -367,7 +481,20 @@ public final class Utils {
         deathSpectatingPlayers.put(player.getUniqueId(), Bukkit.getCurrentTick());
     }
     public static int fakeBlockDamageSourceEID(Location location) {
-        return (int) -((((long) location.getBlockX() << 38) + ((long) location.getBlockY() << 26) + location.getBlockZ()) % 2147483648L) - 1;
+        return (int) -((((long) location.getBlockX() << 38) + ((long) location.getBlockY() << 26) + location.getBlockZ()) % 1000000007) - 1;
+    }
+    public static int getPlayerTeam(OfflinePlayer player) {
+        final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
+        if(team != null) {
+            return team.getName().equals("red") ? 0 : 1;
+        }
+        return -1;
+    }
+    public static void updateNames(Player player) {
+        final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
+        final Component name = team == null ? Component.text(player.getName()) : Component.textOfChildren(team.prefix(), Component.text(player.getName(), team.color()), team.suffix());
+        player.displayName(name);
+        player.playerListName(name);
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();
@@ -529,8 +656,41 @@ public final class Utils {
         }
         return item.getMaxItemUseDuration(entity);
     }
-    private static int getCustomModelData(ItemStack item, LivingEntity entity, int usedDuration) {
-        return usedDuration * 3 / getCustomMaxUseDuration(item, entity);
+    public static int getCustomModelData(ItemStack item, LivingEntity entity, int usedDuration) {
+        switch(item.getType()) {
+            case BOW, TRIDENT -> {
+                if(item.hasItemMeta()) {
+                    PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+                    if(data.has(weaponIDKey, PersistentDataType.SHORT)) {
+                        if(usedDuration == -1) {
+                            return 2048 + (data.get(weaponIDKey, PersistentDataType.SHORT) << 4);
+                        } else {
+                            float progress = (float) usedDuration / getCustomMaxUseDuration(item, entity);
+                            return 2048 + (data.get(weaponIDKey, PersistentDataType.SHORT) << 4) + (progress >= 0.9 ? 3 : progress >= 0.65 ? 2 : 1);
+                        }
+                    }
+                }
+            }
+            case CROSSBOW -> {
+                if(item.hasItemMeta()) {
+                    final CrossbowMeta meta = (CrossbowMeta) item.getItemMeta();
+                    PersistentDataContainer data = meta.getPersistentDataContainer();
+                    if(data.has(weaponIDKey, PersistentDataType.SHORT)) {
+                        if(meta.hasChargedProjectiles()) {
+                            return 2048 + (data.get(weaponIDKey, PersistentDataType.SHORT) << 4) + (meta.getChargedProjectiles().get(0).getType() == Material.FIREWORK_ROCKET ? 5 : 4);
+                        } else {
+                            if(usedDuration == -1) {
+                                return 2048 + (data.get(weaponIDKey, PersistentDataType.SHORT) << 4);
+                            } else {
+                                float progress = (float) usedDuration / getCustomMaxUseDuration(item, entity);
+                                return 2048 + (data.get(weaponIDKey, PersistentDataType.SHORT) << 4) + (progress >= 1.0 ? 3 : progress >= 0.58 ? 2 : 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
     }
     public static final class TransientBlockData {
         private final BlockData data;

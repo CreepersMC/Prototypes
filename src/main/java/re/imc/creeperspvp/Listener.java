@@ -4,7 +4,9 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
+import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
@@ -27,6 +29,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 import re.imc.creeperspvp.items.ArmorManager;
 import re.imc.creeperspvp.items.ArtifactManager;
@@ -54,6 +57,9 @@ public final class Listener implements org.bukkit.event.Listener {
     private static final Component elytraBoostWithExplosionWarning = Component.textOfChildren(Component.text("你正在使用带有烟火之星的烟花火箭加速滑翔！", NamedTextColor.YELLOW), Component.newline(), Component.text("请空手按 ", NamedTextColor.YELLOW), Component.keybind("key.attack", NamedTextColor.YELLOW), Component.text(" 进行加速！", NamedTextColor.YELLOW));
     private static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
     private static final Component leaveDeathSpectate = Component.textOfChildren(Component.text("按 "), Component.keybind("key.sneak"), Component.text(" 退出旁观"));
+    private static final Component killRewards = Component.text(" +%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
+    private static final TextReplacementConfig.Builder replaceKillRewardsEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
+    private static final TextReplacementConfig.Builder replaceKillRewardsXp = TextReplacementConfig.builder().matchLiteral("%xp%");
     public static final Title freeSpectateTitle = Title.title(Component.text("正在自由旁观"), Component.text("输入 /spawn 退出观战"), spectateTitleTimes);
     private static final BlockFace[] NEIGHBORS = new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
     private Listener() {}
@@ -64,19 +70,35 @@ public final class Listener implements org.bukkit.event.Listener {
         @SuppressWarnings("all")
         final DamageSource source = event.getDamageSource();
         final Component deathMessage = event.deathMessage();
+        final boolean hasKiller = killer != null && !killer.getUniqueId().equals(player.getUniqueId());
+        final long emeralds;
+        final int xp;
+        if(hasKiller) {
+            final double flag = Math.sqrt(1D * DatabaseUtils.fetchPlayerKills(player.getUniqueId()) / Math.max(DatabaseUtils.fetchPlayerDeaths(player.getUniqueId()), 1)) * Math.log1p(player.getLevel());
+            emeralds = Math.max(Math.round(5 * flag), 1);
+            xp = Math.toIntExact(Math.max(Math.round(2 * flag), 1));
+            DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), emeralds);
+            DatabaseUtils.addPlayerXp(killer.getUniqueId(), xp);
+            DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
+            if(CreepersPVP.mode == CreepersPVP.GameMode.TDM) {
+                Utils.teamScores[Utils.getPlayerTeam(killer)]++;
+                if(Utils.teamScores[Utils.getPlayerTeam(killer)] >= 30) {
+                    Bukkit.getServer().showTitle(Title.title(Utils.teams[Utils.getPlayerTeam(killer)].displayName().append(Component.text("胜利！")), Component.empty(), Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(100))));
+                    Bukkit.getScheduler().runTaskLater(CreepersPVP.instance, Bukkit::shutdown, 100);
+                    Bukkit.getScheduler().runTaskLater(CreepersPVP.instance, Bukkit::shutdown, 100);
+                }
+            }
+        } else {
+            emeralds = 0;
+            xp = 0;
+        }
         if(deathMessage != null) {
             player.sendActionBar(deathMessage);
-            if(killer != null) {
-                killer.sendActionBar(deathMessage);
+            if(hasKiller) {
+                killer.sendActionBar(deathMessage.append(killRewards.replaceText(replaceKillRewardsEmeralds.replacement(String.valueOf(emeralds)).build()).replaceText(replaceKillRewardsXp.replacement(String.valueOf(xp)).build())));
             }
         }
-        if(killer != null && !killer.getUniqueId().equals(player.getUniqueId())) {
-            final double flag = Math.sqrt(1D * DatabaseUtils.fetchPlayerKills(player.getUniqueId()) / Math.max(DatabaseUtils.fetchPlayerDeaths(player.getUniqueId()), 1)) * Math.log1p(player.getLevel());
-            DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), Math.max(Math.round(5 * flag), 1));
-            DatabaseUtils.addPlayerXp(killer.getUniqueId(), Math.toIntExact(Math.max(Math.round(2 * flag), 1)));
-            DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
-        }
-        player.showTitle(killer == null ? freeSpectateTitle : Title.title(Component.text("正在旁观 ").append(killer.displayName()), leaveDeathSpectate, spectateTitleTimes));
+        player.showTitle(hasKiller ? Title.title(Component.text("正在旁观 ").append(killer.displayName()), leaveDeathSpectate, spectateTitleTimes) : freeSpectateTitle);
         DatabaseUtils.incrementPlayerDeaths(player.getUniqueId());
         Utils.playerDeath(player);
         Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
@@ -111,7 +133,9 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerPickUpArrow(PlayerPickupArrowEvent event) {
-        event.setCancelled(true);
+        if(!(event.getArrow() instanceof Trident)) {
+            event.setCancelled(true);
+        }
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInventoryClick(InventoryClickEvent event) {
@@ -187,9 +211,10 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityShootBow(EntityShootBowEvent event) {
-        ItemStack bow = event.getBow();
+        final ItemStack bow = event.getBow();
         if(bow != null) {
             bow.editMeta(meta -> {
+                meta.setCustomModelData(Utils.getCustomModelData(bow, event.getEntity(), -1));
                 PersistentDataContainer data = meta.getPersistentDataContainer();
                 data.remove(Utils.customItemStartUsingTimeKey);
                 data.remove(Utils.customItemUsedTimeKey);
@@ -199,7 +224,25 @@ public final class Listener implements org.bukkit.event.Listener {
         }
         if(event.getProjectile() instanceof AbstractArrow arrow) {
             arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+            if(arrow instanceof Arrow arrow0 && arrow0.hasCustomEffects()) {
+                for(final PotionEffect effect : arrow0.getCustomEffects()) {
+                    if(!effect.isInfinite()) {
+                        arrow0.addCustomEffect(effect.withDuration(Math.max(1, effect.getDuration() / 8)), true);
+                    }
+                }
+            }
         }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityLoadCrossbow(EntityLoadCrossbowEvent event) {
+        final ItemStack crossbow = event.getCrossbow();
+        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> crossbow.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(crossbow, event.getEntity(), -1))));
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
+        final AreaEffectCloud areaEffectCloud = event.getAreaEffectCloud();
+        areaEffectCloud.setDuration(areaEffectCloud.getDuration() / 4);
+        areaEffectCloud.setDurationOnUse(areaEffectCloud.getDurationOnUse() / 4);
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockFade(BlockFadeEvent event) {
@@ -470,91 +513,99 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        switch(event.getCause()) {
-            case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
-                if(event.getDamageSource().getCausingEntity() instanceof final LivingEntity damager) {
-                    final EntityEquipment equipment = damager.getEquipment();
-                    if(equipment != null) {
-                        final ItemStack weapon = equipment.getItemInMainHand();
-                        if(weapon.hasItemMeta()) {
-                            final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
-                            switch(data.getOrDefault(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                                case Utils.MELEE_EFFECT_CHANNELING -> {
-                                }
-                                case Utils.MELEE_EFFECT_EXPLOSION -> {
-                                    Location loc1 = event.getEntity().getLocation();
-                                    Location loc2 = damager.getLocation();
-                                    loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(damager, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 0f) * (damager instanceof HumanEntity humanDamager ? humanDamager.getAttackCooldown() : 1), false, false);
-                                }
-                                case Utils.MELEE_EFFECT_FREEZE -> {
-                                    if(event.getFinalDamage() > 0 && equipment.getBoots().getType() != Material.LEATHER_BOOTS) { //TODO FIX
-                                        event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
+        final Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        try {
+            if(scoreboard.getEntityTeam(event.getEntity()).equals(scoreboard.getEntityTeam(event.getDamageSource().getCausingEntity()))) {
+                event.setCancelled(true);
+            }
+        } catch(NullPointerException ignored) {}
+        if(!event.isCancelled()) {
+            switch(event.getCause()) {
+                case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
+                    if(event.getDamageSource().getCausingEntity() instanceof final LivingEntity damager) {
+                        final EntityEquipment equipment = damager.getEquipment();
+                        if(equipment != null) {
+                            final ItemStack weapon = equipment.getItemInMainHand();
+                            if(weapon.hasItemMeta()) {
+                                final PersistentDataContainer data = weapon.getItemMeta().getPersistentDataContainer();
+                                switch(data.getOrDefault(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                                    case Utils.MELEE_EFFECT_CHANNELING -> {
+                                    }
+                                    case Utils.MELEE_EFFECT_EXPLOSION -> {
+                                        Location loc1 = event.getEntity().getLocation();
+                                        Location loc2 = damager.getLocation();
+                                        loc1.add(loc2.subtract(loc1).multiply(0.25)).createExplosion(damager, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.FLOAT, 0f) * (damager instanceof HumanEntity humanDamager ? humanDamager.getAttackCooldown() : 1), false, false);
+                                    }
+                                    case Utils.MELEE_EFFECT_FREEZE -> {
+                                        if(event.getFinalDamage() > 0 && equipment.getBoots().getType() != Material.LEATHER_BOOTS) { //TODO FIX
+                                            event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                                        }
+                                    }
+                                    case Utils.MELEE_EFFECT_POISON -> {
+                                        if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
+                                            entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                                        }
                                     }
                                 }
-                                case Utils.MELEE_EFFECT_POISON -> {
-                                    if(event.getEntity() instanceof LivingEntity entity && event.getFinalDamage() > 0) {
-                                        entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, data.getOrDefault(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 0), 0));
+                            }
+                        }
+                    }
+                }
+                case PROJECTILE -> {
+                    if(event.getDamageSource().getDirectEntity() instanceof AbstractArrow arrow) {
+                        final PersistentDataContainer data = arrow.getPersistentDataContainer();
+                        switch(data.getOrDefault(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                            case Utils.RANGED_EFFECT_CHANNELING -> {
+                                final Location loc = event.getEntity().getLocation();
+                                final double chance = Utils.getChannellingChance(loc);
+                                if((!(arrow instanceof Trident) || !arrow.getItemStack().hasItemMeta() || !arrow.getItemStack().getItemMeta().hasEnchant(Enchantment.CHANNELING) || chance < 1) && Utils.random.nextDouble() < chance) {
+                                    loc.getWorld().strikeLightning(loc);
+                                }
+                            }
+                            case Utils.RANGED_EFFECT_FREEZE -> {
+                                if(event.getFinalDamage() > 0) { //TODO
+                                    event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
+                                }
+                            }
+                            case Utils.RANGED_EFFECT_WIND -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+                                final Entity entity = event.getEntity();
+                                entity.setVelocity(entity.getVelocity().add(new Vector(0, arrow.getVelocity().length() * data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d) * (entity instanceof LivingEntity livingEntity ? livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE) != null ? 1 - livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() : 1 : 1), 0)));
+                            });
+                        }
+                    }
+                }
+            }
+            if(event.getDamageSource().getCausingEntity() instanceof final LivingEntity damager) {
+                final EntityEquipment equipment = damager.getEquipment();
+                if(equipment != null) {
+                    for(ItemStack armor : equipment.getArmorContents()) {
+                        if(armor != null && armor.hasItemMeta()) {
+                            final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
+                            switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                                case Utils.ARMOR_AURA_LIFESTEAL -> damager.heal(event.getFinalDamage() * data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 1f), EntityRegainHealthEvent.RegainReason.WITHER);
+                            }
+                        }
+                    }
+                }
+            }
+            if(event.getEntity() instanceof final LivingEntity damagee) {
+                final EntityEquipment equipment = damagee.getEquipment();
+                if(equipment != null) {
+                    for(ItemStack armor : equipment.getArmorContents()) {
+                        if(armor != null && armor.hasItemMeta()) {
+                            final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
+                            switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
+                                case Utils.ARMOR_AURA_FREEZE -> {
+                                    final Entity damager = event.getDamager();
+                                    final EntityEquipment damagerEquipment = damager instanceof LivingEntity livingDamager ? livingDamager.getEquipment() : null;
+                                    if(event.getFinalDamage() > 0 && (damagerEquipment == null || damagerEquipment.getBoots().getType() != Material.LEATHER_BOOTS)) {
+                                        damager.setFreezeTicks(Math.max(damager.getFreezeTicks(), data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.INTEGER, 0)));
                                     }
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-            case PROJECTILE -> {
-                if(event.getDamageSource().getDirectEntity() instanceof AbstractArrow arrow) {
-                    final PersistentDataContainer data = arrow.getPersistentDataContainer();
-                    switch(data.getOrDefault(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                        case Utils.RANGED_EFFECT_CHANNELING -> {
-                            final Location loc = event.getEntity().getLocation();
-                            final double chance = Utils.getChannellingChance(loc);
-                            if((!(arrow instanceof Trident) || !arrow.getItemStack().hasItemMeta() || !arrow.getItemStack().getItemMeta().hasEnchant(Enchantment.CHANNELING) || chance < 1) && Utils.random.nextDouble() < chance) {
-                                loc.getWorld().strikeLightning(loc);
-                            }
-                        }
-                        case Utils.RANGED_EFFECT_FREEZE -> {
-                            if(event.getFinalDamage() > 0) { //TODO
-                                event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
-                            }
-                        }
-                        case Utils.RANGED_EFFECT_WIND -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
-                            final Entity entity = event.getEntity();
-                            entity.setVelocity(entity.getVelocity().add(new Vector(0, arrow.getVelocity().length() * data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d) * (entity instanceof LivingEntity livingEntity ? livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE) != null ? 1 - livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() : 1 : 1), 0)));
-                        });
-                    }
-                }
-            }
-        }
-        if(event.getDamageSource().getCausingEntity() instanceof final LivingEntity damager) {
-            final EntityEquipment equipment = damager.getEquipment();
-            if(equipment != null) {
-                for(ItemStack armor : equipment.getArmorContents()) {
-                    if(armor != null && armor.hasItemMeta()) {
-                        final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
-                        switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                            case Utils.ARMOR_AURA_LIFESTEAL -> damager.heal(event.getFinalDamage() * data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.FLOAT, 1f), EntityRegainHealthEvent.RegainReason.WITHER);
-                        }
-                    }
-                }
-            }
-        }
-        if(event.getEntity() instanceof final LivingEntity damagee) {
-            final EntityEquipment equipment = damagee.getEquipment();
-            if(equipment != null) {
-                for(ItemStack armor : equipment.getArmorContents()) {
-                    if(armor != null && armor.hasItemMeta()) {
-                        final PersistentDataContainer data = armor.getItemMeta().getPersistentDataContainer();
-                        switch(data.getOrDefault(Utils.armorAuraIDKey, PersistentDataType.BYTE, (byte) -1)) {
-                            case Utils.ARMOR_AURA_FREEZE -> {
-                                final Entity damager = event.getDamager();
-                                final EntityEquipment damagerEquipment = damager instanceof LivingEntity livingDamager ? livingDamager.getEquipment() : null;
-                                if(event.getFinalDamage() > 0 && (damagerEquipment == null || damagerEquipment.getBoots().getType() != Material.LEATHER_BOOTS)) {
-                                    damager.setFreezeTicks(Math.max(damager.getFreezeTicks(), data.getOrDefault(Utils.armorAuraDataKey, PersistentDataType.INTEGER, 0)));
-                                }
-                            }
-                            case Utils.ARMOR_AURA_SHULKING -> {
-                                if(damagee.getHealth() - event.getFinalDamage() < damagee.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 0.5) {
-                                    damagee.teleport(Utils.shulk(damagee.getLocation()));
+                                case Utils.ARMOR_AURA_SHULKING -> {
+                                    if(damagee.getHealth() - event.getFinalDamage() < damagee.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 0.5) {
+                                        damagee.teleport(Utils.shulk(damagee.getLocation()));
+                                    }
                                 }
                             }
                         }

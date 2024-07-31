@@ -44,7 +44,7 @@
                     <filter>
                         <artifact>net.kyori:*</artifact>
                         <includes>
-                            <include>net/kyori/adventure/text/serializer/plain/**</include>
+                            <include>net/kyori/adventure/text/serializer/legacy/**</include>
                         </includes>
                     </filter>
                 </filters>
@@ -54,8 +54,8 @@
                         <shadedPattern>re.imc.shaded.fastinv</shadedPattern>
                     </relocation>
                     <relocation>
-                        <pattern>net.kyori.adventure.text.serializer.plain</pattern>
-                        <shadedPattern>re.imc.shaded.adventure-text-serializer-plain</shadedPattern>
+                        <pattern>net.kyori.adventure.text.serializer.legacy</pattern>
+                        <shadedPattern>re.imc.shaded.adventure-text-serializer-legacy</shadedPattern>
                     </relocation>
                     <relocation>
                         <pattern>org.intellij.lang.annotations</pattern>

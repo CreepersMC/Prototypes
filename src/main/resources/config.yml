@@ -1,5 +1,6 @@
 #The game mode. Can be one of the following:
 #FFA - Default mode, free combat.
+#TDM - Basic team mode. The team that reaches a given amount of kills first wins.
 mode: FFA
 
 #Database configurations

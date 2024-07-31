@@ -70,7 +70,7 @@ public final class WeaponManager {
     public static final ItemStack[][] weapons = new ItemStack[80][2];
     public static final short[] selections = new short[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, SHORTBOW, BOW, SNOW_BOW, WIND_BOW, LONGBOW, POWER_BOW, RAPID_CROSSBOW, CROSSBOW, SCATTER_CROSSBOW, DUAL_CROSSBOWS, HEAVY_CROSSBOW, COG_CROSSBOW};
     public static final short[][] upgrades = new short[][] {{FREEZING_FOIL}, {}, {}, {BREEZE_ROD, BLAZE_ROD, TERROR_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {}, {DIAMOND_SWORD}, {}, {}, {FIREBRAND}, {}, {}, {HIGHLAND_AXE}, {}, {}, {CURSED_AXE}, {}, {}, {DIAMOND_PICKAXE}, {}, {}, {}, {TEMPEST_MACE}, {}, {}, {}, {TIDE_REVERSER}, {}, {AZURE_STORM}, {}, {MECHANICAL_SHORTBOW}, {}, {}, {BONE_BOW}, {}, {}, {WINTERS_TOUCH}, {}, {ECHO_OF_THE_VALLEY}, {}, {RED_SNAKE, GUARDIAN_BOW}, {}, {}, {ELITE_POWER_BOW, SABREWING}, {}, {}, {AUTO_CROSSBOW}, {}, {}, {THE_SLICER}, {}, {}, {HARP_CROSSBOW, LIGHTNING_HARP_CROSSBOW}, {}, {}, {}, {}, {}, {DOOM_CROSSBOW, SLAYER_CROSSBOW}, {}, {}, {PIGLINS_PRIDE}, {}};
-    public static final long[] prices = new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    public static final long[] prices = new long[] {2000, 4800, 0, 1200, 3000, 1800, 2000, 800, 0, 1700, 0, 1000, 0, 1600, 4000, 0, 1800, 4000, 0, 2400, 5000, 0, 1000, 2000, 0, 0, 0, 0, 2000, 4800, 1000, 5000, 1400, 3000, 1200, 2000, 0, 0, 1000, 0, 1400, 3000, 1600, 3200, 1600, 3400, 2800, 2000, 4200, 3600, 1400, 3000, 0, 0, 1400, 1000, 1200, 2600, 3200, 1600, 0, 0, 1800, 3500, 4500, 2000, 4500, 0, 0, 0};
     private WeaponManager() {}
     static void init() {
         final ItemStack[] weapons0 = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), null, new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.BLAZE_ROD), new ItemStack(Material.STICK), new ItemStack(Material.IRON_HOE), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), null, new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), null, new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), null, null, new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
@@ -88,7 +88,7 @@ public final class WeaponManager {
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("霜冻花剑", NamedTextColor.DARK_AQUA));
                 meta.lore(removeItalics(Arrays.asList(Component.text("霜冻附加 II", NamedTextColor.GRAY), Component.text("这种针状的花剑触感冰凉，取敌首级如探囊取物。", NamedTextColor.GRAY))));
-                editMeleeAttributes(meta, 4.5, 10);
+                editMeleeAttributes(meta, 4.5, 2048);
                 meta.getPersistentDataContainer().set(Utils.meleeAttackEffectIDKey, PersistentDataType.BYTE, Utils.MELEE_EFFECT_FREEZE);
                 meta.getPersistentDataContainer().set(Utils.meleeAttackEffectDataKey, PersistentDataType.INTEGER, 139);
             });
@@ -99,7 +99,7 @@ public final class WeaponManager {
                 meta.setEnchantmentGlintOverride(false);
             });
             weapons[BREEZE_ROD][i].editMeta(meta -> {
-                meta.addEnchant(Enchantment.KNOCKBACK, 3, true);
+                meta.addEnchant(Enchantment.KNOCKBACK, 4, true);
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("旋风棒", NamedTextColor.BLUE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("在一场毁天灭地的风暴中锻造而成，这根手杖能召唤狂风的力量。", NamedTextColor.GRAY))));
@@ -253,7 +253,7 @@ public final class WeaponManager {
                 meta.setRarity(ItemRarity.RARE);
                 meta.itemName(Component.text("机械短弓", NamedTextColor.GRAY));
                 meta.lore(removeItalics(Arrays.asList(Component.text("快速射击技术的全新发展，给这把弓带来了极快的射速。", NamedTextColor.GRAY))));
-                editRangedAttributes(meta, 0.7f, 2f);
+                editRangedAttributes(meta, 0.7f, 2.2f);
             });
             weapons[BOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("弓", NamedTextColor.WHITE));
@@ -288,7 +288,7 @@ public final class WeaponManager {
                 meta.lore(removeItalics(Arrays.asList(Component.text("击飞", NamedTextColor.GRAY), Component.text("一把令人着迷的弓，捕捉狂风的能量来发射强大的风之箭矢。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1.1f, 0.75f);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_WIND);
-                meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0.3d);
+                meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0.2d);
             });
             weapons[ECHO_OF_THE_VALLEY][i].editMeta(meta -> {
                 meta.addEnchant(Enchantment.PIERCING, 4, true);
@@ -297,7 +297,7 @@ public final class WeaponManager {
                 meta.lore(removeItalics(Arrays.asList(Component.text("击飞", NamedTextColor.GRAY), Component.text("这把弓会与最初上弦时隐藏在山谷之中的扭曲之风交相呼应。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1.1f, 0.75f);
                 meta.getPersistentDataContainer().set(Utils.rangedAttackEffectIDKey, PersistentDataType.BYTE, Utils.RANGED_EFFECT_WIND);
-                meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0.3d);
+                meta.getPersistentDataContainer().set(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0.2d);
             });
             weapons[LONGBOW][i].editMeta(meta -> {
                 meta.itemName(Component.text("长弓", NamedTextColor.WHITE));
@@ -437,6 +437,11 @@ public final class WeaponManager {
                         meta.getPersistentDataContainer().set(Utils.weaponIDKey, PersistentDataType.SHORT, j[0]);
                     });
                 }
+            }
+        }
+        for(final short[] i = new short[]{0}; i[0] < weapons.length; i[0]++) {
+            if(weapons[i[0]][1] != null) {
+                weapons[i[0]][1].editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(weapons[i[0]][1], null, -1)));
             }
         }
     }

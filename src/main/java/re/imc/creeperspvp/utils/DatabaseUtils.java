@@ -1,6 +1,8 @@
 package re.imc.creeperspvp.utils;
 import org.bukkit.Bukkit;
 import re.imc.creeperspvp.CreepersPVP;
+
+import java.io.Closeable;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public final class DatabaseUtils {
     private static final String databaseInit = """
         CREATE TABLE IF NOT EXISTS `creeperspvp_player_data` (
             `uuid` BINARY(16) NOT NULL,
-            `emeralds` BIGINT NOT NULL DEFAULT 0,
+            `emeralds` BIGINT NOT NULL DEFAULT 1000,
             `xp` INT NOT NULL DEFAULT 0,
             `kills` INT NOT NULL DEFAULT 0,
             `deaths` INT NOT NULL DEFAULT 0,
@@ -89,30 +91,30 @@ public final class DatabaseUtils {
             } catch(SQLException ignored) {}
         }, 1, 288007);
     }
-    public static void fina() throws SQLException {
-        checkPlayerExistence.close();
-        registerPlayer.close();
-        fetchPlayerEmeralds.close();
-        addPlayerEmeralds.close();
-        fetchPlayerXp.close();
-        addPlayerXp.close();
-        fetchPlayerKills.close();
-        incrementPlayerKills.close();
-        fetchPlayerDeaths.close();
-        incrementPlayerDeaths.close();
-        fetchPlayerArmorStatus.close();
-        setPlayerArmorStatus.close();
-        fetchPlayerWeaponStatus.close();
-        setPlayerWeaponStatus.close();
-        fetchPlayerArtifactStatus.close();
-        setPlayerArtifactStatus.close();
-        fetchPlayerAttributeUpgrades.close();
-        setPlayerAttributeUpgrades.close();
-        fetchPlayerItemSettings.close();
-        setPlayerItemSettings.close();
-        fetchPlayerMiscSettings.close();
-        setPlayerMiscSettings.close();
-        connection.close();
+    public static void fina() {
+        tryClose(checkPlayerExistence);
+        tryClose(registerPlayer);
+        tryClose(fetchPlayerEmeralds);
+        tryClose(addPlayerEmeralds);
+        tryClose(fetchPlayerXp);
+        tryClose(addPlayerXp);
+        tryClose(fetchPlayerKills);
+        tryClose(incrementPlayerKills);
+        tryClose(fetchPlayerDeaths);
+        tryClose(incrementPlayerDeaths);
+        tryClose(fetchPlayerArmorStatus);
+        tryClose(setPlayerArmorStatus);
+        tryClose(fetchPlayerWeaponStatus);
+        tryClose(setPlayerWeaponStatus);
+        tryClose(fetchPlayerArtifactStatus);
+        tryClose(setPlayerArtifactStatus);
+        tryClose(fetchPlayerAttributeUpgrades);
+        tryClose(setPlayerAttributeUpgrades);
+        tryClose(fetchPlayerItemSettings);
+        tryClose(setPlayerItemSettings);
+        tryClose(fetchPlayerMiscSettings);
+        tryClose(setPlayerMiscSettings);
+        tryClose(connection);
     }
     public static void playerJoin(UUID uuid) {
         playerLocks.put(uuid, new Object());
@@ -425,6 +427,13 @@ public final class DatabaseUtils {
             }
         });
     }
+    private static void tryClose(AutoCloseable closeable) {
+        if(closeable != null) {
+            try {
+                closeable.close();
+            } catch(Exception ignored) {}
+        }
+    }
     private static boolean[] bytesToBooleans(byte[] bytes) {
         final boolean[] booleans = new boolean[bytes.length * Byte.SIZE];
         for(int i = 0; i < bytes.length; i++) {
@@ -479,7 +488,7 @@ public final class DatabaseUtils {
         public static final byte RAPID_FIRE_LEVEL = 13;
         public static final byte PUNCH_LEVEL = 14;
         public static final long[][] prices = new long[][]{
-            {240, 480, 960, 1920},
+            {400, 800, 1600, 3200},
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},

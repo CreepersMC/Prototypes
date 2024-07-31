@@ -26,10 +26,11 @@ import re.imc.creeperspvp.utils.Utils;
 import java.util.*;
 public final class ItemManager {
     public static final Component[] PROGRESS_BARS = new Component[20];
+    public static final ItemStack SELECT_TEAM = new ItemStack(Material.COMPASS);
+    public static final ItemStack DEPLOY = new ItemStack(Material.COMPASS);
     public static final ItemStack SELECT_ARMOR = new ItemStack(Material.IRON_CHESTPLATE);
     public static final ItemStack SELECT_WEAPONS = new ItemStack(Material.IRON_SWORD);
     public static final ItemStack SELECT_ARTIFACTS = new ItemStack(Material.GLASS_BOTTLE);
-    public static final ItemStack DEPLOY = new ItemStack(Material.COMPASS);
     public static final ItemStack GUIDEBOOK = new ItemStack(Material.WRITTEN_BOOK);
     public static final ItemStack PROFILE = new ItemStack(Material.PLAYER_HEAD);
     public static final ItemStack ATTRIBUTE_UPGRADES = new ItemStack(Material.BEACON);
@@ -85,6 +86,16 @@ public final class ItemManager {
             }
             PROGRESS_BARS[i] = nameBuilder.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE).build();
         }
+        SELECT_TEAM.editMeta(meta -> {
+            meta.itemName(Component.text("选择队伍", NamedTextColor.GREEN));
+            meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.TEAM_SELECTION);
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+        });
+        DEPLOY.editMeta(meta -> {
+            meta.itemName(Component.text("进入战斗", NamedTextColor.GREEN));
+            meta.getPersistentDataContainer().set(Utils.utilIDKey, PersistentDataType.BYTE, Utils.UTIL_SPAWN);
+            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
+        });
         SELECT_ARMOR.editMeta(meta -> {
             meta.itemName(Component.text("选择盔甲"));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
@@ -103,11 +114,6 @@ public final class ItemManager {
             meta.itemName(Component.text("选择法器"));
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
             meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.ARTIFACT_SELECTOR);
-        });
-        DEPLOY.editMeta(meta -> {
-            meta.itemName(Component.text("进入战斗", NamedTextColor.GREEN));
-            meta.getPersistentDataContainer().set(Utils.utilIDKey, PersistentDataType.BYTE, Utils.UTIL_SPAWN);
-            meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
         });
         PROFILE.editMeta(meta -> {
             meta.itemName(Component.text("个人主页", NamedTextColor.WHITE));
@@ -132,21 +138,40 @@ public final class ItemManager {
             meta.author(Component.text("IMC.RE", NamedTextColor.GOLD));
             meta.title(Component.text("CreepersPVP指南", NamedTextColor.YELLOW));
             meta.pages(List.of(Component.text("""
-            欢迎来到CreepersPVP：FFA！
-            本游戏还处于开发阶段，所以有很多功能还不稳定
-            玩家数据也有可能随时清空
+            欢迎来到CreepersPVP！
+            本游戏还处于开发阶段，所以有部分功能还不稳定
+            玩家数据也有可能重置
             
             祝大家玩得开心XD
-            不要吐槽远程武器装填动画！会改的！下次一定！
+            远程武器装填动画来了！但是目前只兼容1.14+
             往后翻查看更新日志
             """), Component.text("""
+            PRE1 1.0.0
+            ·地图-主岛初步制作完毕
+            ·调整-微调部分武器数据
+            ·调整-玩家现在初始拥有1000绿宝石
+            ·功能-资源包！带远程武器装填动画！支持1.14+
+            ·功能-价格系统初步实现！不过目前法器的价格还没设计完
+            ·功能-击杀时会在动作栏中提示获得的绿宝石和经验
+            """), Component.text("""
+            ·修复-滞留药水和药箭时长与描述不匹配
+            ·修复-方块破坏动画现在正确地显示(x2)
+            ·修复-忠诚三叉戟无法回收
+            ·修复-齿轮弩无法升级
+            """), Component.text("""
+            BETA 0.6.1
+            ·调整-生命提升天赋价格+67%
+            ·修复-在物品布局设置中将双持弩/齿轮弩放在副手会导致客户端崩溃
+            ·修复-装备可以升级了
+            """), Component.text("""
             BETA 0.6.0
+            ·模式-新模式TDM！分队战斗，率先获得30击杀的队伍获胜
             ·新增-更多法器！
             ·新增-盔甲 哞菇盔甲
             ·新增-远程武器 刀翅蜂鸟
             ·增强-甜浆果从放置后会自动成长至age=1
             ·功能-流体现在也支持放置后一段时间消失了
-            ·功能-属性升级 玩家可以升级自己的属性
+            ·功能-天赋 玩家可以升级自己的属性
             """), Component.text("""
             ·功能-玩家现在拥有四个法器槽
             ·功能-食物类法器使用后产生的剩余物品(若有)会被用于代表其冷却而非屏障
@@ -418,7 +443,7 @@ public final class ItemManager {
             meta.lore(meleeAttributeLore);
         }
     }
-    static List<Component> removeItalics(final List<Component> lore) {
+    public static List<Component> removeItalics(final List<Component> lore) {
         lore.replaceAll(component -> component.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE));
         return lore;
     }

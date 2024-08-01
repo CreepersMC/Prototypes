@@ -43,7 +43,7 @@ public final class ItemManager {
     public static final ItemStack CONFIRM = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     public static final ItemStack CANCEL = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     public static final ItemStack OKAY = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-    public static final ItemStack[] ATTRIBUTE_UPGRADE_ITEMS = new ItemStack[]{new ItemStack(Material.NETHER_STAR), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null};
+    public static final ItemStack[] ATTRIBUTE_UPGRADE_ITEMS = new ItemStack[]{new ItemStack(Material.NETHER_STAR), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.GOLDEN_LEGGINGS), null, new ItemStack(Material.GOLDEN_BOOTS), null, new ItemStack(Material.CLOCK), new ItemStack(Material.GOLDEN_PICKAXE), new ItemStack(Material.GOLDEN_AXE), new ItemStack(Material.GOLDEN_HOE), new ItemStack(Material.STICK), null, new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.SNOWBALL), null};
     public static final ItemStack ENABLED = new ItemStack(Material.LIME_DYE);
     public static final ItemStack DEFAULT = new ItemStack(Material.PURPLE_DYE);
     public static final ItemStack DISABLED = new ItemStack(Material.GRAY_DYE);
@@ -148,12 +148,15 @@ public final class ItemManager {
             """), Component.text("""
             PRE1 1.0.0
             ·地图-主岛初步制作完毕
-            ·调整-微调部分武器数据
-            ·调整-玩家现在初始拥有1000绿宝石
+            ·新增-新武器笑到最后，蔚蓝探索者
+            ·新增-更多天赋
             ·功能-资源包！带远程武器装填动画！支持1.14+
             ·功能-价格系统初步实现！不过目前法器的价格还没设计完
             ·功能-击杀时会在动作栏中提示获得的绿宝石和经验
             """), Component.text("""
+            ·调整-玩家现在初始拥有1000绿宝石
+            ·调整-微调部分武器数据
+            ·调整-微调了计分板
             ·修复-滞留药水和药箭时长与描述不匹配
             ·修复-方块破坏动画现在正确地显示(x2)
             ·修复-忠诚三叉戟无法回收
@@ -298,6 +301,53 @@ public final class ItemManager {
         ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.HEALTH_BONUS].editMeta(meta -> {
             meta.itemName(Component.text("生命提升", NamedTextColor.RED));
             meta.lore(removeItalics(Arrays.asList(Component.text("提升1点生命值上限", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.itemName(Component.text("保护", NamedTextColor.BLUE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("减免4%伤害", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.itemName(Component.text("击退抗性", NamedTextColor.DARK_PURPLE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("减免7%击退", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.itemName(Component.text("迅捷", NamedTextColor.AQUA));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加6%速度", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.SHARPNESS_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.itemName(Component.text("锋利", NamedTextColor.DARK_RED));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加5%近战伤害", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.RAMPAGING_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.itemName(Component.text("狂暴", NamedTextColor.GOLD));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加5%近战攻击速度", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.KNOCKBACK_LEVEL].editMeta(meta -> {
+            meta.setCustomModelData(-1);
+            meta.itemName(Component.text("击退", NamedTextColor.DARK_GREEN));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加8%近战击退", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.POWER_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.setCustomModelData(-1);
+            meta.itemName(Component.text("力量", NamedTextColor.YELLOW));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加5%远程伤害", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.RAPID_FIRE_LEVEL].editMeta(meta -> {
+            meta.setMaxStackSize(64);
+            meta.setCustomModelData(-1);
+            meta.itemName(Component.text("快速射击", NamedTextColor.BLUE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加5%远程攻击速度", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
+        });
+        ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.PUNCH_LEVEL].editMeta(meta -> {
+            meta.setCustomModelData(-1);
+            meta.itemName(Component.text("冲击", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("增加8%远程击退", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
         });
         SHOW_GUIDEBOOK.editMeta(meta -> {
             meta.itemName(Component.text("自动显示指南", NamedTextColor.WHITE));

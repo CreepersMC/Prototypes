@@ -1,10 +1,11 @@
 package re.imc.creeperspvp;
+import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import fr.mrmicky.fastinv.FastInv;
-import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -148,6 +149,11 @@ public final class Listener implements org.bukkit.event.Listener {
         event.setCancelled(true);
     }
     @EventHandler(priority = EventPriority.LOW)
+    public void onBlockChange(EntityChangeBlockEvent event) {
+        System.out.println(event.getBlockData());
+        System.out.println(event.getTo());
+    }
+    @EventHandler(priority = EventPriority.LOW)
     public void onLeavesDecay(LeavesDecayEvent event) {
         event.setCancelled(true);
     }
@@ -214,7 +220,6 @@ public final class Listener implements org.bukkit.event.Listener {
         final ItemStack bow = event.getBow();
         if(bow != null) {
             bow.editMeta(meta -> {
-                meta.setCustomModelData(Utils.getCustomModelData(bow, event.getEntity(), -1));
                 PersistentDataContainer data = meta.getPersistentDataContainer();
                 data.remove(Utils.customItemStartUsingTimeKey);
                 data.remove(Utils.customItemUsedTimeKey);
@@ -223,6 +228,8 @@ public final class Listener implements org.bukkit.event.Listener {
             });
         }
         if(event.getProjectile() instanceof AbstractArrow arrow) {
+            final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(event.getEntity().getUniqueId());
+            arrow.setDamage(arrow.getDamage() * (upgrades == null ? 1 : (1 + upgrades.getData(DatabaseUtils.AttributeUpgrades.POWER_LEVEL) * 0.05)));
             arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             if(arrow instanceof Arrow arrow0 && arrow0.hasCustomEffects()) {
                 for(final PotionEffect effect : arrow0.getCustomEffects()) {
@@ -234,9 +241,9 @@ public final class Listener implements org.bukkit.event.Listener {
         }
     }
     @EventHandler(priority = EventPriority.HIGH)
-    public void onEntityLoadCrossbow(EntityLoadCrossbowEvent event) {
-        final ItemStack crossbow = event.getCrossbow();
-        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> crossbow.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(crossbow, event.getEntity(), -1))));
+    public void onPlayerStopUsingItem(PlayerStopUsingItemEvent event) {
+        final ItemStack item = event.getItem();
+        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> item.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(item, event.getPlayer(), -1))));
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
@@ -513,12 +520,6 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        final Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        try {
-            if(scoreboard.getEntityTeam(event.getEntity()).equals(scoreboard.getEntityTeam(event.getDamageSource().getCausingEntity()))) {
-                event.setCancelled(true);
-            }
-        } catch(NullPointerException ignored) {}
         if(!event.isCancelled()) {
             switch(event.getCause()) {
                 case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
@@ -612,6 +613,19 @@ public final class Listener implements org.bukkit.event.Listener {
                     }
                 }
             }
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityKnockbackByEntity(EntityKnockbackByEntityEvent event) {
+        if(event.getHitBy() instanceof Projectile projectile) {
+            final UUID uuid = projectile.getOwnerUniqueId();
+            if(uuid != null) {
+                final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(uuid);
+                event.setKnockback(event.getKnockback().multiply(1 + upgrades.getData(DatabaseUtils.AttributeUpgrades.PUNCH_LEVEL) * 0.083f));
+            }
+        } else {
+            final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(event.getHitBy().getUniqueId());
+            event.setKnockback(event.getKnockback().multiply(1 + upgrades.getData(DatabaseUtils.AttributeUpgrades.KNOCKBACK_LEVEL) * 0.083f));
         }
     }
     @EventHandler(priority = EventPriority.HIGH)

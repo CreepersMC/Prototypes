@@ -41,6 +41,8 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.bukkit.attribute.Attribute.GENERIC_MOVEMENT_SPEED;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
@@ -93,11 +95,12 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, ScheduledTask> armorTasks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
-    private static final Component emeralds = Component.text("绿宝石：", NamedTextColor.GREEN);
-    private static final Component kills = Component.text("击杀数：", NamedTextColor.GOLD);
-    private static final Component kdr = Component.text("KDR：", NamedTextColor.AQUA);
+    private static final Component emeralds = Component.text("绿宝石: ", NamedTextColor.GREEN);
+    private static final Component kills = Component.text("击杀数: ", NamedTextColor.RED);
+    private static final Component kdr = Component.text("K/D: ", NamedTextColor.AQUA);
+    private static final Component imc = Component.text("IMC.RE", NamedTextColor.GOLD);
     private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447");//使用五郎的UUID
-    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "5ec10abe11d0c5383798a4500b6c6a13a91b3153")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
+    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "046619e6c47924b9dd0fa7489484021096e3c6bb")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
     private static BossBar gameProgressBar;
     private static final String[] teamNames = new String[]{"red", "blue"};
     public static final ItemStack[] teamFlags = new ItemStack[]{new ItemStack(Material.RED_BANNER), new ItemStack(Material.BLUE_BANNER)};
@@ -264,7 +267,6 @@ public final class Utils {
                                         teams[0].addPlayer(player);
                                     }
                                 }
-                                updateNames(player);
                             }
                             for(final Player player : Bukkit.getOnlinePlayers()) {
                                 player.closeInventory();
@@ -301,6 +303,18 @@ public final class Utils {
         }
         player.sendResourcePacks(resourcePackRequest);
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        for(final Team team : teams) {
+            final Team playerTeam = scoreboard.registerNewTeam(team.getName());
+            playerTeam.color(NamedTextColor.nearestTo(team.color()));
+            playerTeam.displayName(team.displayName());
+            playerTeam.prefix(team.prefix());
+            playerTeam.suffix(team.suffix());
+            playerTeam.setAllowFriendlyFire(team.allowFriendlyFire());
+            playerTeam.setCanSeeFriendlyInvisibles(team.canSeeFriendlyInvisibles());
+            for(final Team.Option option : Team.Option.values()) {
+                playerTeam.setOption(option, team.getOption(option));
+            }
+        }
         final Objective health = scoreboard.registerNewObjective("health", Criteria.HEALTH, Component.text("HP", NamedTextColor.RED), RenderType.HEARTS);
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
@@ -308,17 +322,26 @@ public final class Utils {
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：" + CreepersPVP.mode, NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
-        final String[] info = new String[]{"", "", ""};
+        final String[] info = new String[]{"", "", "", "", ""};
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            for(final Team team : teams) {
+                final Team playerTeam = scoreboard.getTeam(team.getName());
+                if(playerTeam != null) {
+                    playerTeam.removeEntries(playerTeam.getEntries());
+                    playerTeam.addEntries(team.getEntries());
+                }
+            }
             for(final String string : info) {
                 infoBoard.getScore(string).resetScore();
             }
-            info[2] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
+            info[4] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
             final int kills = DatabaseUtils.fetchPlayerKills(uuid);
-            info[1] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
+            info[3] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
-            info[0] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            info[2] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            info[1] = "";
+            info[0] = LegacyComponentSerializer.legacySection().serialize(imc);
             for(int i = 0; i < info.length; i++) {
                 infoBoard.getScore(info[i]).setScore(i);
             }
@@ -451,11 +474,12 @@ public final class Utils {
         }
         inv.setHeldItemSlot(0);
         final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(player.getUniqueId());
-        player.registerAttribute(Attribute.GENERIC_MAX_HEALTH);
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS), AttributeModifier.Operation.ADD_NUMBER));
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS), AttributeModifier.Operation.ADD_NUMBER));
         inv.getItem(EquipmentSlot.CHEST).editMeta(meta -> meta.addEnchant(Enchantment.PROTECTION, upgrades.getData(DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL), true));
-        player.registerAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-        player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).addModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE) * 0.05, AttributeModifier.Operation.ADD_NUMBER));
+        player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE) * 0.07, AttributeModifier.Operation.ADD_NUMBER));
+        player.getAttribute(GENERIC_MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL) * 0.06, AttributeModifier.Operation.MULTIPLY_SCALAR_1));;
+        player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.SHARPNESS_LEVEL) * 0.05, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+        player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.RAMPAGING_LEVEL) * 0.05, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
         player.clearActivePotionEffects();
         final AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         player.setHealth(maxHealthAttribute == null ? 20 : maxHealthAttribute.getValue());
@@ -489,12 +513,6 @@ public final class Utils {
             return team.getName().equals("red") ? 0 : 1;
         }
         return -1;
-    }
-    public static void updateNames(Player player) {
-        final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
-        final Component name = team == null ? Component.text(player.getName()) : Component.textOfChildren(team.prefix(), Component.text(player.getName(), team.color()), team.suffix());
-        player.displayName(name);
-        player.playerListName(name);
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();
@@ -649,7 +667,7 @@ public final class Utils {
                 if(item.hasItemMeta()) {
                     PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
                     if(data.has(rangedAttackSpeedKey, PersistentDataType.FLOAT)) {
-                        return Math.round(20 / data.get(rangedAttackSpeedKey, PersistentDataType.FLOAT));
+                        return Math.round(20 / data.get(rangedAttackSpeedKey, PersistentDataType.FLOAT) / (1 + DatabaseUtils.getPlayerAttributeUpgrades(entity.getUniqueId()).getData(DatabaseUtils.AttributeUpgrades.RAPID_FIRE_LEVEL) * 0.05f));
                     }
                 }
             }

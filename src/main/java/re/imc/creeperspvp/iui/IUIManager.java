@@ -114,18 +114,12 @@ public final class IUIManager {
                 case 12 -> {
                     if(Utils.teams[0].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
                         Utils.teams[0].addEntity(event.getWhoClicked());
-                        if(event.getWhoClicked() instanceof final Player player) {
-                            Utils.updateNames(player);
-                        }
                         refreshItems();
                     }
                 }
                 case 14 -> {
                     if(Utils.teams[1].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
                         Utils.teams[1].addEntity(event.getWhoClicked());
-                        if(event.getWhoClicked() instanceof final Player player) {
-                            Utils.updateNames(player);
-                        }
                         refreshItems();
                     }
                 }
@@ -568,13 +562,31 @@ public final class IUIManager {
             setItem(0, ItemManager.BACK, event -> ProfileInv.instance.open(Bukkit.getPlayer(uuid)));
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             upgrades = DatabaseUtils.getPlayerAttributeUpgrades(uuid);
-            setItem(22, getItemStack(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS));
+            setItem(11, getItemStack(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS));
+            setItem(13, getItemStack(DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL));
+            setItem(15, getItemStack(DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE));
+            setItem(22, getItemStack(DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL));
+            setItem(29, getItemStack(DatabaseUtils.AttributeUpgrades.SHARPNESS_LEVEL));
+            setItem(31, getItemStack(DatabaseUtils.AttributeUpgrades.RAMPAGING_LEVEL));
+            setItem(33, getItemStack(DatabaseUtils.AttributeUpgrades.KNOCKBACK_LEVEL));
+            setItem(38, getItemStack(DatabaseUtils.AttributeUpgrades.POWER_LEVEL));
+            setItem(40, getItemStack(DatabaseUtils.AttributeUpgrades.RAPID_FIRE_LEVEL));
+            setItem(42, getItemStack(DatabaseUtils.AttributeUpgrades.PUNCH_LEVEL));
         }
         @Override
         protected void onClick(InventoryClickEvent event) {
             super.onClick(event);
             switch(event.getSlot()) {
-                case 22 -> onClick(22, DatabaseUtils.AttributeUpgrades.HEALTH_BONUS);
+                case 11 -> onClick(11, DatabaseUtils.AttributeUpgrades.HEALTH_BONUS);
+                case 13 -> onClick(13, DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL);
+                case 15 -> onClick(15, DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE);
+                case 22 -> onClick(22, DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL);
+                case 29 -> onClick(29, DatabaseUtils.AttributeUpgrades.SHARPNESS_LEVEL);
+                case 31 -> onClick(31, DatabaseUtils.AttributeUpgrades.RAMPAGING_LEVEL);
+                case 33 -> onClick(33, DatabaseUtils.AttributeUpgrades.KNOCKBACK_LEVEL);
+                case 38 -> onClick(38, DatabaseUtils.AttributeUpgrades.POWER_LEVEL);
+                case 40 -> onClick(40, DatabaseUtils.AttributeUpgrades.RAPID_FIRE_LEVEL);
+                case 42 -> onClick(42, DatabaseUtils.AttributeUpgrades.PUNCH_LEVEL);
             }
         }
         @Override
@@ -585,7 +597,7 @@ public final class IUIManager {
             if(upgrades.getData(upgrade) < DatabaseUtils.AttributeUpgrades.prices[upgrade].length && DatabaseUtils.fetchPlayerEmeralds(uuid) >= DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)]) {
                 DatabaseUtils.addPlayerEmeralds(uuid, -DatabaseUtils.AttributeUpgrades.prices[upgrade][upgrades.getData(upgrade)]);
                 DatabaseUtils.setPlayerAttributeUpgrades(uuid, upgrades.withIncrementedData(upgrade));
-                setItem(slot, getItemStack(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS));
+                setItem(slot, getItemStack(upgrade));
             }
         }
         private ItemStack getItemStack(byte upgrade) {

@@ -18,6 +18,7 @@ public final class WeaponManager {
     public static final short BLAZE_ROD = 5;
     public static final short TERROR_ROD = 6;
     public static final short SICKLES = 7;
+    public static final short THE_LAST_LAUGH = 8;
     public static final short NIGHTMARES_BITE = 9;
     public static final short SWORD = 10;
     public static final short DIAMOND_SWORD = 11;
@@ -69,11 +70,11 @@ public final class WeaponManager {
     public static final short PIGLINS_PRIDE = 66;
     public static final ItemStack[][] weapons = new ItemStack[80][2];
     public static final short[] selections = new short[] {RAPIER, STICK, SICKLES, SWORD, CLAYMORE, AXE, HEAVY_AXE, PICKAXE, MACE, HARPOON, TRIDENT, SHORTBOW, BOW, SNOW_BOW, WIND_BOW, LONGBOW, POWER_BOW, RAPID_CROSSBOW, CROSSBOW, SCATTER_CROSSBOW, DUAL_CROSSBOWS, HEAVY_CROSSBOW, COG_CROSSBOW};
-    public static final short[][] upgrades = new short[][] {{FREEZING_FOIL}, {}, {}, {BREEZE_ROD, BLAZE_ROD, TERROR_ROD}, {}, {}, {}, {NIGHTMARES_BITE}, {}, {}, {DIAMOND_SWORD}, {}, {}, {FIREBRAND}, {}, {}, {HIGHLAND_AXE}, {}, {}, {CURSED_AXE}, {}, {}, {DIAMOND_PICKAXE}, {}, {}, {}, {TEMPEST_MACE}, {}, {}, {}, {TIDE_REVERSER}, {}, {AZURE_STORM}, {}, {MECHANICAL_SHORTBOW}, {}, {}, {BONE_BOW}, {}, {}, {WINTERS_TOUCH}, {}, {ECHO_OF_THE_VALLEY}, {}, {RED_SNAKE, GUARDIAN_BOW}, {}, {}, {ELITE_POWER_BOW, SABREWING}, {}, {}, {AUTO_CROSSBOW}, {}, {}, {THE_SLICER}, {}, {}, {HARP_CROSSBOW, LIGHTNING_HARP_CROSSBOW}, {}, {}, {}, {}, {}, {DOOM_CROSSBOW, SLAYER_CROSSBOW}, {}, {}, {PIGLINS_PRIDE}, {}};
-    public static final long[] prices = new long[] {2000, 4800, 0, 1200, 3000, 1800, 2000, 800, 0, 1700, 0, 1000, 0, 1600, 4000, 0, 1800, 4000, 0, 2400, 5000, 0, 1000, 2000, 0, 0, 0, 0, 2000, 4800, 1000, 5000, 1400, 3000, 1200, 2000, 0, 0, 1000, 0, 1400, 3000, 1600, 3200, 1600, 3400, 2800, 2000, 4200, 3600, 1400, 3000, 0, 0, 1400, 1000, 1200, 2600, 3200, 1600, 0, 0, 1800, 3500, 4500, 2000, 4500, 0, 0, 0};
+    public static final short[][] upgrades = new short[][] {{FREEZING_FOIL}, {}, {}, {BREEZE_ROD, BLAZE_ROD, TERROR_ROD}, {}, {}, {}, {THE_LAST_LAUGH, NIGHTMARES_BITE}, {}, {}, {DIAMOND_SWORD}, {}, {}, {FIREBRAND}, {}, {}, {HIGHLAND_AXE}, {}, {}, {CURSED_AXE}, {}, {}, {DIAMOND_PICKAXE}, {}, {}, {}, {TEMPEST_MACE}, {}, {}, {}, {TIDE_REVERSER}, {}, {AZURE_STORM}, {}, {MECHANICAL_SHORTBOW}, {}, {}, {BONE_BOW}, {}, {}, {WINTERS_TOUCH}, {}, {ECHO_OF_THE_VALLEY}, {}, {RED_SNAKE, GUARDIAN_BOW}, {}, {}, {ELITE_POWER_BOW, SABREWING}, {}, {}, {AUTO_CROSSBOW}, {}, {}, {THE_SLICER, AZURE_SEEKER}, {}, {}, {HARP_CROSSBOW, LIGHTNING_HARP_CROSSBOW}, {}, {}, {}, {}, {}, {DOOM_CROSSBOW, SLAYER_CROSSBOW}, {}, {}, {PIGLINS_PRIDE}, {}};
+    public static final long[] prices = new long[] {2000, 4800, 0, 1200, 3000, 1800, 2000, 800, 1600, 1700, 0, 1000, 0, 1600, 4000, 0, 1800, 4000, 0, 2400, 5000, 0, 1000, 2000, 0, 0, 0, 0, 2000, 4800, 1000, 5000, 1400, 3000, 1200, 2000, 0, 0, 1000, 0, 1400, 3000, 1600, 3200, 1600, 3400, 2800, 2000, 4200, 3600, 1400, 3000, 800, 1200, 1400, 1000, 1200, 2600, 3200, 1600, 0, 0, 1800, 3500, 4500, 2000, 4500};
     private WeaponManager() {}
     static void init() {
-        final ItemStack[] weapons0 = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), null, new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.BLAZE_ROD), new ItemStack(Material.STICK), new ItemStack(Material.IRON_HOE), new ItemStack(Material.IRON_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), null, new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), null, new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), null, null, new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
+        final ItemStack[] weapons0 = new ItemStack[] {new ItemStack(Material.WOODEN_SWORD), new ItemStack(Material.GOLDEN_SWORD), null, new ItemStack(Material.STICK), new ItemStack(Material.BREEZE_ROD), new ItemStack(Material.BLAZE_ROD), new ItemStack(Material.STICK), new ItemStack(Material.IRON_HOE), new ItemStack(Material.DIAMOND_HOE), new ItemStack(Material.WOODEN_HOE), new ItemStack(Material.IRON_SWORD), new ItemStack(Material.DIAMOND_SWORD), null, new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.NETHERITE_SWORD), new ItemStack(Material.IRON_AXE), new ItemStack(Material.DIAMOND_AXE), null, new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.NETHERITE_AXE), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.DIAMOND_PICKAXE), null, null, new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.MACE), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.TRIDENT), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.BOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW)};
         for(int i = 0; i < weapons0.length; i++) {
             weapons[i][0] = new ItemStack(Material.GRAY_DYE);
             weapons[i][1] = weapons0[i];
@@ -123,6 +124,12 @@ public final class WeaponManager {
                 meta.itemName(Component.text("镰刀", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这种仪式性的武器最早起源于沙漠地带。", NamedTextColor.GRAY))));
                 editMeleeAttributes(meta, 6, 2);
+            });
+            weapons[THE_LAST_LAUGH][i].editMeta(meta -> {
+                meta.setRarity(ItemRarity.RARE);
+                meta.itemName(Component.text("笑到最后", NamedTextColor.YELLOW));
+                meta.lore(removeItalics(Arrays.asList(Component.text("这把镰刀似乎时不时会发出奇怪而扭曲的笑声。", NamedTextColor.GRAY))));
+                editMeleeAttributes(meta, 6, 3.2);
             });
             weapons[NIGHTMARES_BITE][i].editMeta(meta -> {
                 meta.setRarity(ItemRarity.RARE);
@@ -355,6 +362,12 @@ public final class WeaponManager {
                 meta.itemName(Component.text("弩", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("弩是灾厄村民使用的远程武器，常见于掠夺者之中。", NamedTextColor.GRAY))));
                 editRangedAttributes(meta, 1, 0.8f);
+            });
+            weapons[AZURE_SEEKER][i].editMeta(meta -> {
+                meta.setRarity(ItemRarity.RARE);
+                meta.itemName(Component.text("蔚蓝探索者", NamedTextColor.BLUE));
+                meta.lore(removeItalics(Arrays.asList(Component.text("如果听到声音时看到一抹蓝，那一定是蔚蓝探索者在射击。", NamedTextColor.GRAY))));
+                editRangedAttributes(meta, 1, 1.06f);
             });
             weapons[THE_SLICER][i].editMeta(meta -> {
                 meta.addEnchant(Enchantment.PIERCING, 4, true);

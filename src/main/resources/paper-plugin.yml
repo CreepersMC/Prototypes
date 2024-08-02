@@ -1,6 +1,6 @@
-name: CreepersPVP
-version: '0.6.1'
-main: re.imc.creeperspvp.CreepersPVP
-bootstrapper: re.imc.creeperspvp.Bootstrapper
+name: Prototypes
+version: '1.0.0'
+main: re.imc.prototypes.Prototypes
+bootstrapper: re.imc.prototypes.Bootstrapper
 api-version: '1.21'
 depend: []

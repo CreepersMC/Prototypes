@@ -1,4 +1,4 @@
-package re.imc.creeperspvp.items;
+package re.imc.prototypes.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,11 +15,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static re.imc.creeperspvp.items.ItemManager.*;
+import static re.imc.prototypes.items.ItemManager.*;
 public final class ArtifactManager {
     public static final short CATEGORY_PROJECTILES = 0;
     public static final short CATEGORY_EXPLOSIVES_AND_TRAPS = 64;

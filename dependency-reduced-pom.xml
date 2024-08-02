@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>re.imc</groupId>
   <artifactId>CreepersPVP</artifactId>
-  <name>CreepersPVP</name>
+  <name>Prototypes</name>
   <version>1.0.0</version>
   <build>
     <resources>

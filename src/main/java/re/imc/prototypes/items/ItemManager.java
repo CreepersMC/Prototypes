@@ -1,4 +1,4 @@
-package re.imc.creeperspvp.items;
+package re.imc.prototypes.items;
 import org.bukkit.DyeColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.banner.Pattern;
@@ -7,8 +7,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BookMeta;
-import re.imc.creeperspvp.CreepersPVP;
-import re.imc.creeperspvp.iui.IUIManager;
+import re.imc.prototypes.Prototypes;
+import re.imc.prototypes.iui.IUIManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,8 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import re.imc.creeperspvp.utils.DatabaseUtils;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.DatabaseUtils;
+import re.imc.prototypes.utils.Utils;
 import java.util.*;
 public final class ItemManager {
     public static final Component[] PROGRESS_BARS = new Component[20];
@@ -67,6 +67,7 @@ public final class ItemManager {
     public static final ItemStack TDM = new ItemStack(Material.PLAYER_HEAD);
     public static final ItemStack CTF = new ItemStack(Material.GREEN_BANNER);
     public static final ItemStack CQT = new ItemStack(Material.BEACON);
+    public static final ItemStack DTM = new ItemStack(Material.DRAGON_EGG);
     public static final ItemStack LOBBY = new ItemStack(Material.BIRCH_DOOR);
     static final NamespacedKey[] armorKeys = new NamespacedKey[] {NamespacedKey.minecraft("armor.helmet"), NamespacedKey.minecraft("armor.chestplate"), NamespacedKey.minecraft("armor.leggings"), NamespacedKey.minecraft("armor.boots")};
     static final NamespacedKey entityArmorKey = NamespacedKey.minecraft("armor.body");
@@ -138,7 +139,7 @@ public final class ItemManager {
             meta.author(Component.text("IMC.RE", NamedTextColor.GOLD));
             meta.title(Component.text("CreepersPVP指南", NamedTextColor.YELLOW));
             meta.pages(List.of(Component.text("""
-            欢迎来到CreepersPVP！
+            欢迎来到Prototypes！
             本游戏还处于开发阶段，所以有部分功能还不稳定
             玩家数据也有可能重置
             
@@ -147,18 +148,21 @@ public final class ItemManager {
             往后翻查看更新日志
             """), Component.text("""
             PRE1 1.0.0
+            ·改名-CreepersPVP -> Prototypes
             ·地图-主岛初步制作完毕
             ·新增-新武器笑到最后，蔚蓝探索者
             ·新增-更多天赋
             ·功能-资源包！带远程武器装填动画！支持1.14+
             ·功能-价格系统初步实现！不过目前法器的价格还没设计完
-            ·功能-击杀时会在动作栏中提示获得的绿宝石和经验
             """), Component.text("""
+            ·功能-TDM模式下会用Boss栏提示双方进度
+            ·功能-击杀时会在动作栏中提示获得的绿宝石和经验
             ·调整-玩家现在初始拥有1000绿宝石
             ·调整-微调部分武器数据
             ·调整-微调了计分板
             ·修复-滞留药水和药箭时长与描述不匹配
             ·修复-方块破坏动画现在正确地显示(x2)
+            """), Component.text("""
             ·修复-忠诚三叉戟无法回收
             ·修复-齿轮弩无法升级
             """), Component.text("""
@@ -328,24 +332,24 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("增加5%近战攻击速度", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
         });
         ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.KNOCKBACK_LEVEL].editMeta(meta -> {
-            meta.setCustomModelData(-1);
+            meta.setCustomModelData(5377);
             meta.itemName(Component.text("击退", NamedTextColor.DARK_GREEN));
             meta.lore(removeItalics(Arrays.asList(Component.text("增加8%近战击退", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
         });
         ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.POWER_LEVEL].editMeta(meta -> {
             meta.setMaxStackSize(64);
-            meta.setCustomModelData(-1);
+            meta.setCustomModelData(5377);
             meta.itemName(Component.text("力量", NamedTextColor.YELLOW));
             meta.lore(removeItalics(Arrays.asList(Component.text("增加5%远程伤害", NamedTextColor.GRAY), Component.text("最高级别：IV", NamedTextColor.GRAY))));
         });
         ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.RAPID_FIRE_LEVEL].editMeta(meta -> {
             meta.setMaxStackSize(64);
-            meta.setCustomModelData(-1);
+            meta.setCustomModelData(5377);
             meta.itemName(Component.text("快速射击", NamedTextColor.BLUE));
             meta.lore(removeItalics(Arrays.asList(Component.text("增加5%远程攻击速度", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
         });
         ATTRIBUTE_UPGRADE_ITEMS[DatabaseUtils.AttributeUpgrades.PUNCH_LEVEL].editMeta(meta -> {
-            meta.setCustomModelData(-1);
+            meta.setCustomModelData(5377);
             meta.itemName(Component.text("冲击", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("增加8%远程击退", NamedTextColor.GRAY), Component.text("最高级别：V", NamedTextColor.GRAY))));
         });
@@ -407,18 +411,18 @@ public final class ItemManager {
         }
         FFA.editMeta(meta -> {
             meta.itemName(Component.text("进入FFA", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("你在这里", NamedTextColor.GRAY))));
-            meta.setEnchantmentGlintOverride(CreepersPVP.mode == CreepersPVP.GameMode.FFA);
+            meta.lore(removeItalics(Arrays.asList(Component.text("暂不支持切换", NamedTextColor.GRAY))));
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.FFA);
         });
         TDM.editMeta(meta -> {
             meta.itemName(Component.text("进入TDM", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
-            meta.setEnchantmentGlintOverride(CreepersPVP.mode == CreepersPVP.GameMode.TDM);
+            meta.lore(removeItalics(Arrays.asList(Component.text("暂不支持切换", NamedTextColor.GRAY))));
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.TDM);
         });
         CTF.editMeta(BannerMeta.class, meta -> {
             meta.itemName(Component.text("进入CTF", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
-            meta.setEnchantmentGlintOverride(CreepersPVP.mode == CreepersPVP.GameMode.CTF);
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.CTF);
             meta.addPattern(new Pattern(DyeColor.LIME, PatternType.GRADIENT));
             meta.addPattern(new Pattern(DyeColor.BLACK, PatternType.BORDER));
             meta.addPattern(new Pattern(DyeColor.BLACK, PatternType.CREEPER));
@@ -427,7 +431,12 @@ public final class ItemManager {
         CQT.editMeta(meta -> {
             meta.itemName(Component.text("进入CQT", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
-            meta.setEnchantmentGlintOverride(CreepersPVP.mode == CreepersPVP.GameMode.CQT);
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.CQT);
+        });
+        DTM.editMeta(meta -> {
+            meta.itemName(Component.text("进入DTM", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.DTM);
         });
         LOBBY.editMeta(meta -> {
             meta.itemName(Component.text("返回大厅", NamedTextColor.WHITE));

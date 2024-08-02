@@ -1,15 +1,17 @@
-package re.imc.creeperspvp;
+package re.imc.prototypes;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import re.imc.creeperspvp.items.ItemManager;
-import re.imc.creeperspvp.iui.IUIManager;
-import re.imc.creeperspvp.utils.DatabaseUtils;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.items.ItemManager;
+import re.imc.prototypes.iui.IUIManager;
+import re.imc.prototypes.utils.DatabaseUtils;
+import re.imc.prototypes.utils.Utils;
 import java.sql.SQLException;
 import java.util.logging.Logger;
-public final class CreepersPVP extends JavaPlugin {
-    public static CreepersPVP instance;
+public final class Prototypes extends JavaPlugin {
+    public static Prototypes instance;
     public static GameMode mode;
     public static GameStage stage;
     public static String databaseAddress = "127.0.0.1";
@@ -41,17 +43,17 @@ public final class CreepersPVP extends JavaPlugin {
         try {
             DatabaseUtils.init();
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error initializing database: " + e.getMessage());
+            Prototypes.logWarning("Error initializing database: " + e.getMessage());
         }
         Bukkit.getPluginManager().registerEvents(Listener.instance, instance);
-        logInfo("CreepersPVP initialized.");
+        logInfo("Prototypes initialized.");
         logInfo("Game mode: " + mode);
     }
     @Override
     public void onDisable() {
         DatabaseUtils.fina();
         Utils.fina();
-        logInfo("CreepersPVP finalized.");
+        logInfo("Prototypes finalized.");
         logger = null;
         instance = null;
     }
@@ -65,7 +67,16 @@ public final class CreepersPVP extends JavaPlugin {
         logger.severe(severe);
     }
     public enum GameMode {
-        FFA, TDM, CTF, CQT
+        FFA(Component.text("Free For All", NamedTextColor.BLUE), Component.text("自由战斗", NamedTextColor.DARK_AQUA)),
+        TDM(Component.text("Team Deathmatch", NamedTextColor.RED), Component.text("组队战斗，率先拿到30击杀以取得胜利", NamedTextColor.DARK_RED)),
+        CTF(Component.text("Capture the Flag", NamedTextColor.GREEN), Component.text("夺取旗帜来取得胜利", NamedTextColor.DARK_GREEN)),
+        CQT(Component.text("Conquest", NamedTextColor.YELLOW), Component.text("占领据点来取得胜利", NamedTextColor.GOLD)),
+        DTM(Component.text("Destroy the Matrix", NamedTextColor.LIGHT_PURPLE), Component.text("摧毁敌方队伍的母体来取得胜利", NamedTextColor.DARK_PURPLE));
+        public final Component name, description;
+        GameMode(final Component name, final Component description) {
+            this.name = name;
+            this.description = description;
+        }
     }
     public enum GameStage {
         WAITING, PREPARATION, MAIN, ENDED

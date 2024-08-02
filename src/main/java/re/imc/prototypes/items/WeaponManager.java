@@ -1,4 +1,4 @@
-package re.imc.creeperspvp.items;
+package re.imc.prototypes.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.Utils;
 import java.util.Arrays;
-import static re.imc.creeperspvp.items.ItemManager.*;
+import static re.imc.prototypes.items.ItemManager.*;
 public final class WeaponManager {
     public static final short RAPIER = 0;
     public static final short FREEZING_FOIL = 1;

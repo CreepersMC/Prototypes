@@ -1,4 +1,4 @@
-package re.imc.creeperspvp;
+package re.imc.prototypes;
 import com.mojang.brigadier.Command;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
@@ -12,7 +12,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.Utils;
 import java.util.List;
 @SuppressWarnings("all")
 public final class Bootstrapper implements PluginBootstrap {

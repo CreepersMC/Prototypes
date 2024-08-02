@@ -1,4 +1,4 @@
-package re.imc.creeperspvp.items;
+package re.imc.prototypes.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
@@ -17,11 +17,11 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.Utils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import static re.imc.creeperspvp.items.ItemManager.*;
+import static re.imc.prototypes.items.ItemManager.*;
 //TODO find armor trims for creeper armor, ghast armor, snow armor, turtle armor
 public final class ArmorManager {
     public static final short GHOSTLY_ARMOR = 0;

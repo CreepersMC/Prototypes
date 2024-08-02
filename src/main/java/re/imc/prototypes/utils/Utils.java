@@ -1,11 +1,13 @@
-package re.imc.creeperspvp.utils;
+package re.imc.prototypes.utils;
 import fr.mrmicky.fastinv.ItemBuilder;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
@@ -22,11 +24,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
-import re.imc.creeperspvp.*;
-import re.imc.creeperspvp.items.ArmorManager;
-import re.imc.creeperspvp.items.ArtifactManager;
-import re.imc.creeperspvp.items.ItemManager;
-import re.imc.creeperspvp.items.WeaponManager;
+import re.imc.prototypes.*;
+import re.imc.prototypes.items.ArmorManager;
+import re.imc.prototypes.items.ArtifactManager;
+import re.imc.prototypes.items.ItemManager;
+import re.imc.prototypes.items.WeaponManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -41,8 +43,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.bukkit.attribute.Attribute.GENERIC_MOVEMENT_SPEED;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
@@ -95,12 +95,18 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, ScheduledTask> armorTasks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
+    private static final Component separator = Component.text(" | ", NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE);
     private static final Component emeralds = Component.text("绿宝石: ", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数: ", NamedTextColor.RED);
     private static final Component kdr = Component.text("K/D: ", NamedTextColor.AQUA);
     private static final Component imc = Component.text("IMC.RE", NamedTextColor.GOLD);
+    private static final Component winRewards = Component.text("+%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
+    private static final TextReplacementConfig.Builder replaceEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
+    private static final TextReplacementConfig.Builder replaceXp = TextReplacementConfig.builder().matchLiteral("%xp%");
+    private static final TextReplacementConfig.Builder replaceTeam = TextReplacementConfig.builder().matchLiteral("%team%");
+    private static final Title.Times defaultTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000));
     private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447");//使用五郎的UUID
-    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "046619e6c47924b9dd0fa7489484021096e3c6bb")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
+    private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "20303109bc864b6a50dd272f57daf168e962f48b")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
     private static BossBar gameProgressBar;
     private static final String[] teamNames = new String[]{"red", "blue"};
     public static final ItemStack[] teamFlags = new ItemStack[]{new ItemStack(Material.RED_BANNER), new ItemStack(Material.BLUE_BANNER)};
@@ -109,36 +115,38 @@ public final class Utils {
     private static final Component[] teamPrefixes = new Component[]{Component.text("[红]", NamedTextColor.RED), Component.text("[蓝]", NamedTextColor.BLUE)};
     private static final Component[] teamSuffixes = new Component[]{Component.empty(), Component.empty()};
     private static final NamedTextColor[] teamColors = new NamedTextColor[]{NamedTextColor.RED, NamedTextColor.BLUE};
+    private static final BossBar.Color[] teamProgressBarColors = new BossBar.Color[]{BossBar.Color.RED, BossBar.Color.BLUE};
     public static final int[] teamScores = new int[]{0, 0};
+    public static final BossBar[] teamProgressBars = new BossBar[2];
     public static final Team[] teams = new Team[2];
     private Utils() {}
     public static void init() {
         fireworkBooster.editMeta(FireworkMeta.class, meta -> meta.setPower(1));
-        armorBonusKey = new NamespacedKey(CreepersPVP.instance, "armor_bonus");
-        attributeBonusKey = new NamespacedKey(CreepersPVP.instance, "attribute_bonus");
-        gameProgressBarKey = new NamespacedKey(CreepersPVP.instance, "game-progress");
-        customItemUsageKey = new NamespacedKey(CreepersPVP.instance, "custom-item-usage");
-        customItemStartUsingTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-start-using-time");
-        customItemUsedTimeKey = new NamespacedKey(CreepersPVP.instance, "custom-item-used-time");
-        projectileVelocityKey = new NamespacedKey(CreepersPVP.instance, "projectile-velocity");
-        rangedAttackSpeedKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-speed");
-        armorAuraIDKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-id");
-        armorAuraDataKey = new NamespacedKey(CreepersPVP.instance, "armor-aura-data");
-        meleeAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-id");
-        meleeAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "melee-attack-effect-data");
-        rangedAttackEffectIDKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-id");
-        rangedAttackEffectDataKey = new NamespacedKey(CreepersPVP.instance, "ranged-attack-effect-data");
-        sourceEntityKey = new NamespacedKey(CreepersPVP.instance, "source-entity");
-        itemOrdinalKey = new NamespacedKey(CreepersPVP.instance, "item-ordinal");
-        weaponIDKey = new NamespacedKey(CreepersPVP.instance, "weapon-id");
-        artifactIDKey = new NamespacedKey(CreepersPVP.instance, "artifact-id");
-        multiItemKey = new NamespacedKey(CreepersPVP.instance, "multi-item");
-        iuiIDKey = new NamespacedKey(CreepersPVP.instance, "iui-id");
-        iuiDataKey = new NamespacedKey(CreepersPVP.instance, "iui-data");
-        weaponSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "weapon");
-        artifactSelectorIDKey = new NamespacedKey(CreepersPVP.instance, "artifact");
-        utilIDKey = new NamespacedKey(CreepersPVP.instance, "util");
-        utilDataKey = new NamespacedKey(CreepersPVP.instance, "util-data");
+        armorBonusKey = new NamespacedKey(Prototypes.instance, "armor_bonus");
+        attributeBonusKey = new NamespacedKey(Prototypes.instance, "attribute_bonus");
+        gameProgressBarKey = new NamespacedKey(Prototypes.instance, "game-progress");
+        customItemUsageKey = new NamespacedKey(Prototypes.instance, "custom-item-usage");
+        customItemStartUsingTimeKey = new NamespacedKey(Prototypes.instance, "custom-item-start-using-time");
+        customItemUsedTimeKey = new NamespacedKey(Prototypes.instance, "custom-item-used-time");
+        projectileVelocityKey = new NamespacedKey(Prototypes.instance, "projectile-velocity");
+        rangedAttackSpeedKey = new NamespacedKey(Prototypes.instance, "ranged-attack-speed");
+        armorAuraIDKey = new NamespacedKey(Prototypes.instance, "armor-aura-id");
+        armorAuraDataKey = new NamespacedKey(Prototypes.instance, "armor-aura-data");
+        meleeAttackEffectIDKey = new NamespacedKey(Prototypes.instance, "melee-attack-effect-id");
+        meleeAttackEffectDataKey = new NamespacedKey(Prototypes.instance, "melee-attack-effect-data");
+        rangedAttackEffectIDKey = new NamespacedKey(Prototypes.instance, "ranged-attack-effect-id");
+        rangedAttackEffectDataKey = new NamespacedKey(Prototypes.instance, "ranged-attack-effect-data");
+        sourceEntityKey = new NamespacedKey(Prototypes.instance, "source-entity");
+        itemOrdinalKey = new NamespacedKey(Prototypes.instance, "item-ordinal");
+        weaponIDKey = new NamespacedKey(Prototypes.instance, "weapon-id");
+        artifactIDKey = new NamespacedKey(Prototypes.instance, "artifact-id");
+        multiItemKey = new NamespacedKey(Prototypes.instance, "multi-item");
+        iuiIDKey = new NamespacedKey(Prototypes.instance, "iui-id");
+        iuiDataKey = new NamespacedKey(Prototypes.instance, "iui-data");
+        weaponSelectorIDKey = new NamespacedKey(Prototypes.instance, "weapon");
+        artifactSelectorIDKey = new NamespacedKey(Prototypes.instance, "artifact");
+        utilIDKey = new NamespacedKey(Prototypes.instance, "util");
+        utilDataKey = new NamespacedKey(Prototypes.instance, "util-data");
         for(final World world : Bukkit.getWorlds()) {
             world.setDifficulty(Difficulty.NORMAL);
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
@@ -210,6 +218,7 @@ public final class Utils {
             teams[i[0]].setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
             teams[i[0]].setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, Team.OptionStatus.ALWAYS);
             teams[i[0]].setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+            teamProgressBars[i[0]] = BossBar.bossBar(Component.empty(), 1f, teamProgressBarColors[i[0]], BossBar.Overlay.PROGRESS);
         }
         Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
             armorStand.setInvisible(true);
@@ -218,18 +227,18 @@ public final class Utils {
             dummy = (ArmorStand) armorStand;
         });
         gameProgressBar.progress(Float.NaN);
-        if(CreepersPVP.stage == CreepersPVP.GameStage.WAITING) {
+        if(Prototypes.stage == Prototypes.GameStage.WAITING) {
             final float[] progress = new float[]{0f};
             gameProgressBar.progress(0f);
             gameProgressBar.name(Component.text("等待玩家加入", NamedTextColor.YELLOW));
             gameProgressBar.addViewer(Bukkit.getServer());
-            Bukkit.getScheduler().runTaskTimer(CreepersPVP.instance, task -> {
-                switch(CreepersPVP.stage) {
+            Bukkit.getScheduler().runTaskTimer(Prototypes.instance, task -> {
+                switch(Prototypes.stage) {
                     case WAITING -> {
                         if(progress[0] > 1f) {
                             gameProgressBar.progress(progress[0] = 1f);
                             gameProgressBar.name(Component.text("游戏准备开始", NamedTextColor.GREEN));
-                            CreepersPVP.stage = CreepersPVP.GameStage.PREPARATION;
+                            Prototypes.stage = Prototypes.GameStage.PREPARATION;
                             for(final Player player : Bukkit.getOnlinePlayers()) {
                                 final PlayerInventory inv = player.getInventory();
                                 if(inv.getItem(4) == null || inv.getItem(4).isEmpty()) {
@@ -239,14 +248,14 @@ public final class Utils {
                                 }
                             }
                         } else {
-                            gameProgressBar.progress(progress[0] += (Bukkit.getOnlinePlayers().size() * 0.251f - progress[0]) * 0.84f);
+                            gameProgressBar.progress(progress[0] += (Bukkit.getOnlinePlayers().size() * 0.251f - progress[0]) * 0.5f);
                         }
                     }
                     case PREPARATION -> {
                         if(progress[0] > 1f) {
                             gameProgressBar.progress(progress[0] = 1f);
                             gameProgressBar.name(Component.text("等待玩家加入", NamedTextColor.YELLOW));
-                            CreepersPVP.stage = CreepersPVP.GameStage.WAITING;
+                            Prototypes.stage = Prototypes.GameStage.WAITING;
                             for(final Player player : Bukkit.getOnlinePlayers()) {
                                 player.closeInventory();
                                 player.getInventory().removeItem(ItemManager.SELECT_TEAM);
@@ -258,7 +267,7 @@ public final class Utils {
                             gameProgressBar.progress(progress[0] = Float.NaN);
                             gameProgressBar.name(Component.empty());
                             gameProgressBar.removeViewer(Bukkit.getServer());
-                            CreepersPVP.stage = CreepersPVP.GameStage.MAIN;
+                            Prototypes.stage = Prototypes.GameStage.MAIN;
                             for(final Player player : Bukkit.getOnlinePlayers()) {
                                 if(!teams[0].hasEntity(player) && !teams[1].hasEntity(player)) {
                                     if(teams[0].getSize() > teams[1].getSize()) {
@@ -267,8 +276,6 @@ public final class Utils {
                                         teams[0].addPlayer(player);
                                     }
                                 }
-                            }
-                            for(final Player player : Bukkit.getOnlinePlayers()) {
                                 player.closeInventory();
                                 final PlayerInventory inv = player.getInventory();
                                 player.getInventory().removeItem(ItemManager.SELECT_TEAM);
@@ -278,9 +285,44 @@ public final class Utils {
                                     inv.addItem(ItemManager.DEPLOY);
                                 }
                             }
+                            for(int i = 0; i < teams.length; i++) {
+                                teamProgressBars[i].addViewer(teams[i]);
+                            }
+                            Bukkit.getServer().showTitle(Title.title(Prototypes.mode.name, Prototypes.mode.description, defaultTitleTimes));
                         } else {
                             final int players = Bukkit.getOnlinePlayers().size();
                             gameProgressBar.progress(progress[0] -= (players != 3 ? players >= 3 ? 0.001f : 0f : -0.001f));
+                        }
+                    }
+                    case MAIN -> {
+                        for(int i = 0; i < teams.length; i++) {
+                            final float flag;
+                            switch(Prototypes.mode) {
+                                case TDM -> flag = teamScores[i] / 30f;
+                                default -> flag = 1f;
+                            }
+                            teamProgressBars[i].name(teamProgressBarName(i));
+                            teamProgressBars[i].progress(teamProgressBars[i].progress() + (flag - teamProgressBars[i].progress()) * 0.5f);
+                            if(teamScores[i] >= 30) {
+                                Prototypes.stage = Prototypes.GameStage.ENDED;
+                                for(final Player player : Bukkit.getOnlinePlayers()) {
+                                    player.getInventory().removeItem(ItemManager.DEPLOY);
+                                    player.setInvulnerable(true);
+                                }
+                                for(int j = 0; j < teams.length; j++) {
+                                    teamProgressBars[j].removeViewer(teams[j]);
+                                }
+                                Bukkit.getServer().showTitle(Title.title(Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[i].displayName()).build()), Component.empty(), defaultTitleTimes));
+                                teams[i].showTitle(Title.title(Component.text("胜利！", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(30)).build()).replaceText(replaceXp.replacement(Component.text(20)).build()), defaultTitleTimes));
+                                for(final String entry : teams[i].getEntries()) {
+                                    final Player player = Bukkit.getPlayerExact(entry);
+                                    if(player != null) {
+                                        DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), 30);
+                                        DatabaseUtils.addPlayerXp(player.getUniqueId(), 20);
+                                    }
+                                }
+                                Bukkit.getScheduler().runTaskLater(Prototypes.instance, Bukkit::shutdown, 100);
+                            }
                         }
                     }
                 }
@@ -319,12 +361,12 @@ public final class Utils {
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
         level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("CreepersPVP：" + CreepersPVP.mode, NamedTextColor.GREEN), RenderType.INTEGER);
+        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("Prototypes：" + Prototypes.mode, NamedTextColor.GREEN), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
         final String[] info = new String[]{"", "", "", "", ""};
         player.setScoreboard(scoreboard);
-        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+        player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
             for(final Team team : teams) {
                 final Team playerTeam = scoreboard.getTeam(team.getName());
                 if(playerTeam != null) {
@@ -351,7 +393,7 @@ public final class Utils {
             gameProgressBar.addViewer(player);
         }
         final Inventory inv = player.getInventory();
-        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+        player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
             if(player.hasActiveItem()) {
                 final ItemStack item = player.getActiveItem();
                 item.editMeta(meta -> {
@@ -370,9 +412,7 @@ public final class Utils {
                             if(startTime + usedTime + 1 == currentTime && usedTime < customMaxUseTime) {
                                 data.set(customItemUsedTimeKey, PersistentDataType.INTEGER, ++usedTime);
                                 player.setActiveItemRemainingTime(item.getMaxItemUseDuration(player) - usedTime * vanillaMaxUseDuration / customMaxUseTime);
-                                //if(player.hasResourcePack()) {
-                                    meta.setCustomModelData(getCustomModelData(item, player, usedTime));
-                                //}
+                                meta.setCustomModelData(getCustomModelData(item, player, usedTime));
                             } else if(usedTime != customMaxUseTime) {
                                 data.remove(customItemStartUsingTimeKey);
                                 data.remove(customItemUsedTimeKey);
@@ -387,7 +427,7 @@ public final class Utils {
                 });
             }
         }, null, 1, 1);
-        player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+        player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
             int pos = inv.first(Material.ARROW);
             if(pos != -1) {
                 inv.getItem(pos).setAmount(64);
@@ -395,6 +435,10 @@ public final class Utils {
         }, null, 61, 61);
     }
     public static void playerQuit(Player player) {
+        final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getEntityTeam(player);
+        if(team != null) {
+            team.removeEntity(player);
+        }
         armors.remove(player.getUniqueId());
         deathSpectatingPlayers.remove(player.getUniqueId());
         player.removeResourcePack(resourcePackUUID);
@@ -413,7 +457,7 @@ public final class Utils {
         inv.setItem(0, ItemManager.SELECT_ARMOR);
         inv.setItem(1, ItemManager.SELECT_WEAPONS);
         inv.setItem(2, ItemManager.SELECT_ARTIFACTS);
-        inv.setItem(4, CreepersPVP.stage == CreepersPVP.GameStage.PREPARATION ? ItemManager.SELECT_TEAM : CreepersPVP.stage == CreepersPVP.GameStage.MAIN ? ItemManager.DEPLOY : null);
+        inv.setItem(4, Prototypes.stage == Prototypes.GameStage.PREPARATION ? ItemManager.SELECT_TEAM : Prototypes.stage == Prototypes.GameStage.MAIN ? ItemManager.DEPLOY : null);
         inv.setItem(6, ItemManager.GUIDEBOOK);
         inv.setItem(7, ItemBuilder.copyOf(ItemManager.PROFILE).meta(SkullMeta.class, meta -> {
             meta.setOwningPlayer(player);
@@ -477,7 +521,7 @@ public final class Utils {
         player.getAttribute(Attribute.GENERIC_MAX_HEALTH).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.HEALTH_BONUS), AttributeModifier.Operation.ADD_NUMBER));
         inv.getItem(EquipmentSlot.CHEST).editMeta(meta -> meta.addEnchant(Enchantment.PROTECTION, upgrades.getData(DatabaseUtils.AttributeUpgrades.PROTECTION_LEVEL), true));
         player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.KNOCKBACK_RESISTANCE) * 0.07, AttributeModifier.Operation.ADD_NUMBER));
-        player.getAttribute(GENERIC_MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL) * 0.06, AttributeModifier.Operation.MULTIPLY_SCALAR_1));;
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.SPEED_BONUS_LEVEL) * 0.06, AttributeModifier.Operation.MULTIPLY_SCALAR_1));;
         player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.SHARPNESS_LEVEL) * 0.05, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
         player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addTransientModifier(new AttributeModifier(attributeBonusKey, upgrades.getData(DatabaseUtils.AttributeUpgrades.RAMPAGING_LEVEL) * 0.05, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
         player.clearActivePotionEffects();
@@ -493,7 +537,7 @@ public final class Utils {
         player.setSilent(armorID == ArmorManager.GHOST_KINDLER || armorID == ArmorManager.CREEPY_ARMOR);
         player.addPotionEffects(List.of(ArmorManager.effects[armorID]));
         if(ArmorManager.tasks[armorID] != null) {
-            player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> ArmorManager.tasks[armorID].accept(player), null, 1, 200);
+            player.getScheduler().runAtFixedRate(Prototypes.instance, task -> ArmorManager.tasks[armorID].accept(player), null, 1, 200);
         }
         armors.put(player.getUniqueId(), armorID);
         player.teleport(spawn);
@@ -503,6 +547,13 @@ public final class Utils {
     }
     public static void playerDeath(Player player) {
         deathSpectatingPlayers.put(player.getUniqueId(), Bukkit.getCurrentTick());
+    }
+    private static Component teamProgressBarName(int team) {
+        Component name = Component.text(teamScores[0], teamColors[0]).decoration(TextDecoration.BOLD, team == 0);
+        for(int i = 1; i < teams.length; i++) {
+            name = name.append(separator).append(Component.text(teamScores[i], teamColors[i]).decoration(TextDecoration.BOLD, team == i));
+        }
+        return name;
     }
     public static int fakeBlockDamageSourceEID(Location location) {
         return (int) -((((long) location.getBlockX() << 38) + ((long) location.getBlockY() << 26) + location.getBlockZ()) % 1000000007) - 1;
@@ -519,7 +570,7 @@ public final class Utils {
         if(deathSpectatingPlayers.containsKey(uuid)) {
             if(Bukkit.getCurrentTick() - deathSpectatingPlayers.get(uuid) >= DEATH_SPECTATE_TIME) {
                 deathSpectatingPlayers.remove(uuid);
-                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> playerInit(player));
+                Bukkit.getScheduler().runTask(Prototypes.instance, () -> playerInit(player));
                 return true;
             }
             return false;
@@ -603,7 +654,7 @@ public final class Utils {
         if(!hasGainArtifactScheduler(itemOrdinal, player.getUniqueId())) {
             final PlayerInventory inv = player.getInventory();
             final int[] timer = {0};
-            scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(CreepersPVP.instance, task -> {
+            scheduleGainArtifact(itemOrdinal, player.getUniqueId(), player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
                 timer[0]++;
                 timer[0] %= ItemManager.PROGRESS_BARS.length;
                 final int slot = Utils.findItem(inv, itemOrdinal);

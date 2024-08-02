@@ -1,10 +1,8 @@
-package re.imc.creeperspvp.utils;
+package re.imc.prototypes.utils;
 import org.bukkit.Bukkit;
-import re.imc.creeperspvp.CreepersPVP;
+import re.imc.prototypes.Prototypes;
 
-import java.io.Closeable;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public final class DatabaseUtils {
@@ -59,9 +57,9 @@ public final class DatabaseUtils {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch(ClassNotFoundException e) {
-            CreepersPVP.logSevere("Error loading database driver: " + e.getMessage());
+            Prototypes.logSevere("Error loading database driver: " + e.getMessage());
         }
-        connection = DriverManager.getConnection("jdbc:mysql://" + CreepersPVP.databaseAddress + ":" + CreepersPVP.databasePort + "/" + CreepersPVP.database + "?user=" + CreepersPVP.databaseUsername + "&password=" + CreepersPVP.databasePassword);
+        connection = DriverManager.getConnection("jdbc:mysql://" + Prototypes.databaseAddress + ":" + Prototypes.databasePort + "/" + Prototypes.database + "?user=" + Prototypes.databaseUsername + "&password=" + Prototypes.databasePassword);
         connection.createStatement().execute(databaseInit);
         checkPlayerExistence = connection.prepareStatement("SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         registerPlayer = connection.prepareStatement("INSERT INTO `" + TABLE_NAME + "` (`uuid`) VALUES (UUID_TO_BIN(?))");
@@ -85,7 +83,7 @@ public final class DatabaseUtils {
         setPlayerItemSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `item_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerMiscSettings = connection.prepareStatement("SELECT `misc_settings` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         setPlayerMiscSettings = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `misc_settings` = b? WHERE `uuid` = UUID_TO_BIN(?);");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CreepersPVP.instance, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(Prototypes.instance, () -> {
             try {
                 connection.createStatement().execute(refreshConnection);
             } catch(SQLException ignored) {}
@@ -144,7 +142,7 @@ public final class DatabaseUtils {
                 }
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database operation: " + e.getMessage());
+            Prototypes.logWarning("Error executing database operation: " + e.getMessage());
         }
     }
     public static long fetchPlayerEmeralds(UUID uuid) {
@@ -158,7 +156,7 @@ public final class DatabaseUtils {
                 return result.getLong("emeralds");
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return 0;
     }
@@ -170,7 +168,7 @@ public final class DatabaseUtils {
                 addPlayerEmeralds.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static int fetchPlayerXp(UUID uuid) {
@@ -184,7 +182,7 @@ public final class DatabaseUtils {
                 return result.getInt("xp");
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return 0;
     }
@@ -196,7 +194,7 @@ public final class DatabaseUtils {
                 addPlayerXp.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static int fetchPlayerKills(UUID uuid) {
@@ -210,7 +208,7 @@ public final class DatabaseUtils {
                 return result.getInt("kills");
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return 0;
     }
@@ -221,7 +219,7 @@ public final class DatabaseUtils {
                 incrementPlayerKills.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static int fetchPlayerDeaths(UUID uuid) {
@@ -235,7 +233,7 @@ public final class DatabaseUtils {
                 return result.getInt("deaths");
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return 0;
     }
@@ -246,7 +244,7 @@ public final class DatabaseUtils {
                 incrementPlayerDeaths.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
@@ -260,7 +258,7 @@ public final class DatabaseUtils {
                 return bytesToBooleans(result.getBytes("armor_status"));
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return new boolean[48];
     }
@@ -272,7 +270,7 @@ public final class DatabaseUtils {
                 setPlayerArmorStatus.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static boolean[] fetchPlayerWeaponStatus(UUID uuid) {
@@ -286,7 +284,7 @@ public final class DatabaseUtils {
                 return bytesToBooleans(result.getBytes("weapon_status"));
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return new boolean[80];
     }
@@ -298,7 +296,7 @@ public final class DatabaseUtils {
                 setPlayerWeaponStatus.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static boolean[] fetchPlayerArtifactStatus(UUID uuid) {
@@ -312,7 +310,7 @@ public final class DatabaseUtils {
                 return bytesToBooleans(result.getBytes("artifact_status"));
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return new boolean[256];
     }
@@ -324,7 +322,7 @@ public final class DatabaseUtils {
                 setPlayerArtifactStatus.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static AttributeUpgrades getPlayerAttributeUpgrades(UUID uuid) {
@@ -346,13 +344,13 @@ public final class DatabaseUtils {
                 return upgrades;
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return null;
     }
     public static void setPlayerAttributeUpgrades(UUID uuid, AttributeUpgrades upgrades) {
         playerAttributeUpgradesCache.put(uuid, upgrades);
-        Bukkit.getScheduler().runTaskAsynchronously(CreepersPVP.instance, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(Prototypes.instance, () -> {
             try {
                 synchronized(setPlayerAttributeUpgrades) {
                     setPlayerAttributeUpgrades.setString(1, booleansToString(bytesToBooleans(upgrades.asBytes())));
@@ -360,7 +358,7 @@ public final class DatabaseUtils {
                     setPlayerAttributeUpgrades.executeUpdate();
                 }
             } catch(SQLException e) {
-                CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+                Prototypes.logWarning("Error executing database update: " + e.getMessage());
             }
         });
     }
@@ -375,7 +373,7 @@ public final class DatabaseUtils {
                 return new ItemSettings(result.getBytes("item_settings"));
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return null;
     }
@@ -387,7 +385,7 @@ public final class DatabaseUtils {
                 setPlayerItemSettings.executeUpdate();
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
     }
     public static MiscSettings getPlayerMiscSettings(UUID uuid) {
@@ -409,13 +407,13 @@ public final class DatabaseUtils {
                 return settings;
             }
         } catch(SQLException e) {
-            CreepersPVP.logWarning("Error executing database query: " + e.getMessage());
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
         }
         return null;
     }
     public static void setPlayerMiscSettings(UUID uuid, MiscSettings settings) {
         playerMiscSettingsCache.put(uuid, settings);
-        Bukkit.getScheduler().runTaskAsynchronously(CreepersPVP.instance, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(Prototypes.instance, () -> {
             try {
                 synchronized(setPlayerMiscSettings) {
                     setPlayerMiscSettings.setString(1, booleansToString(settings.asBooleans()));
@@ -423,7 +421,7 @@ public final class DatabaseUtils {
                     setPlayerMiscSettings.executeUpdate();
                 }
             } catch(SQLException e) {
-                CreepersPVP.logWarning("Error executing database update: " + e.getMessage());
+                Prototypes.logWarning("Error executing database update: " + e.getMessage());
             }
         });
     }

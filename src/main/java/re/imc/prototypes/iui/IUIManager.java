@@ -1,4 +1,4 @@
-package re.imc.creeperspvp.iui;
+package re.imc.prototypes.iui;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.FastInvManager;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -16,13 +16,13 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import re.imc.creeperspvp.*;
-import re.imc.creeperspvp.items.ArmorManager;
-import re.imc.creeperspvp.items.ArtifactManager;
-import re.imc.creeperspvp.items.ItemManager;
-import re.imc.creeperspvp.items.WeaponManager;
-import re.imc.creeperspvp.utils.DatabaseUtils;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.*;
+import re.imc.prototypes.items.ArmorManager;
+import re.imc.prototypes.items.ArtifactManager;
+import re.imc.prototypes.items.ItemManager;
+import re.imc.prototypes.items.WeaponManager;
+import re.imc.prototypes.utils.DatabaseUtils;
+import re.imc.prototypes.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,7 +56,7 @@ public final class IUIManager {
     private static final Component maxLevelReached = Component.text("已到达最高等级", NamedTextColor.RED);
     private static final int[][] upgradeSlots = {{}, {13}, {12, 14}, {11, 13, 15}, {10, 12, 14, 16}, {11, 12, 13, 14, 15}, {10, 11, 12, 14, 15, 16}, {10, 11, 12, 13, 14, 15, 16}};
     public static void init() {
-        FastInvManager.register(CreepersPVP.instance);
+        FastInvManager.register(Prototypes.instance);
     }
     public static FastInv getIUI(byte id, UUID uuid, PersistentDataContainer data) {
         return iuis[id] instanceof DynamicInv dynamicInv ? dynamicInv.getInv(uuid, data) : iuis[id];
@@ -162,20 +162,20 @@ public final class IUIManager {
                             } else {
                                 ItemStack itemPreview = ArmorManager.selectors[armorSelection][1].clone();
                                 itemPreview.lore(lore);
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
                                     synchronized(lock) {
                                         if(!armorStatus[armorSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorSelection]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorSelection]);
                                             armorStatus[armorSelection] = true;
                                             DatabaseUtils.setPlayerArmorStatus(uuid, armorStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorSelectorInv(uuid).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArmorSelectorInv(uuid).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && armorStatus[armorSelection] && ArmorManager.upgrades[armorSelection].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorSelection, armorStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArmorUpgradeInv(uuid, armorSelection, armorStatus).open(player));
                         }
                     }
                 });
@@ -222,20 +222,20 @@ public final class IUIManager {
                             } else {
                                 ItemStack itemPreview = ArmorManager.selectors[armorUpgrade][1].clone();
                                 itemPreview.lore(lore);
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(itemPreview, () -> {
                                     synchronized(lock) {
                                         if(!armorStatus[armorUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArmorManager.prices[armorUpgrade]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArmorManager.prices[armorUpgrade]);
                                             armorStatus[armorUpgrade] = true;
                                             DatabaseUtils.setPlayerArmorStatus(uuid, armorStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorID, armorStatus).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArmorUpgradeInv(uuid, armorID, armorStatus).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && armorStatus[armorUpgrade] && ArmorManager.upgrades[armorUpgrade].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArmorUpgradeInv(uuid, armorUpgrade, armorStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArmorUpgradeInv(uuid, armorUpgrade, armorStatus).open(player));
                         }
                     }
                 });
@@ -253,12 +253,12 @@ public final class IUIManager {
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             setItem(48, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 0))).build(), event -> {
                 if(weapon != 0 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, 0).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponSelectorInv(uuid, 0).open(player));
                 }
             });
             setItem(50, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 1))).build(), event -> {
                 if(weapon != 1 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, 1).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponSelectorInv(uuid, 1).open(player));
                 }
             });
             final boolean[] weaponStatus = DatabaseUtils.fetchPlayerWeaponStatus(uuid);
@@ -287,20 +287,20 @@ public final class IUIManager {
                                     DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withWeaponSelection(weapon, weaponSelection));
                                 }
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!weaponStatus[weaponSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponSelection]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponSelection]);
                                             weaponStatus[weaponSelection] = true;
                                             DatabaseUtils.setPlayerWeaponStatus(uuid, weaponStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponSelectorInv(uuid, weapon).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && weaponStatus[weaponSelection] && WeaponManager.upgrades[weaponSelection].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponSelection, weaponStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponSelection, weaponStatus).open(player));
                         }
                     }
                 });
@@ -323,12 +323,12 @@ public final class IUIManager {
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             setItem(21, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 0))).build(), event -> {
                 if(weapon != 0 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, 0, weaponID, weaponStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponUpgradeInv(uuid, 0, weaponID, weaponStatus).open(player));
                 }
             });
             setItem(23, ItemBuilder.copyOf(ItemManager.WEAPON_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(weapon == 1))).build(), event -> {
                 if(weapon != 1 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, 1, weaponID, weaponStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponUpgradeInv(uuid, 1, weaponID, weaponStatus).open(player));
                 }
             });
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
@@ -356,20 +356,20 @@ public final class IUIManager {
                                     DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withWeaponSelection(weapon, weaponUpgrade));
                                 }
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!weaponStatus[weaponUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= WeaponManager.prices[weaponUpgrade]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -WeaponManager.prices[weaponUpgrade]);
                                             weaponStatus[weaponUpgrade] = true;
                                             DatabaseUtils.setPlayerWeaponStatus(uuid, weaponStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponID, weaponStatus).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponID, weaponStatus).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && weaponStatus[weaponUpgrade] && WeaponManager.upgrades[weaponUpgrade].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponUpgrade, weaponStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new WeaponUpgradeInv(uuid, weapon, weaponUpgrade, weaponStatus).open(player));
                         }
                     }
                 });
@@ -391,22 +391,22 @@ public final class IUIManager {
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             setItem(47, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 0))).build(), event -> {
                 if(artifact != 0 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, 0, category).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactSelectorInv(uuid, 0, category).open(player));
                 }
             });
             setItem(48, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 1))).build(), event -> {
                 if(artifact != 1 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, 1, category).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactSelectorInv(uuid, 1, category).open(player));
                 }
             });
             setItem(50, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[2]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 2))).build(), event -> {
                 if(artifact != 2 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, 2, category).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactSelectorInv(uuid, 2, category).open(player));
                 }
             });
             setItem(51, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[3]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 3))).build(), event -> {
                 if(artifact != 3 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, 3, category).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactSelectorInv(uuid, 3, category).open(player));
                 }
             });
             int slot = 10;
@@ -435,20 +435,20 @@ public final class IUIManager {
                                     DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArtifactSelection(artifact, artifactSelection));
                                 }
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!artifactStatus[artifactSelection] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactSelection]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactSelection]);
                                             artifactStatus[artifactSelection] = true;
                                             DatabaseUtils.setPlayerArtifactStatus(uuid, artifactStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactSelectorInv(uuid, artifact, category).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactSelectorInv(uuid, artifact, category).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && artifactStatus[artifactSelection] && ArtifactManager.upgrades[artifactSelection].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactSelection, category, artifactStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactSelection, category, artifactStatus).open(player));
                         }
                     }
                 });
@@ -471,22 +471,22 @@ public final class IUIManager {
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             setItem(20, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[0]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 0))).build(), event -> {
                 if(artifact != 0 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 0, artifactID, category, artifactStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, 0, artifactID, category, artifactStatus).open(player));
                 }
             });
             setItem(21, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[1]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 1))).build(), event -> {
                 if(artifact != 1 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 1, artifactID, category, artifactStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, 1, artifactID, category, artifactStatus).open(player));
                 }
             });
             setItem(23, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[2]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 2))).build(), event -> {
                 if(artifact != 2 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 2, artifactID, category, artifactStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, 2, artifactID, category, artifactStatus).open(player));
                 }
             });
             setItem(24, ItemBuilder.copyOf(ItemManager.ARTIFACT_SELECTORS[3]).edit(item -> item.editMeta(meta -> meta.setEnchantmentGlintOverride(artifact == 3))).build(), event -> {
                 if(artifact != 3 && event.getWhoClicked() instanceof Player player) {
-                    Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, 3, artifactID, category, artifactStatus).open(player));
+                    Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, 3, artifactID, category, artifactStatus).open(player));
                 }
             });
             final Object lock = DatabaseUtils.getPlayerLock(uuid);
@@ -514,20 +514,20 @@ public final class IUIManager {
                                     DatabaseUtils.setPlayerItemSettings(uuid, DatabaseUtils.fetchPlayerItemSettings(uuid).withArtifactSelection(artifact, artifactUpgrade));
                                 }
                             } else {
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ConfirmPurchaseDialogue(items[1], () -> {
                                     synchronized(lock) {
                                         if(!artifactStatus[artifactUpgrade] && DatabaseUtils.fetchPlayerEmeralds(uuid) >= ArtifactManager.prices[artifactUpgrade]) {
                                             DatabaseUtils.addPlayerEmeralds(uuid, -ArtifactManager.prices[artifactUpgrade]);
                                             artifactStatus[artifactUpgrade] = true;
                                             DatabaseUtils.setPlayerArtifactStatus(uuid, artifactStatus);
-                                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactID, category, artifactStatus).open(player));
+                                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactID, category, artifactStatus).open(player));
                                         }
                                     }
                                 }, () -> open(player)).open(player));
                             }
                         }
                         if(event.isRightClick() && artifactStatus[artifactUpgrade] && ArtifactManager.upgrades[artifactUpgrade].length > 0) {
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactUpgrade, category, artifactStatus).open(player));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> new ArtifactUpgradeInv(uuid, artifact, artifactUpgrade, category, artifactStatus).open(player));
                         }
                     }
                 });
@@ -734,6 +734,7 @@ public final class IUIManager {
             setItem(11, ItemManager.TDM);
             setItem(12, ItemManager.CTF);
             setItem(13, ItemManager.CQT);
+            setItem(13, ItemManager.DTM);
             setItem(16, ItemManager.LOBBY, event -> {
                 if(event.getWhoClicked() instanceof Player player) {
                     player.chat("/hub");

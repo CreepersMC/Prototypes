@@ -1,5 +1,5 @@
-name: CreepersPVP
-version: '0.6.1'
-main: re.imc.creeperspvp.CreepersPVP
+name: Prototypes
+version: '1.0.0'
+main: re.imc.prototypes.Prototypes
 api-version: '1.21'
 depend: []

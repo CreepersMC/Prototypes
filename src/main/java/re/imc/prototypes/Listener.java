@@ -1,4 +1,4 @@
-package re.imc.creeperspvp;
+package re.imc.prototypes;
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
@@ -30,11 +30,10 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
-import re.imc.creeperspvp.items.ArmorManager;
-import re.imc.creeperspvp.items.ArtifactManager;
-import re.imc.creeperspvp.iui.IUIManager;
+import re.imc.prototypes.items.ArmorManager;
+import re.imc.prototypes.items.ArtifactManager;
+import re.imc.prototypes.iui.IUIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,8 +48,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import re.imc.creeperspvp.utils.DatabaseUtils;
-import re.imc.creeperspvp.utils.Utils;
+import re.imc.prototypes.utils.DatabaseUtils;
+import re.imc.prototypes.utils.Utils;
 import java.time.Duration;
 import java.util.*;
 public final class Listener implements org.bukkit.event.Listener {
@@ -59,8 +58,8 @@ public final class Listener implements org.bukkit.event.Listener {
     private static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
     private static final Component leaveDeathSpectate = Component.textOfChildren(Component.text("按 "), Component.keybind("key.sneak"), Component.text(" 退出旁观"));
     private static final Component killRewards = Component.text(" +%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
-    private static final TextReplacementConfig.Builder replaceKillRewardsEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
-    private static final TextReplacementConfig.Builder replaceKillRewardsXp = TextReplacementConfig.builder().matchLiteral("%xp%");
+    private static final TextReplacementConfig.Builder replaceEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
+    private static final TextReplacementConfig.Builder replaceXp = TextReplacementConfig.builder().matchLiteral("%xp%");
     public static final Title freeSpectateTitle = Title.title(Component.text("正在自由旁观"), Component.text("输入 /spawn 退出观战"), spectateTitleTimes);
     private static final BlockFace[] NEIGHBORS = new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
     private Listener() {}
@@ -81,13 +80,8 @@ public final class Listener implements org.bukkit.event.Listener {
             DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), emeralds);
             DatabaseUtils.addPlayerXp(killer.getUniqueId(), xp);
             DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
-            if(CreepersPVP.mode == CreepersPVP.GameMode.TDM) {
+            if(Prototypes.mode == Prototypes.GameMode.TDM) {
                 Utils.teamScores[Utils.getPlayerTeam(killer)]++;
-                if(Utils.teamScores[Utils.getPlayerTeam(killer)] >= 30) {
-                    Bukkit.getServer().showTitle(Title.title(Utils.teams[Utils.getPlayerTeam(killer)].displayName().append(Component.text("胜利！")), Component.empty(), Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(100))));
-                    Bukkit.getScheduler().runTaskLater(CreepersPVP.instance, Bukkit::shutdown, 100);
-                    Bukkit.getScheduler().runTaskLater(CreepersPVP.instance, Bukkit::shutdown, 100);
-                }
             }
         } else {
             emeralds = 0;
@@ -96,13 +90,13 @@ public final class Listener implements org.bukkit.event.Listener {
         if(deathMessage != null) {
             player.sendActionBar(deathMessage);
             if(hasKiller) {
-                killer.sendActionBar(deathMessage.append(killRewards.replaceText(replaceKillRewardsEmeralds.replacement(String.valueOf(emeralds)).build()).replaceText(replaceKillRewardsXp.replacement(String.valueOf(xp)).build())));
+                killer.sendActionBar(deathMessage.append(killRewards.replaceText(replaceEmeralds.replacement(String.valueOf(emeralds)).build()).replaceText(replaceXp.replacement(String.valueOf(xp)).build())));
             }
         }
         player.showTitle(hasKiller ? Title.title(Component.text("正在旁观 ").append(killer.displayName()), leaveDeathSpectate, spectateTitleTimes) : freeSpectateTitle);
         DatabaseUtils.incrementPlayerDeaths(player.getUniqueId());
         Utils.playerDeath(player);
-        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+        Bukkit.getScheduler().runTask(Prototypes.instance, () -> {
             player.setGameMode(GameMode.SPECTATOR);
             player.setSpectatorTarget(killer);
         });
@@ -149,11 +143,6 @@ public final class Listener implements org.bukkit.event.Listener {
         event.setCancelled(true);
     }
     @EventHandler(priority = EventPriority.LOW)
-    public void onBlockChange(EntityChangeBlockEvent event) {
-        System.out.println(event.getBlockData());
-        System.out.println(event.getTo());
-    }
-    @EventHandler(priority = EventPriority.LOW)
     public void onLeavesDecay(LeavesDecayEvent event) {
         event.setCancelled(true);
     }
@@ -181,7 +170,7 @@ public final class Listener implements org.bukkit.event.Listener {
                                 final ItemStack clone = item.clone();
                                 if(item.getAmount() == 1) {
                                     final ItemStack unavailable = clone.withType(Material.BARRIER);
-                                    player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                                    player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                                 }
                                 Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.withType(ArtifactManager.artifacts[artifactID][1].getType()).asOne());
                             }
@@ -243,7 +232,7 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerStopUsingItem(PlayerStopUsingItemEvent event) {
         final ItemStack item = event.getItem();
-        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> item.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(item, event.getPlayer(), -1))));
+        Bukkit.getScheduler().runTask(Prototypes.instance, () -> item.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(item, event.getPlayer(), -1))));
     }
     @EventHandler(priority = EventPriority.HIGH)
     public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
@@ -331,7 +320,7 @@ public final class Listener implements org.bukkit.event.Listener {
                             if(arrow.getAmount() == 1) {
                                 final ItemStack unavailable = clone.withType(Material.BARRIER);
                                 final int slot = Utils.findItem(inv, itemOrdinal);
-                                Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, unavailable));
+                                Bukkit.getScheduler().runTask(Prototypes.instance, () -> inv.setItem(slot, unavailable));
                             }
                             Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                         }
@@ -362,7 +351,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                            player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
@@ -424,7 +413,7 @@ public final class Listener implements org.bukkit.event.Listener {
                     switch(artifactID) {
                         case ArtifactManager.TNT:
                             event.setCancelled(true);
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> item.subtract());
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> item.subtract());
                             Location tntLocation = location.toCenterLocation();
                             tntLocation.getWorld().spawn(tntLocation, TNTPrimed.class, tnt -> {
                                 tnt.setFuseTicks(80);
@@ -446,7 +435,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                            player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
@@ -484,7 +473,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                            player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
@@ -497,7 +486,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             final ItemStack inUse = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> inv.setItem(slot, inUse));
+                            Bukkit.getScheduler().runTask(Prototypes.instance, () -> inv.setItem(slot, inUse));
                         }
                     }
                 }
@@ -568,7 +557,7 @@ public final class Listener implements org.bukkit.event.Listener {
                                     event.getEntity().setFreezeTicks(Math.max(event.getEntity().getFreezeTicks(), data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.INTEGER, 0)));
                                 }
                             }
-                            case Utils.RANGED_EFFECT_WIND -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+                            case Utils.RANGED_EFFECT_WIND -> Bukkit.getScheduler().runTask(Prototypes.instance, () -> {
                                 final Entity entity = event.getEntity();
                                 entity.setVelocity(entity.getVelocity().add(new Vector(0, arrow.getVelocity().length() * data.getOrDefault(Utils.rangedAttackEffectDataKey, PersistentDataType.DOUBLE, 0d) * (entity instanceof LivingEntity livingEntity ? livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE) != null ? 1 - livingEntity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).getValue() : 1 : 1), 0)));
                             });
@@ -631,7 +620,7 @@ public final class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityResurrect(EntityResurrectEvent event) {
         if(!event.isCancelled() && event.getEntity() instanceof final Player player) {
-            Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+            Bukkit.getScheduler().runTask(Prototypes.instance, () -> {
                 final short armor = Utils.getArmor(player);
                 if(armor != -1) {
                     player.addPotionEffects(List.of(ArmorManager.effects[armor]));
@@ -653,7 +642,7 @@ public final class Listener implements org.bukkit.event.Listener {
                             if(item.getAmount() == 1) {
                                 final ItemStack unavailable = clone.withType(Material.BARRIER);
                                 final int slot = Utils.findItem(inv, itemOrdinal);
-                                player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                                player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                             }
                             Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                         }
@@ -733,7 +722,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 if(data.has(Utils.utilIDKey, PersistentDataType.BYTE) && player.getCooldown(item.getType()) == 0) {
                     event.setCancelled(true);
                     switch(data.get(Utils.utilIDKey, PersistentDataType.BYTE)) {
-                        case Utils.UTIL_SPAWN -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> Utils.spawnPlayer(player));
+                        case Utils.UTIL_SPAWN -> Bukkit.getScheduler().runTask(Prototypes.instance, () -> Utils.spawnPlayer(player));
                     }
                 }
             }
@@ -754,7 +743,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 event.setItem(ArtifactManager.artifacts[ArtifactManager.CHORUS_FRUIT][1]);
                 location.createExplosion(player, 1.5f, false, false);
             }
-            case MILK_BUCKET -> Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> {
+            case MILK_BUCKET -> Bukkit.getScheduler().runTask(Prototypes.instance, () -> {
                 final short armor = Utils.getArmor(player);
                 if(armor != -1) {
                     player.addPotionEffects(List.of(ArmorManager.effects[armor]));
@@ -774,7 +763,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         default -> replacementMaterial = Material.BARRIER;
                     }
                     if(replacementMaterial != Material.BARRIER) {
-                        Bukkit.getScheduler().runTask(CreepersPVP.instance, () -> player.getInventory().remove(new ItemStack(replacementMaterial)));
+                        Bukkit.getScheduler().runTask(Prototypes.instance, () -> player.getInventory().remove(new ItemStack(replacementMaterial)));
                     }
                     if(ArtifactManager.useCooldowns[artifactID] != -1) {
                         player.setCooldown(item.getType(), ArtifactManager.useCooldowns[artifactID]);
@@ -815,7 +804,7 @@ public final class Listener implements org.bukkit.event.Listener {
                         if(item.getAmount() == 1) {
                             final ItemStack unavailable = clone.withType(Material.BARRIER);
                             final int slot = Utils.findItem(inv, itemOrdinal);
-                            player.getScheduler().run(CreepersPVP.instance, task -> inv.setItem(slot, unavailable), null);
+                            player.getScheduler().run(Prototypes.instance, task -> inv.setItem(slot, unavailable), null);
                         }
                         Utils.scheduleGainArtifact(player, itemOrdinal, artifactID, clone.asOne());
                     }
@@ -836,7 +825,7 @@ public final class Listener implements org.bukkit.event.Listener {
         Utils.putTransientBlockData(location, transientBlockData);
         if(fakeDamage) {
             final int[] timer = {0};
-            Bukkit.getRegionScheduler().runAtFixedRate(CreepersPVP.instance, location, task -> {
+            Bukkit.getRegionScheduler().runAtFixedRate(Prototypes.instance, location, task -> {
                 if(timer[0] < 10) {
                     if(Utils.getTransientBlockData(location) == transientBlockData) {
                         Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockDamage(location, timer[0] * 0.1f, sourceEID));
@@ -852,7 +841,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 }
             }, 1, persistenceTime / 10);
         } else {
-            Bukkit.getRegionScheduler().runDelayed(CreepersPVP.instance, location, task -> {
+            Bukkit.getRegionScheduler().runDelayed(Prototypes.instance, location, task -> {
                 if(Utils.getTransientBlockData(location) == transientBlockData) {
                     location.getBlock().setBlockData(data);
                     Utils.removeTransientBlockData(location);

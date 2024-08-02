@@ -9,7 +9,7 @@
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
-  <name>CreepersPVP</name>
+  <name>Prototypes</name>
 
   <properties>
     <java.version>21</java.version>

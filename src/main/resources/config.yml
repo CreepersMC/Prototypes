@@ -1,9 +1,19 @@
+#It is a terrible idea to /reload Prototypes!
+#Please restart to update the configs!
+
 #The game mode. Can be one of the following:
 #FFA - Default mode, free combat.
 #TDM - Basic team mode. The team that reaches a given amount of kills first wins.
 mode: FFA
 
-#Database configurations
+#How we should handle players who attempt to join after the game has already started
+#Has no effect in FFA mode. Can be one of the following:
+#DISALLOW - They can not join
+#SPECTATE - They can join but will only be able to spectate the game
+#ALLOW - They can join and may be automatically assigned a team if necessary
+join-after-start: SPECTATE
+
+#Database configurations. Only supports MySQL.
 database:
   address: 127.0.0.1
   port: 3306

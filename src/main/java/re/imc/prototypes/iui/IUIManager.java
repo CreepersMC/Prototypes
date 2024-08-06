@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -111,19 +112,19 @@ public final class IUIManager {
         protected void onClick(InventoryClickEvent event) {
             super.onClick(event);
             switch(event.getSlot()) {
-                case 12 -> {
-                    if(Utils.teams[0].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
-                        Utils.teams[0].addEntity(event.getWhoClicked());
-                        refreshItems();
-                    }
-                }
-                case 14 -> {
-                    if(Utils.teams[1].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
-                        Utils.teams[1].addEntity(event.getWhoClicked());
-                        refreshItems();
-                    }
+                case 12 -> team(0, event.getWhoClicked());
+                case 14 -> team(1, event.getWhoClicked());
+            }
+        }
+        private void team(int team, HumanEntity entity) {
+            if(Utils.teams[team].hasEntity(entity)) {
+                Utils.teams[team].removeEntity(entity);
+            } else {
+                if(Utils.teams[team].getSize() < Math.ceil(Bukkit.getOnlinePlayers().size() * 0.5f)) {
+                    Utils.teams[team].addEntity(entity);
                 }
             }
+            refreshItems();
         }
     }
     public static final class ArmorSelectorInv extends CreeperInv implements DynamicInv {
@@ -734,7 +735,7 @@ public final class IUIManager {
             setItem(11, ItemManager.TDM);
             setItem(12, ItemManager.CTF);
             setItem(13, ItemManager.CQT);
-            setItem(13, ItemManager.DTM);
+            setItem(14, ItemManager.DTM);
             setItem(16, ItemManager.LOBBY, event -> {
                 if(event.getWhoClicked() instanceof Player player) {
                     player.chat("/hub");

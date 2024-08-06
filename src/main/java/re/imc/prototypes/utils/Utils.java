@@ -46,8 +46,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
+    private static final ItemStack shulker = new ItemStack(Material.CHORUS_FRUIT);
+    private static final Location nowhere = new Location(Bukkit.getWorld("world"), 0, 0, 0);
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
     private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
+    private static final Location[] spawns = new Location[]{new Location(Bukkit.getWorld("world"), 0, 134, 0), new Location(Bukkit.getWorld("world"), 12.5, 130, -30.5), new Location(Bukkit.getWorld("world"), -0.5, 103, -31.5)};
     public static NamespacedKey armorBonusKey;
     public static NamespacedKey attributeBonusKey;
     public static NamespacedKey gameProgressBarKey;
@@ -99,6 +102,8 @@ public final class Utils {
     private static final Component emeralds = Component.text("绿宝石: ", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数: ", NamedTextColor.RED);
     private static final Component kdr = Component.text("K/D: ", NamedTextColor.AQUA);
+    private static final Component mode = Component.text("模式: ", NamedTextColor.WHITE);
+    private static final Component version = Component.text("版本: ", NamedTextColor.WHITE);
     private static final Component imc = Component.text("IMC.RE", NamedTextColor.GOLD);
     private static final Component winRewards = Component.text("+%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
     private static final TextReplacementConfig.Builder replaceEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
@@ -220,10 +225,10 @@ public final class Utils {
             teams[i[0]].setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
             teamProgressBars[i[0]] = BossBar.bossBar(Component.empty(), 1f, teamProgressBarColors[i[0]], BossBar.Overlay.PROGRESS);
         }
-        Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
+        Bukkit.getWorld("world").spawnEntity(nowhere, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, armorStand -> {
             armorStand.setInvisible(true);
             armorStand.setInvulnerable(true);
-            armorStand.setNoPhysics(true);
+            armorStand.setGravity(false);
             dummy = (ArmorStand) armorStand;
         });
         gameProgressBar.progress(Float.NaN);
@@ -312,8 +317,8 @@ public final class Utils {
                                 for(int j = 0; j < teams.length; j++) {
                                     teamProgressBars[j].removeViewer(teams[j]);
                                 }
-                                Bukkit.getServer().showTitle(Title.title(Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[i].displayName()).build()), Component.empty(), defaultTitleTimes));
-                                teams[i].showTitle(Title.title(Component.text("胜利！", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(30)).build()).replaceText(replaceXp.replacement(Component.text(20)).build()), defaultTitleTimes));
+                                Bukkit.getServer().showTitle(Title.title(Component.text("失败", NamedTextColor.GRAY), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[i].displayName()).build()), defaultTitleTimes));
+                                teams[i].showTitle(Title.title(Component.text("胜利", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(30)).build()).replaceText(replaceXp.replacement(Component.text(20)).build()), defaultTitleTimes));
                                 for(final String entry : teams[i].getEntries()) {
                                     final Player player = Bukkit.getPlayerExact(entry);
                                     if(player != null) {
@@ -338,6 +343,9 @@ public final class Utils {
     }
     public static void playerJoin(Player player) {
         //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
+        Bukkit.advancementIterator().forEachRemaining(advancement -> {
+
+        });
         final UUID uuid = player.getUniqueId();
         final DatabaseUtils.MiscSettings miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
         if(miscSettings.shouldShowGuideBook()) {
@@ -361,10 +369,10 @@ public final class Utils {
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
         level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("Prototypes：" + Prototypes.mode, NamedTextColor.GREEN), RenderType.INTEGER);
+        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("原型之战", NamedTextColor.GREEN, TextDecoration.BOLD), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
-        final String[] info = new String[]{"", "", "", "", ""};
+        final String[] info = new String[]{"", "", "", "", "", "", "", ""};
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
             for(final Team team : teams) {
@@ -377,11 +385,14 @@ public final class Utils {
             for(final String string : info) {
                 infoBoard.getScore(string).resetScore();
             }
-            info[4] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
+            info[7] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
             final int kills = DatabaseUtils.fetchPlayerKills(uuid);
-            info[3] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
+            info[6] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
-            info[2] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            info[5] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
+            info[4] = " ";
+            info[3] = LegacyComponentSerializer.legacySection().serialize(mode.append(Prototypes.mode.name));
+            info[2] = LegacyComponentSerializer.legacySection().serialize(version.append(Prototypes.version));
             info[1] = "";
             info[0] = LegacyComponentSerializer.legacySection().serialize(imc);
             for(int i = 0; i < info.length; i++) {
@@ -577,13 +588,19 @@ public final class Utils {
         }
         return true;
     }
-    public static Location shulk(Location location) {
-        dummy.teleport(location);
-        dummy.setItem(EquipmentSlot.HAND, new ItemStack(Material.CHORUS_FRUIT));
-        dummy.startUsingItem(EquipmentSlot.HAND);
-        dummy.completeUsingActiveItem();
-        dummy.setItem(EquipmentSlot.HAND, null);
-        return dummy.getLocation();
+    public static Location shulk(final Location from, final Pose pose) {
+        final Location to;
+        synchronized(dummy) {
+            dummy.teleport(from);
+            dummy.setPose(pose);
+            dummy.setItem(EquipmentSlot.HAND, shulker);
+            dummy.startUsingItem(EquipmentSlot.HAND);
+            dummy.completeUsingActiveItem();
+            dummy.setItem(EquipmentSlot.HAND, null);
+            to = dummy.getLocation().clone();
+            dummy.teleport(nowhere);
+        }
+        return to;
     }
     public static double getChannellingChance(Location location) {
         if(location.getBlock().getLightFromSky() == skyLightGetter.getLightFromSky()) {

@@ -1,9 +1,6 @@
 package re.imc.prototypes;
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
-import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
-import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
-import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
-import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.*;
 import fr.mrmicky.fastinv.FastInv;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import net.kyori.adventure.text.Component;
@@ -28,6 +25,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -108,6 +106,26 @@ public final class Listener implements org.bukkit.event.Listener {
         }
     }
     @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        if(Prototypes.mode != Prototypes.GameMode.FFA) {
+            switch(Prototypes.stage) {
+                case MAIN -> {
+                    switch(Prototypes.joinAfterStartHandling) {
+                        case ALLOW -> {
+                            switch(Prototypes.mode) {
+                                case TDM -> {
+
+                                }
+                            }
+                        }
+                        case DISALLOW -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经开始！", NamedTextColor.RED));
+                    }
+                }
+                case ENDED -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经结束！", NamedTextColor.RED));
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
         DatabaseUtils.playerJoin(event.getPlayer().getUniqueId());
         Utils.playerJoin(event.getPlayer());
@@ -117,6 +135,11 @@ public final class Listener implements org.bukkit.event.Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         DatabaseUtils.playerQuit(event.getPlayer().getUniqueId());
         Utils.playerQuit(event.getPlayer());
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent event) {
+        final String advancement = event.getAdvancement().getKey().asString();
+        //DatabaseUtils.
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
@@ -215,6 +238,7 @@ public final class Listener implements org.bukkit.event.Listener {
                 data.copyTo(event.getProjectile().getPersistentDataContainer(), true);
                 event.getProjectile().setVelocity(event.getProjectile().getVelocity().multiply(data.getOrDefault(Utils.projectileVelocityKey, PersistentDataType.FLOAT, 1f)));
             });
+            Bukkit.getScheduler().runTask(Prototypes.instance, () -> bow.editMeta(meta -> meta.setCustomModelData(Utils.getCustomModelData(bow, event.getEntity(), -1))));
         }
         if(event.getProjectile() instanceof AbstractArrow arrow) {
             final DatabaseUtils.AttributeUpgrades upgrades = DatabaseUtils.getPlayerAttributeUpgrades(event.getEntity().getUniqueId());
@@ -594,7 +618,7 @@ public final class Listener implements org.bukkit.event.Listener {
                                 }
                                 case Utils.ARMOR_AURA_SHULKING -> {
                                     if(damagee.getHealth() - event.getFinalDamage() < damagee.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 0.5) {
-                                        damagee.teleport(Utils.shulk(damagee.getLocation()));
+                                        damagee.teleport(Utils.shulk(damagee.getLocation(), damagee.getPose()));
                                     }
                                 }
                             }

@@ -1,7 +1,6 @@
 package re.imc.prototypes.utils;
 import org.bukkit.Bukkit;
 import re.imc.prototypes.Prototypes;
-
 import java.sql.*;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

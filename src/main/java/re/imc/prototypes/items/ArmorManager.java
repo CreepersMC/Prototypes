@@ -121,7 +121,7 @@ public final class ArmorManager {
     public static final ItemStack[][] selectors = new ItemStack[][] {{new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.STRUCTURE_VOID)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.ELYTRA)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CHAINMAIL_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.WITHER_SKELETON_SKULL)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.CREEPER_HEAD)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.GOLDEN_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.LEATHER_BOOTS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.IRON_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.TURTLE_HELMET)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_LEGGINGS)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.DIAMOND_CHESTPLATE)}, {new ItemStack(Material.GRAY_DYE), new ItemStack(Material.NETHERITE_CHESTPLATE)}};
     public static final short[] selections = new short[] {GHOSTLY_ARMOR, PHANTOM_ARMOR, CLIMBING_GEAR, BATTLE_ROBE, THIEF_ARMOR, SWIFT_ARMOR, PRISMARINE_ARMOR, GRIM_ARMOR, CREEPER_ARMOR, RED_MOOSHROOM_ARMOR, SNOW_ARMOR, MERCENARY_ARMOR, TURTLE_ARMOR, SCALE_ARMOR, GUARDS_ARMOR, DARK_ARMOR, SHULKER_ARMOR};
     public static final short[][] upgrades = new short[][] {{GHOST_KINDLER}, {}, {DRAGON_ARMOR}, {}, {GOAT_GEAR}, {}, {SPLENDID_ROBE}, {}, {SPIDER_ARMOR}, {}, {EMBER_ROBES}, {}, {NAUTILUS_ARMOR}, {}, {WITHER_ARMOR}, {}, {CREEPY_ARMOR}, {} , {BROWN_MOOSHROOM_ARMOR}, {}, {}, {}, {FROST_ARMOR}, {}, {RENEGADE_ARMOR}, {}, {NIMBLE_TURTLE_ARMOR}, {}, {CURIOUS_ARMOR}, {}, {HIGHLAND_ARMOR}, {}, {TITANS_SHROUD}, {}, {STURDY_SHULKER_ARMOR}, {}};
-    public static final long[] prices = new long[] {2000, 4800, 2400, 4200, 1200, 3600, 1600, 3600, 1400, 4200, 1800, 3000, 1200, 3000, 2000, 4200, 2400, 3000, 2000, 4000, 0, 0, 1400, 3600, 0, 2000, 1800, 3600, 2100, 4000, 1900, 4000, 3000, 7000, 2000, 4000};
+    public static final long[] prices = new long[] {1600, 4800, 2400, 4800, 1300, 4000, 1600, 3500, 1000, 4200, 1500, 3000, 1200, 3000, 2000, 4200, 2400, 3000, 2000, 4000, 0, 0, 1400, 3600, 0, 2000, 1800, 3600, 2100, 4000, 1900, 4000, 3000, 7000, 2000, 4000};
     private ArmorManager() {}
     static void init() {
         for(ItemStack armor : armor[PHANTOM_ARMOR]) {
@@ -321,7 +321,7 @@ public final class ArmorManager {
             });
         }
         armor[CREEPER_ARMOR][0].editMeta(meta -> {
-            meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+            meta.addEnchant(Enchantment.BLAST_PROTECTION, 9, true);
             meta.setEnchantmentGlintOverride(false);
         });
         addArmorAttributes(armor[CREEPER_ARMOR], new double[] {0, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
@@ -332,7 +332,7 @@ public final class ArmorManager {
             });
         }
         armor[CREEPY_ARMOR][0].editMeta(meta -> {
-            meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+            meta.addEnchant(Enchantment.BLAST_PROTECTION, 9, true);
             meta.setEnchantmentGlintOverride(false);
         });
         addArmorAttributes(armor[CREEPY_ARMOR], new double[] {0, 6, 5, 2}, new double[] {0, 1, 1, 0}, new double[] {0, 0, 0, 0});
@@ -684,14 +684,14 @@ public final class ArmorManager {
                 addArmorAttributes(meta, 13, 2, 0);
             });
             selectors[CREEPER_ARMOR][i].editMeta(meta -> {
-                meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+                meta.addEnchant(Enchantment.BLAST_PROTECTION, 9, true);
                 meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("苦力怕盔甲", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("这件盔甲以充满悲伤的目光凝视着敌人。", NamedTextColor.GRAY))));
                 addArmorAttributes(meta, 13, 2, 0);
             });
             selectors[CREEPY_ARMOR][i].editMeta(meta -> {
-                meta.addEnchant(Enchantment.BLAST_PROTECTION, 10, true);
+                meta.addEnchant(Enchantment.BLAST_PROTECTION, 9, true);
                 meta.setEnchantmentGlintOverride(false);
                 meta.itemName(Component.text("暗影行者", NamedTextColor.WHITE));
                 meta.lore(removeItalics(Arrays.asList(Component.text("隐身", NamedTextColor.GRAY), Component.text("静音", NamedTextColor.GRAY), Component.text("当你穿上这身盔甲时，你会觉得敌人远被你甩在身后只能追着你的阴影。", NamedTextColor.GRAY))));

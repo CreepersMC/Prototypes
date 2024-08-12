@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ import re.imc.prototypes.items.WeaponManager;
 import re.imc.prototypes.utils.DatabaseUtils;
 import re.imc.prototypes.utils.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -58,6 +60,16 @@ public final class IUIManager {
     private static final int[][] upgradeSlots = {{}, {13}, {12, 14}, {11, 13, 15}, {10, 12, 14, 16}, {11, 12, 13, 14, 15}, {10, 11, 12, 14, 15, 16}, {10, 11, 12, 13, 14, 15, 16}};
     public static void init() {
         FastInvManager.register(Prototypes.instance);
+        for(final byte[] i = new byte[]{0}; i[0] < DeployInv.spawnIcons.length; i[0]++) {
+            DeployInv.spawnIcons[i[0]].editMeta(meta -> {
+                meta.itemName(DeployInv.spawnNames[i[0]]);
+                meta.lore(ItemManager.removeItalics(DeployInv.spawnLore[i[0]]));
+            });
+        }
+        for(byte i = 0; i < DeployInv.instances.length; i++) {
+            DeployInv.instances[i] = new DeployInv(i);
+        }
+        iuis[DEPLOY] = DeployInv.instances[DeployInv.instances.length - 1];
     }
     public static FastInv getIUI(byte id, UUID uuid, PersistentDataContainer data) {
         return iuis[id] instanceof DynamicInv dynamicInv ? dynamicInv.getInv(uuid, data) : iuis[id];
@@ -125,6 +137,50 @@ public final class IUIManager {
                 }
             }
             refreshItems();
+        }
+    }
+    public static final class DeployInv extends CreeperInv implements DynamicInv {
+        private static final byte CENTRAL = 0;
+        private static final byte VILLAGE = 1;
+        private static final byte FOREST = 2;
+        private static final byte STRONGHOLD_ENTRANCE = 3;
+        private static final Location[] spawns = new Location[]{new Location(Bukkit.getWorld("world"), 0, 134, 0), new Location(Bukkit.getWorld("world"), 12.5, 130, -30.5), new Location(Bukkit.getWorld("world"), -4.5, 131, 13.5), new Location(Bukkit.getWorld("world"), -0.5, 103, -31.5)};
+        private static final byte[][] teamSpawns = new byte[][]{{CENTRAL, VILLAGE, FOREST, STRONGHOLD_ENTRANCE}, {VILLAGE}, {FOREST}};
+        private static final Component[] spawnNames = new Component[]{Component.text("平原"), Component.text("平原村庄"), Component.text("森林"), Component.text("要塞")};
+        @SuppressWarnings("unchecked")
+        private static final List<Component>[] spawnLore = new List[]{Arrays.asList(), Arrays.asList(), Arrays.asList(), Arrays.asList()};
+        private static final ItemStack[] spawnIcons = new ItemStack[]{new ItemStack(Material.GRASS_BLOCK), new ItemStack(Material.DIRT_PATH), new ItemStack(Material.OAK_SAPLING), new ItemStack(Material.MOSSY_STONE_BRICKS)};
+        private static final int[][] slots = new int[][]{
+            {},
+            {13},
+            {12, 14},
+            {11, 13, 15},
+            {10, 12, 14, 16},
+            {11, 12, 13, 14, 15},
+            {10, 11, 12, 14, 15, 16},
+            {10, 11, 12, 13, 14, 15, 16},
+            {10, 12, 14, 16, 28, 30, 32, 34},
+            {},
+            {11, 12, 13, 14, 15, 29, 30, 31, 32, 33},
+            {}
+        };
+        private static final DeployInv[] instances = new DeployInv[Utils.teams.length + 1];
+        private DeployInv(final byte team) {
+            super(teamSpawns[team].length > 7 ? 54 : 27, "选择地点");
+            setItems(getBorders(), ItemManager.BORDER);
+            setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
+            for(int i = 0; i < teamSpawns[team].length; i++) {
+                final int i0 = i;
+                setItem(slots[teamSpawns[team].length][i], spawnIcons[teamSpawns[team][i]], event -> {
+                    if(event.getWhoClicked() instanceof final Player player) {
+                        Utils.spawnPlayer(player, spawns[teamSpawns[team][i0]]);
+                    }
+                });
+            }
+        }
+        @Override
+        public FastInv getInv(UUID uuid, PersistentDataContainer data) {
+            return instances[Utils.getPlayerTeam(Bukkit.getOfflinePlayer(uuid)) + 1];
         }
     }
     public static final class ArmorSelectorInv extends CreeperInv implements DynamicInv {
@@ -733,9 +789,9 @@ public final class IUIManager {
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             setItem(10, ItemManager.FFA);
             setItem(11, ItemManager.TDM);
-            setItem(12, ItemManager.CTF);
-            setItem(13, ItemManager.CQT);
-            setItem(14, ItemManager.DTM);
+            setItem(12, ItemManager.DTM);
+            setItem(13, ItemManager.CTF);
+            setItem(14, ItemManager.CQT);
             setItem(16, ItemManager.LOBBY, event -> {
                 if(event.getWhoClicked() instanceof Player player) {
                     player.chat("/hub");

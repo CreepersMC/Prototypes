@@ -2,16 +2,23 @@
 #Please restart to update the configs!
 
 #The game mode. Can be one of the following:
-#FFA - Default mode, free combat.
-#TDM - Basic team mode. The team that reaches a given amount of kills first wins.
+#FFA - Free for All | Persistent | Default mode, free combat.
+#TDM - Team Deathmatch | 2 Teams | 4+ Players | Basic team mode in which the team that reaches a given amount of kills first wins.
+#DTM(WIP) - Destroy the Matrix | 2 Teams | 6+ Players | One player in each team is chosen as the matrix. The matrix has a lot of health & knockback resistance & damage resistance. The matrix cannot respawn. The team whose matrix survives to the last wins.
+#CTF(WIP) - Capture the Flag | 2 Teams | 4+ Players | Go to the opposing team's base to capture flags. Bring it back to your own team's base to score points. Reach a given amount of score to win.
+#CQT(WIP) - Conquest | 2 Teams | 4+ Players |
 mode: FFA
 
-#How we should handle players who attempt to join after the game has already started
-#Has no effect in FFA mode. Can be one of the following:
-#DISALLOW - They can not join
-#SPECTATE - They can join but will only be able to spectate the game
-#ALLOW - They can join and may be automatically assigned a team if necessary
+#How we should handle new players(all players if forget-players is true) who attempt to join after a non-persistent game has already started
+#Has no effect in persistent modes. Can be one of the following:
+#DISALLOW - Players cannot join
+#SPECTATE - Players can join but will only be able to spectate the game
+#ALLOW - Players can join and may be automatically assigned a team if necessary
 join-after-start: SPECTATE
+
+#Whether we should 'forget' players who log off halfway during a non-persistent game.
+#Turning this on means they will be treated as new players when they try to rejoin.
+forget-players: false
 
 #Database configurations. Only supports MySQL.
 database:

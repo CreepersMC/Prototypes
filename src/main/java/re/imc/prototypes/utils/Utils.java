@@ -17,10 +17,12 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.permissions.Permission;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +51,6 @@ public final class Utils {
     private static final ItemStack shulker = new ItemStack(Material.CHORUS_FRUIT);
     private static final Location nowhere = new Location(Bukkit.getWorld("world"), 0, 0, 0);
     private static final Location hub = new Location(Bukkit.getWorld("world"), 0, 197, 0);
-    private static final Location spawn = new Location(Bukkit.getWorld("world"), 0, 134, 0);
-    private static final Location[] spawns = new Location[]{new Location(Bukkit.getWorld("world"), 0, 134, 0), new Location(Bukkit.getWorld("world"), 12.5, 130, -30.5), new Location(Bukkit.getWorld("world"), -0.5, 103, -31.5)};
     public static NamespacedKey armorBonusKey;
     public static NamespacedKey attributeBonusKey;
     public static NamespacedKey gameProgressBarKey;
@@ -91,24 +91,35 @@ public final class Utils {
     private static final int DEATH_SPECTATE_TIME = 60;
     private static final Block skyLightGetter = new Location(Bukkit.getWorld("world"), 0, 256, 0).getBlock();
     private static ArmorStand dummy;
+    private static TextDisplay totalKillsLeaderboard;
+    private static TextDisplay maxKillStreakLeaderboard;
+    private static TextDisplay totalKDRLeaderboard;
+    private static final List<UUID> players = new ArrayList<>();
     private static final ConcurrentHashMap<Location, Deque<TransientBlockData>> transientBlockData = new ConcurrentHashMap<>(256);
     private static final ConcurrentHashMap<Location, BlockData> transientBlockOriginals = new ConcurrentHashMap<>(256);
+    private static final ConcurrentHashMap<UUID, Integer> currentKills = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Integer> currentKillStreaks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Integer> currentDeaths = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Short> armors = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<UUID, ScheduledTask> armorTasks = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
     private static final Component separator = Component.text(" | ", NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE);
     private static final Component emeralds = Component.text("绿宝石: ", NamedTextColor.GREEN);
     private static final Component kills = Component.text("击杀数: ", NamedTextColor.RED);
+    private static final Component killStreak = Component.text("连杀数: ", NamedTextColor.GOLD);
     private static final Component kdr = Component.text("K/D: ", NamedTextColor.AQUA);
     private static final Component mode = Component.text("模式: ", NamedTextColor.WHITE);
     private static final Component version = Component.text("版本: ", NamedTextColor.WHITE);
     private static final Component imc = Component.text("IMC.RE", NamedTextColor.GOLD);
     private static final Component winRewards = Component.text("+%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
+    private static final Component leaderboardEntry = Component.text("#%placement% %name% %score%", NamedTextColor.YELLOW);
     private static final TextReplacementConfig.Builder replaceEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
     private static final TextReplacementConfig.Builder replaceXp = TextReplacementConfig.builder().matchLiteral("%xp%");
     private static final TextReplacementConfig.Builder replaceTeam = TextReplacementConfig.builder().matchLiteral("%team%");
+    private static final TextReplacementConfig.Builder replacePlacement = TextReplacementConfig.builder().matchLiteral("%placement%");
+    private static final TextReplacementConfig.Builder replaceName = TextReplacementConfig.builder().matchLiteral("%name%");
+    private static final TextReplacementConfig.Builder replaceScore = TextReplacementConfig.builder().matchLiteral("%score%");
     private static final Title.Times defaultTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000));
     private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447");//使用五郎的UUID
     private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "20303109bc864b6a50dd272f57daf168e962f48b")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
@@ -121,6 +132,7 @@ public final class Utils {
     private static final Component[] teamSuffixes = new Component[]{Component.empty(), Component.empty()};
     private static final NamedTextColor[] teamColors = new NamedTextColor[]{NamedTextColor.RED, NamedTextColor.BLUE};
     private static final BossBar.Color[] teamProgressBarColors = new BossBar.Color[]{BossBar.Color.RED, BossBar.Color.BLUE};
+    public static int targetScore;
     public static final int[] teamScores = new int[]{0, 0};
     public static final BossBar[] teamProgressBars = new BossBar[2];
     public static final Team[] teams = new Team[2];
@@ -209,6 +221,9 @@ public final class Utils {
         gameProgressBar = BossBar.bossBar(Component.empty(), 0f, BossBar.Color.GREEN, BossBar.Overlay.PROGRESS);
         final Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         for(final int[] i = new int[]{0}; i[0] < teams.length; i[0]++) {
+            try {
+                scoreboard.getTeam(teamNames[i[0]]).unregister();
+            } catch(NullPointerException ignored) {}
             teams[i[0]] = scoreboard.registerNewTeam(teamNames[i[0]]);
             teamFlags[i[0]].editMeta(meta -> {
                 meta.itemName(teamDisplayNames[i[0]]);
@@ -231,6 +246,35 @@ public final class Utils {
             armorStand.setGravity(false);
             dummy = (ArmorStand) armorStand;
         });
+        Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), -5.25, 197.5, -6.75), EntityType.TEXT_DISPLAY, CreatureSpawnEvent.SpawnReason.CUSTOM, textDisplay -> {
+            totalKillsLeaderboard = (TextDisplay) textDisplay;
+        });
+        Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 197.5, -6.75), EntityType.TEXT_DISPLAY, CreatureSpawnEvent.SpawnReason.CUSTOM, textDisplay -> {
+            maxKillStreakLeaderboard = (TextDisplay) textDisplay;
+        });
+        Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 5.25, 197.5, -6.75), EntityType.TEXT_DISPLAY, CreatureSpawnEvent.SpawnReason.CUSTOM, textDisplay -> {
+            totalKDRLeaderboard = (TextDisplay) textDisplay;
+        });
+        Bukkit.getScheduler().runTaskTimer(Prototypes.instance, () -> {
+            final List<DatabaseUtils.Score<Integer>> topPlayerKills = DatabaseUtils.fetchTopPlayerKills();
+            final List<DatabaseUtils.Score<Integer>> topPlayerKillStreak = DatabaseUtils.fetchTopPlayerKillStreak();
+            final List<DatabaseUtils.Score<Float>> topPlayerKDR = DatabaseUtils.fetchTopPlayerKDR();
+            Component text = Component.text("累计击杀榜", NamedTextColor.RED);
+            for(int i = 0; i < topPlayerKills.size(); i++) {
+                text = text.appendNewline().append(leaderboardEntry.replaceText(replacePlacement.replacement(Component.text(i + 1, NamedTextColor.YELLOW)).build()).replaceText(replaceName.replacement(Component.text(topPlayerKills.get(i).name(), NamedTextColor.GREEN)).build()).replaceText(replaceScore.replacement(Component.text(topPlayerKills.get(i).value(), NamedTextColor.RED)).build()));
+            }
+            totalKillsLeaderboard.text(text);
+            text = Component.text("最高连杀榜", NamedTextColor.GOLD);
+            for(int i = 0; i < topPlayerKillStreak.size(); i++) {
+                text = text.appendNewline().append(leaderboardEntry.replaceText(replacePlacement.replacement(Component.text(i + 1, NamedTextColor.YELLOW)).build()).replaceText(replaceName.replacement(Component.text(topPlayerKillStreak.get(i).name(), NamedTextColor.GREEN)).build()).replaceText(replaceScore.replacement(Component.text(topPlayerKillStreak.get(i).value(), NamedTextColor.GOLD)).build()));
+            }
+            maxKillStreakLeaderboard.text(text);
+            text = Component.text("累计K/D榜", NamedTextColor.AQUA);
+            for(int i = 0; i < topPlayerKDR.size(); i++) {
+                text = text.appendNewline().append(leaderboardEntry.replaceText(replacePlacement.replacement(Component.text(i + 1, NamedTextColor.YELLOW)).build()).replaceText(replaceName.replacement(Component.text(topPlayerKDR.get(i).name(), NamedTextColor.GREEN)).build()).replaceText(replaceScore.replacement(Component.text(String.format("%.2f", topPlayerKDR.get(i).value()), NamedTextColor.AQUA)).build()));
+            }
+            totalKDRLeaderboard.text(text);
+        }, 1, 307);
         gameProgressBar.progress(Float.NaN);
         if(Prototypes.stage == Prototypes.GameStage.WAITING) {
             final float[] progress = new float[]{0f};
@@ -253,7 +297,7 @@ public final class Utils {
                                 }
                             }
                         } else {
-                            gameProgressBar.progress(progress[0] += (Bukkit.getOnlinePlayers().size() * 0.251f - progress[0]) * 0.5f);
+                            gameProgressBar.progress(progress[0] += (1.001f * Bukkit.getOnlinePlayers().size() / Prototypes.mode.startupPlayerCount - progress[0]) * 0.5f);
                         }
                     }
                     case PREPARATION -> {
@@ -274,6 +318,7 @@ public final class Utils {
                             gameProgressBar.removeViewer(Bukkit.getServer());
                             Prototypes.stage = Prototypes.GameStage.MAIN;
                             for(final Player player : Bukkit.getOnlinePlayers()) {
+                                players.add(player.getUniqueId());
                                 if(!teams[0].hasEntity(player) && !teams[1].hasEntity(player)) {
                                     if(teams[0].getSize() > teams[1].getSize()) {
                                         teams[1].addPlayer(player);
@@ -290,6 +335,12 @@ public final class Utils {
                                     inv.addItem(ItemManager.DEPLOY);
                                 }
                             }
+                            switch(Prototypes.mode) {
+                                case TDM -> {
+                                    targetScore = Bukkit.getOnlinePlayers().size() * 5;
+                                    Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(Component.text("本局目标分数：%score%", NamedTextColor.WHITE).replaceText(replaceScore.replacement(Component.text(targetScore, NamedTextColor.RED)).build())));
+                                }
+                            }
                             for(int i = 0; i < teams.length; i++) {
                                 teamProgressBars[i].addViewer(teams[i]);
                             }
@@ -300,33 +351,21 @@ public final class Utils {
                         }
                     }
                     case MAIN -> {
-                        for(int i = 0; i < teams.length; i++) {
-                            final float flag;
-                            switch(Prototypes.mode) {
-                                case TDM -> flag = teamScores[i] / 30f;
-                                default -> flag = 1f;
+                        int onlyTeamLeft = -1;
+                        for(final Player player : Bukkit.getOnlinePlayers()) {
+                            int t = getPlayerTeam(player);
+                            if(onlyTeamLeft == -1) {
+                                onlyTeamLeft = t;
+                            } else if(onlyTeamLeft != t) {
+                                onlyTeamLeft = -1;
+                                break;
                             }
+                        }
+                        for(int i = 0; i < Prototypes.mode.teamCount; i++) {
                             teamProgressBars[i].name(teamProgressBarName(i));
-                            teamProgressBars[i].progress(teamProgressBars[i].progress() + (flag - teamProgressBars[i].progress()) * 0.5f);
-                            if(teamScores[i] >= 30) {
-                                Prototypes.stage = Prototypes.GameStage.ENDED;
-                                for(final Player player : Bukkit.getOnlinePlayers()) {
-                                    player.getInventory().removeItem(ItemManager.DEPLOY);
-                                    player.setInvulnerable(true);
-                                }
-                                for(int j = 0; j < teams.length; j++) {
-                                    teamProgressBars[j].removeViewer(teams[j]);
-                                }
-                                Bukkit.getServer().showTitle(Title.title(Component.text("失败", NamedTextColor.GRAY), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[i].displayName()).build()), defaultTitleTimes));
-                                teams[i].showTitle(Title.title(Component.text("胜利", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(30)).build()).replaceText(replaceXp.replacement(Component.text(20)).build()), defaultTitleTimes));
-                                for(final String entry : teams[i].getEntries()) {
-                                    final Player player = Bukkit.getPlayerExact(entry);
-                                    if(player != null) {
-                                        DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), 30);
-                                        DatabaseUtils.addPlayerXp(player.getUniqueId(), 20);
-                                    }
-                                }
-                                Bukkit.getScheduler().runTaskLater(Prototypes.instance, Bukkit::shutdown, 100);
+                            teamProgressBars[i].progress(teamProgressBars[i].progress() + (getTeamProgress(i) - teamProgressBars[i].progress()) * 0.5f);
+                            if(hasWon(i) || (onlyTeamLeft != -1 && onlyTeamLeft == i)) {
+                                endGame(i);
                             }
                         }
                     }
@@ -337,15 +376,109 @@ public final class Utils {
     public static void fina() {
         transientBlockOriginals.forEach((location, data) -> location.getBlock().setBlockData(data));
         dummy.remove();
+        totalKillsLeaderboard.remove();
+        maxKillStreakLeaderboard.remove();
+        totalKDRLeaderboard.remove();
         for(final Team team : teams) {
             team.unregister();
         }
     }
+    private static float getTeamProgress(int team) {
+        switch(Prototypes.mode) {
+            default -> {
+                return (float) teamScores[team] / targetScore;
+            }
+        }
+    }
+    private static boolean hasWon(int team) {
+        switch(Prototypes.mode) {
+            default -> {
+                return teamScores[team] >= targetScore;
+            }
+        }
+    }
+    private static void endGame(int team) {
+        Prototypes.stage = Prototypes.GameStage.ENDED;
+        for(final Player player : Bukkit.getOnlinePlayers()) {
+            player.getInventory().removeItem(ItemManager.DEPLOY);
+            player.setInvulnerable(true);
+        }
+        for(int j = 0; j < teams.length; j++) {
+            teamProgressBars[j].removeViewer(teams[j]);
+        }
+        //Using binary search decreases the time complexity of the following operation from O(n^2) to O(nlogn) though im not sure why im doing this then n is no bigger than 64
+        //信 奥 后 遗 症
+        players.sort(UUIDComparator.instance);
+        for(final Player player : Bukkit.getOnlinePlayers()) {
+            if(Collections.binarySearch(players, player.getUniqueId(), UUIDComparator.instance) >= 0) {
+                if(team == -1) {
+                    final int score = (int) Math.round(Arrays.stream(teamScores).limit(Prototypes.mode.teamCount).average().orElse(0));
+                    final int emeralds = winEmeraldsReward(score) / 2, xp = winXpReward(score) / 2;
+                    player.showTitle(Title.title(Component.text("平局", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), defaultTitleTimes));
+                    DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), emeralds);
+                    DatabaseUtils.addPlayerXp(player.getUniqueId(), xp);
+                } else {
+                    if(getPlayerTeam(player) == team) {
+                        final int emeralds = winEmeraldsReward(teamScores[team]), xp = winXpReward(teamScores[team]);
+                        player.showTitle(Title.title(Component.text("胜利", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), defaultTitleTimes));
+                        DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), emeralds);
+                        DatabaseUtils.addPlayerXp(player.getUniqueId(), xp);
+                    } else {
+                        player.showTitle(Title.title(Component.text("失败", NamedTextColor.GRAY), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), defaultTitleTimes));
+                    }
+                }
+            } else {
+                player.showTitle(Title.title(Component.text("游戏结束", NamedTextColor.WHITE), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), defaultTitleTimes));
+            }
+        }
+        Bukkit.getScheduler().runTaskLater(Prototypes.instance, Bukkit::shutdown, 150);
+    }
+    public static int killStreak(UUID uuid) {
+        final int killStreak = currentKillStreaks.get(uuid) + 1;
+        currentKillStreaks.put(uuid, killStreak);
+        return killStreak;
+    }
+    public static void playerLogin(PlayerLoginEvent event) {
+        if(Prototypes.mode.startupPlayerCount > 0) {
+            final Player player = event.getPlayer();
+            switch(Prototypes.stage) {
+                case WAITING, PREPARATION -> {
+                    if(Prototypes.mode.teamCount > 0 && Bukkit.getOnlinePlayers().size() >= Prototypes.mode.teamCount * Prototypes.mode.teamCount && !player.hasPermission("prototypes.bypass_player_limit")) {
+                        event.setResult(PlayerLoginEvent.Result.KICK_FULL);
+                    }
+                }
+                case MAIN -> {
+                    if(!players.contains(player.getUniqueId())) {
+                        switch(Prototypes.joinAfterStartHandling) {
+                            case ALLOW -> {
+                                players.add(player.getUniqueId());
+                                if(Prototypes.mode.teamCount > 0) {
+                                    if(!Utils.teams[0].hasEntity(player) && !Utils.teams[1].hasEntity(player)) {
+                                        if(Utils.teams[0].getSize() > Utils.teams[1].getSize()) {
+                                            Utils.teams[1].addPlayer(player);
+                                        } else {
+                                            Utils.teams[0].addPlayer(player);
+                                        }
+                                    }
+                                }
+                            }
+                            case DISALLOW -> {
+                                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经开始！", NamedTextColor.RED));
+                            }
+                        }
+                    }
+                }
+                case ENDED -> {
+                    event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经结束！", NamedTextColor.RED));
+                }
+            }
+        }
+    }
     public static void playerJoin(Player player) {
         //CAPES http://textures.minecraft.net/texture/698d1de2662e2c71859d097158113d1d2f7af59587847c57720764c722d4a239
-        Bukkit.advancementIterator().forEachRemaining(advancement -> {
-
-        });
+        //Bukkit.advancementIterator().forEachRemaining(advancement -> {
+        //
+        //});
         final UUID uuid = player.getUniqueId();
         final DatabaseUtils.MiscSettings miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
         if(miscSettings.shouldShowGuideBook()) {
@@ -372,7 +505,7 @@ public final class Utils {
         final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("原型之战", NamedTextColor.GREEN, TextDecoration.BOLD), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
-        final String[] info = new String[]{"", "", "", "", "", "", "", ""};
+        final String[] info = new String[]{"", "", "", "", "", "", "", "", ""};
         player.setScoreboard(scoreboard);
         player.getScheduler().runAtFixedRate(Prototypes.instance, task -> {
             for(final Team team : teams) {
@@ -385,9 +518,10 @@ public final class Utils {
             for(final String string : info) {
                 infoBoard.getScore(string).resetScore();
             }
-            info[7] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
+            info[8] = LegacyComponentSerializer.legacySection().serialize(emeralds.append(Component.text(Math.toIntExact(DatabaseUtils.fetchPlayerEmeralds(uuid)))));
             final int kills = DatabaseUtils.fetchPlayerKills(uuid);
-            info[6] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
+            info[7] = LegacyComponentSerializer.legacySection().serialize(Utils.kills.append(Component.text(kills)));
+            info[6] = LegacyComponentSerializer.legacySection().serialize(Utils.killStreak.append(Component.text(Objects.requireNonNullElse(currentKillStreaks.get(uuid), 0))));
             final int deaths = DatabaseUtils.fetchPlayerDeaths(uuid);
             info[5] = LegacyComponentSerializer.legacySection().serialize(kdr.append(Component.text(deaths == 0 ? String.valueOf(kills) : String.format("%.2f", 1f * kills / deaths))));
             info[4] = " ";
@@ -450,12 +584,16 @@ public final class Utils {
         if(team != null) {
             team.removeEntity(player);
         }
+        if(Prototypes.mode.startupPlayerCount > 0 && Prototypes.forgetPlayers) {
+            players.remove(player.getUniqueId());
+        }
         armors.remove(player.getUniqueId());
         deathSpectatingPlayers.remove(player.getUniqueId());
         player.removeResourcePack(resourcePackUUID);
     }
     public static void playerInit(Player player) {
         armors.remove(player.getUniqueId());
+        currentKillStreaks.remove(player.getUniqueId());
         removeGainArtifactSchedulers(player.getUniqueId());
         for(final Attribute attribute : Attribute.values()) {
             final AttributeInstance attributeInstance = player.getAttribute(attribute);
@@ -468,7 +606,7 @@ public final class Utils {
         inv.setItem(0, ItemManager.SELECT_ARMOR);
         inv.setItem(1, ItemManager.SELECT_WEAPONS);
         inv.setItem(2, ItemManager.SELECT_ARTIFACTS);
-        inv.setItem(4, Prototypes.stage == Prototypes.GameStage.PREPARATION ? ItemManager.SELECT_TEAM : Prototypes.stage == Prototypes.GameStage.MAIN ? ItemManager.DEPLOY : null);
+        inv.setItem(4, Prototypes.stage == Prototypes.GameStage.PREPARATION ? ItemManager.SELECT_TEAM : Prototypes.stage == Prototypes.GameStage.MAIN ? Prototypes.mode.startupPlayerCount == 0 || players.contains(player.getUniqueId()) ? ItemManager.DEPLOY : null : null);
         inv.setItem(6, ItemManager.GUIDEBOOK);
         inv.setItem(7, ItemBuilder.copyOf(ItemManager.PROFILE).meta(SkullMeta.class, meta -> {
             meta.setOwningPlayer(player);
@@ -491,7 +629,7 @@ public final class Utils {
         player.setInvulnerable(true);
         player.teleport(hub);
     }
-    public static void spawnPlayer(final Player player) {
+    public static void spawnPlayer(final Player player, final Location spawn) {
         final DatabaseUtils.ItemSettings itemSettings = DatabaseUtils.fetchPlayerItemSettings(player.getUniqueId());
         final PlayerInventory inv = player.getInventory();
         inv.clear();
@@ -551,12 +689,14 @@ public final class Utils {
             player.getScheduler().runAtFixedRate(Prototypes.instance, task -> ArmorManager.tasks[armorID].accept(player), null, 1, 200);
         }
         armors.put(player.getUniqueId(), armorID);
+        currentKillStreaks.put(player.getUniqueId(), 0);
         player.teleport(spawn);
     }
     public static short getArmor(Player player) {
         return armors.containsKey(player.getUniqueId()) ? armors.get(player.getUniqueId()) : -1;
     }
     public static void playerDeath(Player player) {
+        currentKillStreaks.remove(player.getUniqueId());
         deathSpectatingPlayers.put(player.getUniqueId(), Bukkit.getCurrentTick());
     }
     private static Component teamProgressBarName(int team) {
@@ -572,9 +712,32 @@ public final class Utils {
     public static int getPlayerTeam(OfflinePlayer player) {
         final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
         if(team != null) {
-            return team.getName().equals("red") ? 0 : 1;
+            switch(team.getName()) {
+                case "red" -> {
+                    return 0;
+                }
+                case "blue" -> {
+                    return 1;
+                }
+            }
         }
         return -1;
+    }
+    private static int winEmeraldsReward(int score) {
+        switch(Prototypes.mode) {
+            case TDM -> {
+                return Math.round(score * 0.75f);
+            }
+        }
+        return 0;
+    }
+    private static int winXpReward(int score) {
+        switch(Prototypes.mode) {
+            case TDM -> {
+                return Math.round(score * 0.5f);
+            }
+        }
+        return 0;
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();
@@ -794,6 +957,14 @@ public final class Utils {
         @Override
         public String toString() {
             return "TransientBlockData{data=" + data.getAsString() + ",expires=" + expires + "}";
+        }
+    }
+    public static final class UUIDComparator implements Comparator<UUID> {
+        public static final UUIDComparator instance = new UUIDComparator();
+        private UUIDComparator() {}
+        @Override
+        public int compare(UUID uuid1, UUID uuid2) {
+            return uuid1.getMostSignificantBits() == uuid2.getMostSignificantBits() ? Long.compare(uuid1.getLeastSignificantBits(), uuid2.getLeastSignificantBits()) : Long.compare(uuid1.getMostSignificantBits(), uuid2.getMostSignificantBits());
         }
     }
     public static final class UUIDDataType implements PersistentDataType<byte[], UUID> {

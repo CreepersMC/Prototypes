@@ -65,9 +65,9 @@ public final class ItemManager {
     public static final ItemStack[] SET_ARTIFACT_SLOTS = new ItemStack[] {new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE), new ItemStack(Material.GLASS_BOTTLE)};
     public static final ItemStack FFA = new ItemStack(Material.IRON_SWORD);
     public static final ItemStack TDM = new ItemStack(Material.PLAYER_HEAD);
+    public static final ItemStack DTM = new ItemStack(Material.DRAGON_EGG);
     public static final ItemStack CTF = new ItemStack(Material.GREEN_BANNER);
     public static final ItemStack CQT = new ItemStack(Material.BEACON);
-    public static final ItemStack DTM = new ItemStack(Material.DRAGON_EGG);
     public static final ItemStack LOBBY = new ItemStack(Material.BIRCH_DOOR);
     static final NamespacedKey[] armorKeys = new NamespacedKey[] {NamespacedKey.minecraft("armor.helmet"), NamespacedKey.minecraft("armor.chestplate"), NamespacedKey.minecraft("armor.leggings"), NamespacedKey.minecraft("armor.boots")};
     static final NamespacedKey entityArmorKey = NamespacedKey.minecraft("armor.body");
@@ -94,7 +94,7 @@ public final class ItemManager {
         });
         DEPLOY.editMeta(meta -> {
             meta.itemName(Component.text("进入战斗", NamedTextColor.GREEN));
-            meta.getPersistentDataContainer().set(Utils.utilIDKey, PersistentDataType.BYTE, Utils.UTIL_SPAWN);
+            meta.getPersistentDataContainer().set(Utils.iuiIDKey, PersistentDataType.BYTE, IUIManager.DEPLOY);
             meta.lore(removeItalics(Arrays.asList(Component.text("", NamedTextColor.GRAY))));
         });
         SELECT_ARMOR.editMeta(meta -> {
@@ -150,6 +150,7 @@ public final class ItemManager {
             PRE3 1.0.0
             ·调整-微调了计分板
             ·增强-实装了好奇盔甲的潜影光环效果
+            ·削弱-苦力怕盔甲爆炸保护等级X -> IX
             ·修复-现在团队死斗模式中队伍所有玩家退出后另一方会胜利
             """), Component.text("""
             PRE2 1.0.0
@@ -429,6 +430,11 @@ public final class ItemManager {
             meta.lore(removeItalics(Arrays.asList(Component.text("暂不支持切换", NamedTextColor.GRAY))));
             meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.TDM);
         });
+        DTM.editMeta(meta -> {
+            meta.itemName(Component.text("进入DTM", NamedTextColor.WHITE));
+            meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
+            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.DTM);
+        });
         CTF.editMeta(BannerMeta.class, meta -> {
             meta.itemName(Component.text("进入CTF", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
@@ -442,11 +448,6 @@ public final class ItemManager {
             meta.itemName(Component.text("进入CQT", NamedTextColor.WHITE));
             meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
             meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.CQT);
-        });
-        DTM.editMeta(meta -> {
-            meta.itemName(Component.text("进入DTM", NamedTextColor.WHITE));
-            meta.lore(removeItalics(Arrays.asList(Component.text("暂未开放", NamedTextColor.GRAY))));
-            meta.setEnchantmentGlintOverride(Prototypes.mode == Prototypes.GameMode.DTM);
         });
         LOBBY.editMeta(meta -> {
             meta.itemName(Component.text("返回大厅", NamedTextColor.WHITE));

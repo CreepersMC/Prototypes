@@ -25,7 +25,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -78,6 +77,7 @@ public final class Listener implements org.bukkit.event.Listener {
             DatabaseUtils.addPlayerEmeralds(killer.getUniqueId(), emeralds);
             DatabaseUtils.addPlayerXp(killer.getUniqueId(), xp);
             DatabaseUtils.incrementPlayerKills(killer.getUniqueId());
+            Bukkit.getScheduler().runTaskAsynchronously(Prototypes.instance, () -> DatabaseUtils.maxPlayerKillStreak(killer.getUniqueId(), Utils.killStreak(killer.getUniqueId())));
             if(Prototypes.mode == Prototypes.GameMode.TDM) {
                 Utils.teamScores[Utils.getPlayerTeam(killer)]++;
             }
@@ -107,27 +107,11 @@ public final class Listener implements org.bukkit.event.Listener {
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLogin(PlayerLoginEvent event) {
-        if(Prototypes.mode != Prototypes.GameMode.FFA) {
-            switch(Prototypes.stage) {
-                case MAIN -> {
-                    switch(Prototypes.joinAfterStartHandling) {
-                        case ALLOW -> {
-                            switch(Prototypes.mode) {
-                                case TDM -> {
-
-                                }
-                            }
-                        }
-                        case DISALLOW -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经开始！", NamedTextColor.RED));
-                    }
-                }
-                case ENDED -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经结束！", NamedTextColor.RED));
-            }
-        }
+        Utils.playerLogin(event);
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        DatabaseUtils.playerJoin(event.getPlayer().getUniqueId());
+        DatabaseUtils.playerJoin(event.getPlayer().getUniqueId(), event.getPlayer().getName());
         Utils.playerJoin(event.getPlayer());
         Utils.playerInit(event.getPlayer());
     }
@@ -739,16 +723,13 @@ public final class Listener implements org.bukkit.event.Listener {
                         }
                     }
                 }
-                if(data.has(Utils.iuiIDKey, PersistentDataType.BYTE)) {
+                if(data.has(Utils.iuiIDKey, PersistentDataType.BYTE) && player.getCooldown(item.getType()) == 0) {
                     event.setCancelled(true);
                     IUIManager.getIUI(data.get(Utils.iuiIDKey, PersistentDataType.BYTE), player.getUniqueId(), data.get(Utils.iuiDataKey, PersistentDataType.TAG_CONTAINER)).open(player);
                 }
                 if(data.has(Utils.utilIDKey, PersistentDataType.BYTE) && player.getCooldown(item.getType()) == 0) {
                     event.setCancelled(true);
-                    switch(data.get(Utils.utilIDKey, PersistentDataType.BYTE)) {
-                        case Utils.UTIL_SPAWN -> Bukkit.getScheduler().runTask(Prototypes.instance, () -> Utils.spawnPlayer(player));
-                    }
-                }
+                }//TODO consider removing this
             }
         } else {
             if(player.isGliding()) {

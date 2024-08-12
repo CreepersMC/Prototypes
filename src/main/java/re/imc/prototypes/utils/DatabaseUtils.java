@@ -2,19 +2,29 @@ package re.imc.prototypes.utils;
 import org.bukkit.Bukkit;
 import re.imc.prototypes.Prototypes;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public final class DatabaseUtils {
     private static PreparedStatement checkPlayerExistence;
     private static PreparedStatement registerPlayer;
+    private static PreparedStatement updatePlayer;
     private static PreparedStatement fetchPlayerEmeralds;
     private static PreparedStatement addPlayerEmeralds;
+    private static PreparedStatement setPlayerEmeralds;
     private static PreparedStatement fetchPlayerXp;
     private static PreparedStatement addPlayerXp;
     private static PreparedStatement fetchPlayerKills;
+    private static PreparedStatement fetchTopPlayerKills;
     private static PreparedStatement incrementPlayerKills;
+    private static PreparedStatement fetchPlayerKillStreak;
+    private static PreparedStatement fetchTopPlayerKillStreak;
+    private static PreparedStatement maxPlayerKillStreak;
     private static PreparedStatement fetchPlayerDeaths;
     private static PreparedStatement incrementPlayerDeaths;
+    private static PreparedStatement fetchTopPlayerKDR;
     private static PreparedStatement fetchPlayerArmorStatus;
     private static PreparedStatement setPlayerArmorStatus;
     private static PreparedStatement fetchPlayerWeaponStatus;
@@ -31,13 +41,16 @@ public final class DatabaseUtils {
     private static final ConcurrentHashMap<UUID, AttributeUpgrades> playerAttributeUpgradesCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, MiscSettings> playerMiscSettingsCache = new ConcurrentHashMap<>();
     private static Connection connection = null;
-    private static final String TABLE_NAME = "creeperspvp_player_data";
+    private static final String TABLE_NAME = "prototypes_player_data";
+    private static final int TOP_LIMIT = 10;
     private static final String databaseInit = """
-        CREATE TABLE IF NOT EXISTS `creeperspvp_player_data` (
+        CREATE TABLE IF NOT EXISTS `prototypes_player_data` (
             `uuid` BINARY(16) NOT NULL,
+            `name` VARCHAR(16) NOT NULL DEFAULT 'Player',
             `emeralds` BIGINT NOT NULL DEFAULT 1000,
             `xp` INT NOT NULL DEFAULT 0,
             `kills` INT NOT NULL DEFAULT 0,
+            `kill_streak` INT NOT NULL DEFAULT 0,
             `deaths` INT NOT NULL DEFAULT 0,
             `damage_dealt` DECIMAL(12,2) NOT NULL DEFAULT 0,
             `damage_taken` DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -50,7 +63,7 @@ public final class DatabaseUtils {
             PRIMARY KEY(`uuid`)
         ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4;
         """;
-    private static final String refreshConnection = "SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE `uuid` = NULL";
+    private static final String refreshConnection = "SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE FALSE";
     private DatabaseUtils() {}
     public static void init() throws SQLException {
         try {
@@ -61,15 +74,22 @@ public final class DatabaseUtils {
         connection = DriverManager.getConnection("jdbc:mysql://" + Prototypes.databaseAddress + ":" + Prototypes.databasePort + "/" + Prototypes.database + "?user=" + Prototypes.databaseUsername + "&password=" + Prototypes.databasePassword);
         connection.createStatement().execute(databaseInit);
         checkPlayerExistence = connection.prepareStatement("SELECT `uuid` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
-        registerPlayer = connection.prepareStatement("INSERT INTO `" + TABLE_NAME + "` (`uuid`) VALUES (UUID_TO_BIN(?))");
+        registerPlayer = connection.prepareStatement("INSERT INTO `" + TABLE_NAME + "` (`uuid`, `name`) VALUES (UUID_TO_BIN(?), ?)");
+        updatePlayer = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `name` = ? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerEmeralds = connection.prepareStatement("SELECT `emeralds` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         addPlayerEmeralds = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `emeralds` = `emeralds` + ? WHERE `uuid` = UUID_TO_BIN(?);");
+        setPlayerEmeralds = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `emeralds` = ? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerXp = connection.prepareStatement("SELECT `xp` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         addPlayerXp = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `xp` = `xp` + ? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerKills = connection.prepareStatement("SELECT `kills` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchTopPlayerKills = connection.prepareStatement("SELECT `name`, `kills` FROM `" + TABLE_NAME + "` ORDER BY `kills` DESC LIMIT " + TOP_LIMIT + ";");
         incrementPlayerKills = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `kills` = `kills` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchPlayerKillStreak = connection.prepareStatement("SELECT `kill_streak` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchTopPlayerKillStreak = connection.prepareStatement("SELECT `name`, `kill_streak` FROM `" + TABLE_NAME + "` ORDER BY `kill_streak` DESC LIMIT " + TOP_LIMIT + ";");
+        maxPlayerKillStreak = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `kill_streak` = GREATEST(`kill_streak`, ?) WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerDeaths = connection.prepareStatement("SELECT `deaths` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         incrementPlayerDeaths = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `deaths` = `deaths` + 1 WHERE `uuid` = UUID_TO_BIN(?);");
+        fetchTopPlayerKDR = connection.prepareStatement("SELECT `name`, `kills` / `deaths` AS `kdr` FROM `" + TABLE_NAME + "` ORDER BY `kills` / `deaths` DESC LIMIT " + TOP_LIMIT + ";");
         fetchPlayerArmorStatus = connection.prepareStatement("SELECT `armor_status` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
         setPlayerArmorStatus = connection.prepareStatement("UPDATE `" + TABLE_NAME + "` SET `armor_status` = b? WHERE `uuid` = UUID_TO_BIN(?);");
         fetchPlayerWeaponStatus = connection.prepareStatement("SELECT `weapon_status` FROM `" + TABLE_NAME + "` WHERE `uuid` = UUID_TO_BIN(?);");
@@ -91,14 +111,21 @@ public final class DatabaseUtils {
     public static void fina() {
         tryClose(checkPlayerExistence);
         tryClose(registerPlayer);
+        tryClose(updatePlayer);
         tryClose(fetchPlayerEmeralds);
         tryClose(addPlayerEmeralds);
+        tryClose(setPlayerEmeralds);
         tryClose(fetchPlayerXp);
         tryClose(addPlayerXp);
         tryClose(fetchPlayerKills);
+        tryClose(fetchTopPlayerKills);
         tryClose(incrementPlayerKills);
+        tryClose(fetchPlayerKillStreak);
+        tryClose(fetchTopPlayerKillStreak);
+        tryClose(maxPlayerKillStreak);
         tryClose(fetchPlayerDeaths);
         tryClose(incrementPlayerDeaths);
+        tryClose(fetchTopPlayerKDR);
         tryClose(fetchPlayerArmorStatus);
         tryClose(setPlayerArmorStatus);
         tryClose(fetchPlayerWeaponStatus);
@@ -113,9 +140,9 @@ public final class DatabaseUtils {
         tryClose(setPlayerMiscSettings);
         tryClose(connection);
     }
-    public static void playerJoin(UUID uuid) {
+    public static void playerJoin(UUID uuid, String name) {
         playerLocks.put(uuid, new Object());
-        registerPlayerIfNotExists(uuid);
+        registerOrUpdatePlayer(uuid, name);
         playerAttributeUpgradesCache.put(uuid, fetchPlayerAttributeUpgrades(uuid));
         playerMiscSettingsCache.put(uuid, fetchPlayerMiscSettings(uuid));
     }
@@ -127,16 +154,23 @@ public final class DatabaseUtils {
     public static Object getPlayerLock(UUID uuid) {
         return playerLocks.get(uuid);
     }
-    private static void registerPlayerIfNotExists(UUID uuid) {
+    private static void registerOrUpdatePlayer(UUID uuid, String name) {
         try {
             final ResultSet result;
             synchronized(checkPlayerExistence) {
                 checkPlayerExistence.setString(1, uuid.toString());
                 result = checkPlayerExistence.executeQuery();
             }
-            if(!result.next()) {
+            if(result.next()) {
+                synchronized(updatePlayer) {
+                    updatePlayer.setString(1, name);
+                    updatePlayer.setString(2, uuid.toString());
+                    updatePlayer.executeUpdate();
+                }
+            } else {
                 synchronized(registerPlayer) {
                     registerPlayer.setString(1, uuid.toString());
+                    registerPlayer.setString(2, name);
                     registerPlayer.executeUpdate();
                 }
             }
@@ -165,6 +199,17 @@ public final class DatabaseUtils {
                 addPlayerEmeralds.setLong(1, amount);
                 addPlayerEmeralds.setString(2, uuid.toString());
                 addPlayerEmeralds.executeUpdate();
+            }
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
+        }
+    }
+    public static void setPlayerEmeralds(UUID uuid, long amount) {
+        try {
+            synchronized(setPlayerEmeralds) {
+                setPlayerEmeralds.setLong(1, amount);
+                setPlayerEmeralds.setString(2, uuid.toString());
+                setPlayerEmeralds.executeUpdate();
             }
         } catch(SQLException e) {
             Prototypes.logWarning("Error executing database update: " + e.getMessage());
@@ -211,11 +256,69 @@ public final class DatabaseUtils {
         }
         return 0;
     }
+    public static List<Score<Integer>> fetchTopPlayerKills() {
+        try {
+            final ResultSet result;
+            synchronized(fetchTopPlayerKills) {
+                result = fetchTopPlayerKills.executeQuery();
+            }
+            final List<Score<Integer>> topPlayerKills = new ArrayList<>(TOP_LIMIT);
+            while(result.next()) {
+                topPlayerKills.add(new Score<>(result.getString("name"), result.getInt("kills")));
+            }
+            return topPlayerKills;
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return Collections.emptyList();
+    }
     public static void incrementPlayerKills(UUID uuid) {
         try {
             synchronized(incrementPlayerKills) {
                 incrementPlayerKills.setString(1, uuid.toString());
                 incrementPlayerKills.executeUpdate();
+            }
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database update: " + e.getMessage());
+        }
+    }
+    public static int fetchPlayerKillStreak(UUID uuid) {
+        try {
+            final ResultSet result;
+            synchronized(fetchPlayerKillStreak) {
+                fetchPlayerKillStreak.setString(1, uuid.toString());
+                result = fetchPlayerKillStreak.executeQuery();
+            }
+            if(result.next()) {
+                return result.getInt("kill_streak");
+            }
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return 0;
+    }
+    public static List<Score<Integer>> fetchTopPlayerKillStreak() {
+        try {
+            final ResultSet result;
+            synchronized(fetchTopPlayerKillStreak) {
+                result = fetchTopPlayerKillStreak.executeQuery();
+            }
+            final List<Score<Integer>> topPlayerKillStreak = new ArrayList<>(TOP_LIMIT);
+            while(result.next()) {
+                topPlayerKillStreak.add(new Score<>(result.getString("name"), result.getInt("kill_streak")));
+            }
+            return topPlayerKillStreak;
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return Collections.emptyList();
+    }
+    public static void maxPlayerKillStreak(UUID uuid, int killStreak) {
+        try {
+            synchronized(maxPlayerKillStreak) {
+                maxPlayerKillStreak.setInt(1, killStreak);
+                maxPlayerKillStreak.setString(2, uuid.toString());
+                maxPlayerKillStreak.executeUpdate();
             }
         } catch(SQLException e) {
             Prototypes.logWarning("Error executing database update: " + e.getMessage());
@@ -245,6 +348,22 @@ public final class DatabaseUtils {
         } catch(SQLException e) {
             Prototypes.logWarning("Error executing database update: " + e.getMessage());
         }
+    }
+    public static List<Score<Float>> fetchTopPlayerKDR() {
+        try {
+            final ResultSet result;
+            synchronized(fetchTopPlayerKDR) {
+                result = fetchTopPlayerKDR.executeQuery();
+            }
+            final List<Score<Float>> topPlayerKDR = new ArrayList<>(TOP_LIMIT);
+            while(result.next()) {
+                topPlayerKDR.add(new Score<>(result.getString("name"), result.getFloat("kdr")));
+            }
+            return topPlayerKDR;
+        } catch(SQLException e) {
+            Prototypes.logWarning("Error executing database query: " + e.getMessage());
+        }
+        return Collections.emptyList();
     }
     public static boolean[] fetchPlayerArmorStatus(UUID uuid) {
         try {
@@ -467,6 +586,20 @@ public final class DatabaseUtils {
         }
         private boolean secondBoolean() {
             return this == TRUE;
+        }
+    }
+    public static final class Score<N extends Number> {
+        private final String name;
+        private final N value;
+        private Score(String name, N value) {
+            this.name = name;
+            this.value = value;
+        }
+        public String name() {
+            return name;
+        }
+        public N value() {
+            return value;
         }
     }
     public static final class AttributeUpgrades {

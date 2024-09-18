@@ -22,7 +22,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.permissions.Permission;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +44,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 public final class Utils {
     public static final Random random = new Random();
     public static final ItemStack fireworkBooster = new ItemStack(Material.FIREWORK_ROCKET);
@@ -102,6 +102,8 @@ public final class Utils {
     private static final ConcurrentHashMap<UUID, Integer> currentDeaths = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Integer> deathSpectatingPlayers = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Short> armors = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Object> playerStationaryFlagLocks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Boolean> playerStationaryFlags = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
     private static final ConcurrentHashMap<UUID, ScheduledTask>[] gainArtifactSchedulers = new ConcurrentHashMap[] {new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64), new ConcurrentHashMap<UUID, ScheduledTask>(64)};
     private static final Component separator = Component.text(" | ", NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE);
@@ -120,7 +122,6 @@ public final class Utils {
     private static final TextReplacementConfig.Builder replacePlacement = TextReplacementConfig.builder().matchLiteral("%placement%");
     private static final TextReplacementConfig.Builder replaceName = TextReplacementConfig.builder().matchLiteral("%name%");
     private static final TextReplacementConfig.Builder replaceScore = TextReplacementConfig.builder().matchLiteral("%score%");
-    private static final Title.Times defaultTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000));
     private static final UUID resourcePackUUID = java.util.UUID.fromString("da90aa72-957f-4ad7-baea-727a3dc5d447");//使用五郎的UUID
     private static final ResourcePackRequest resourcePackRequest = ResourcePackRequest.resourcePackRequest().packs(ResourcePackInfo.resourcePackInfo(resourcePackUUID, URI.create("https://creepersmc.github.io/main.zip"), "20303109bc864b6a50dd272f57daf168e962f48b")).prompt(Component.text("仅支持1.14+")).required(false).replace(true).build();
     private static BossBar gameProgressBar;
@@ -344,7 +345,7 @@ public final class Utils {
                             for(int i = 0; i < teams.length; i++) {
                                 teamProgressBars[i].addViewer(teams[i]);
                             }
-                            Bukkit.getServer().showTitle(Title.title(Prototypes.mode.name, Prototypes.mode.description, defaultTitleTimes));
+                            Bukkit.getServer().showTitle(Title.title(Prototypes.mode.name, Prototypes.mode.description, Title.DEFAULT_TIMES));
                         } else {
                             final int players = Bukkit.getOnlinePlayers().size();
                             gameProgressBar.progress(progress[0] -= (players != 3 ? players >= 3 ? 0.001f : 0f : -0.001f));
@@ -414,21 +415,21 @@ public final class Utils {
                 if(team == -1) {
                     final int score = (int) Math.round(Arrays.stream(teamScores).limit(Prototypes.mode.teamCount).average().orElse(0));
                     final int emeralds = winEmeraldsReward(score) / 2, xp = winXpReward(score) / 2;
-                    player.showTitle(Title.title(Component.text("平局", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), defaultTitleTimes));
+                    player.showTitle(Title.title(Component.text("平局", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), Title.DEFAULT_TIMES));
                     DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), emeralds);
                     DatabaseUtils.addPlayerXp(player.getUniqueId(), xp);
                 } else {
                     if(getPlayerTeam(player) == team) {
                         final int emeralds = winEmeraldsReward(teamScores[team]), xp = winXpReward(teamScores[team]);
-                        player.showTitle(Title.title(Component.text("胜利", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), defaultTitleTimes));
+                        player.showTitle(Title.title(Component.text("胜利", NamedTextColor.GOLD), winRewards.replaceText(replaceEmeralds.replacement(Component.text(emeralds)).build()).replaceText(replaceXp.replacement(Component.text(xp)).build()), Title.DEFAULT_TIMES));
                         DatabaseUtils.addPlayerEmeralds(player.getUniqueId(), emeralds);
                         DatabaseUtils.addPlayerXp(player.getUniqueId(), xp);
                     } else {
-                        player.showTitle(Title.title(Component.text("失败", NamedTextColor.GRAY), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), defaultTitleTimes));
+                        player.showTitle(Title.title(Component.text("失败", NamedTextColor.GRAY), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), Title.DEFAULT_TIMES));
                     }
                 }
             } else {
-                player.showTitle(Title.title(Component.text("游戏结束", NamedTextColor.WHITE), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), defaultTitleTimes));
+                player.showTitle(Title.title(Component.text("游戏结束", NamedTextColor.WHITE), Component.text("%team% 胜利", NamedTextColor.WHITE).replaceText(replaceTeam.replacement(teams[team].displayName()).build()), Title.DEFAULT_TIMES));
             }
         }
         Bukkit.getScheduler().runTaskLater(Prototypes.instance, Bukkit::shutdown, 150);
@@ -462,15 +463,11 @@ public final class Utils {
                                     }
                                 }
                             }
-                            case DISALLOW -> {
-                                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经开始！", NamedTextColor.RED));
-                            }
+                            case DISALLOW -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经开始！", NamedTextColor.RED));
                         }
                     }
                 }
-                case ENDED -> {
-                    event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经结束！", NamedTextColor.RED));
-                }
+                case ENDED -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("游戏已经结束！", NamedTextColor.RED));
             }
         }
     }
@@ -480,6 +477,7 @@ public final class Utils {
         //
         //});
         final UUID uuid = player.getUniqueId();
+        playerStationaryFlagLocks.put(uuid, new Object());
         final DatabaseUtils.MiscSettings miscSettings = DatabaseUtils.getPlayerMiscSettings(uuid);
         if(miscSettings.shouldShowGuideBook()) {
             player.openBook(ItemManager.GUIDEBOOK);
@@ -502,7 +500,7 @@ public final class Utils {
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
         final Objective level = scoreboard.registerNewObjective("xp", Criteria.LEVEL, Component.text("LV", NamedTextColor.YELLOW), RenderType.INTEGER);
         level.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("原型之战", NamedTextColor.GREEN, TextDecoration.BOLD), RenderType.INTEGER);
+        final Objective infoBoard = scoreboard.registerNewObjective("info-board", Criteria.DUMMY, Component.text("原型战争", NamedTextColor.GREEN, TextDecoration.BOLD), RenderType.INTEGER);
         infoBoard.setDisplaySlot(DisplaySlot.SIDEBAR);
         infoBoard.numberFormat(NumberFormat.blank());
         final String[] info = new String[]{"", "", "", "", "", "", "", "", ""};
@@ -580,15 +578,17 @@ public final class Utils {
         }, null, 61, 61);
     }
     public static void playerQuit(Player player) {
-        final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getEntityTeam(player);
-        if(team != null) {
-            team.removeEntity(player);
-        }
+        final UUID uuid = player.getUniqueId();
         if(Prototypes.mode.startupPlayerCount > 0 && Prototypes.forgetPlayers) {
-            players.remove(player.getUniqueId());
+            players.remove(uuid);
+            final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getEntityTeam(player);
+            if(team != null) {
+                team.removeEntity(player);
+            }
         }
-        armors.remove(player.getUniqueId());
-        deathSpectatingPlayers.remove(player.getUniqueId());
+        armors.remove(uuid);
+        deathSpectatingPlayers.remove(uuid);
+        playerStationaryFlagLocks.remove(uuid);
         player.removeResourcePack(resourcePackUUID);
     }
     public static void playerInit(Player player) {
@@ -625,7 +625,7 @@ public final class Utils {
         player.setFoodLevel(20);
         player.setSaturation(20);
         player.setExhaustion(Float.NEGATIVE_INFINITY);
-        player.setGameMode(GameMode.ADVENTURE);
+        player.setGameMode(Prototypes.mode.startupPlayerCount == 0 || Prototypes.stage == Prototypes.GameStage.WAITING || Prototypes.stage == Prototypes.GameStage.PREPARATION || players.contains(player.getUniqueId()) ? GameMode.ADVENTURE : GameMode.SPECTATOR);
         player.setInvulnerable(true);
         player.teleport(hub);
     }
@@ -738,6 +738,46 @@ public final class Utils {
             }
         }
         return 0;
+    }
+    public static boolean runOnStationaryPlayer(final Player player, final Consumer<Player> task, final Consumer<Player> retired) {
+        final UUID uuid = player.getUniqueId();
+        final Object lock = playerStationaryFlagLocks.get(uuid);
+        synchronized(lock) {
+            if(playerStationaryFlags.containsKey(uuid)) {
+                return false;
+            }
+            playerStationaryFlags.put(uuid, false);
+        }
+        final int[] timer = new int[]{0};
+        Bukkit.getScheduler().runTaskTimer(Prototypes.instance, task0 -> {
+            boolean flag = false;
+            synchronized(lock) {
+                if(playerStationaryFlags.get(uuid)) {
+                    playerStationaryFlags.remove(uuid);
+                    flag = true;
+                }
+            }
+            if(flag) {
+                retired.accept(player);
+                task0.cancel();
+            } else {
+                if(timer[0]++ >= 6) {
+                    synchronized(lock) {
+                        playerStationaryFlags.remove(uuid);
+                    }
+                    task.accept(player);
+                    task0.cancel();
+                }
+            }
+        }, 1, 10);
+        return true;
+    }
+    public static void playerNonStationary(final UUID uuid) {
+        synchronized(playerStationaryFlagLocks.get(uuid)) {
+            if(playerStationaryFlags.containsKey(uuid)) {
+                playerStationaryFlags.put(uuid, true);
+            }
+        }
     }
     public static boolean attemptStopSpectatingEntity(Player player) {
         final UUID uuid = player.getUniqueId();

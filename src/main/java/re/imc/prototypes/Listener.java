@@ -2,10 +2,12 @@ package re.imc.prototypes;
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.destroystokyo.paper.event.player.*;
 import fr.mrmicky.fastinv.FastInv;
+import io.papermc.paper.event.player.ChatEvent;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -52,11 +54,12 @@ import java.util.*;
 public final class Listener implements org.bukkit.event.Listener {
     public static final Listener instance = new Listener();
     private static final Component elytraBoostWithExplosionWarning = Component.textOfChildren(Component.text("你正在使用带有烟火之星的烟花火箭加速滑翔！", NamedTextColor.YELLOW), Component.newline(), Component.text("请空手按 ", NamedTextColor.YELLOW), Component.keybind("key.attack", NamedTextColor.YELLOW), Component.text(" 进行加速！", NamedTextColor.YELLOW));
-    private static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
+    static final Title.Times spectateTitleTimes = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2500), Duration.ofMillis(500));
     private static final Component leaveDeathSpectate = Component.textOfChildren(Component.text("按 "), Component.keybind("key.sneak"), Component.text(" 退出旁观"));
     private static final Component killRewards = Component.text(" +%emeralds%绿宝石", NamedTextColor.GREEN).append(Component.text(" +%xp%经验", NamedTextColor.YELLOW));
     private static final TextReplacementConfig.Builder replaceEmeralds = TextReplacementConfig.builder().matchLiteral("%emeralds%");
     private static final TextReplacementConfig.Builder replaceXp = TextReplacementConfig.builder().matchLiteral("%xp%");
+    private static final TextReplacementConfig.Builder replaceMessage = TextReplacementConfig.builder().matchLiteral("%message%");
     public static final Title freeSpectateTitle = Title.title(Component.text("正在自由旁观"), Component.text("输入 /spawn 退出观战"), spectateTitleTimes);
     private static final BlockFace[] NEIGHBORS = new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
     private Listener() {}
@@ -103,6 +106,22 @@ public final class Listener implements org.bukkit.event.Listener {
     public void onPlayerStopSpectatingEntity(PlayerStopSpectatingEntityEvent event) {
         if(!Utils.attemptStopSpectatingEntity(event.getPlayer())) {
             event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    @SuppressWarnings("deprecation")
+    public void onChat(ChatEvent event) {
+        if(Prototypes.stage == Prototypes.GameStage.MAIN) {
+            final int team = Utils.getPlayerTeam(event.getPlayer());
+            if(team != -1) {
+                event.setCancelled(true);
+                final String message = MiniMessage.miniMessage().serialize(event.message());
+                if(message.startsWith("!")) {
+                    event.message(MiniMessage.miniMessage().deserialize(message.substring(1)));
+                } else {
+                    event.getPlayer().performCommand("teammsg " + message);
+                }
+            }
         }
     }
     @EventHandler(priority = EventPriority.NORMAL)
@@ -509,10 +528,19 @@ public final class Listener implements org.bukkit.event.Listener {
             }
         }
     }
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(event.hasChangedPosition() && !event.isCancelled()) {
+            Utils.playerNonStationary(event.getPlayer().getUniqueId());
+        }
+    }
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntityDamage(EntityDamageEvent event) {
         if(event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
             event.setDamage(event.getDamage() * 0.7);
+        }
+        if(event.getEntity() instanceof final Player player) {
+            Utils.playerNonStationary(player.getUniqueId());
         }
     }
     @EventHandler(priority = EventPriority.HIGH)

@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -165,8 +166,10 @@ public final class IUIManager {
             {}
         };
         private static final DeployInv[] instances = new DeployInv[Utils.teams.length + 1];
+        private final byte team;
         private DeployInv(final byte team) {
             super(teamSpawns[team].length > 7 ? 54 : 27, "选择地点");
+            this.team = team;
             setItems(getBorders(), ItemManager.BORDER);
             setItem(8, ItemManager.CLOSE, event -> event.getWhoClicked().closeInventory());
             for(int i = 0; i < teamSpawns[team].length; i++) {
@@ -176,6 +179,14 @@ public final class IUIManager {
                         Utils.spawnPlayer(player, spawns[teamSpawns[team][i0]]);
                     }
                 });
+            }
+        }
+        @Override
+        protected void onOpen(InventoryOpenEvent event) {
+            if(teamSpawns[team].length == 1 && event.getPlayer() instanceof final Player player) {
+                Utils.spawnPlayer(player, spawns[teamSpawns[team][0]]);
+            } else {
+                super.onOpen(event);
             }
         }
         @Override
